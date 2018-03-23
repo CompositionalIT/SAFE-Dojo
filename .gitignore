@@ -1,0 +1,6 @@
+.fake/
+obj/
+bin/
+packages/
+paket-files/
+.vs/

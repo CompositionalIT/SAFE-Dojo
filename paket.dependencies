@@ -1,0 +1,15 @@
+source https://api.nuget.org/v3/index.json
+
+nuget FSharp.Core
+nuget Saturn
+nuget Simple.Migrations
+nuget Microsoft.Data.Sqlite
+nuget Dapper
+
+clitool Microsoft.DotNet.Watcher.Tools
+clitool dotnet-saturn
+
+group Build
+  source https://api.nuget.org/v3/index.json
+
+  nuget FAKE
