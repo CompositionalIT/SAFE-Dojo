@@ -1,54 +1,53 @@
 module Router
 
-open Saturn
+open Apis
 open Giraffe
 open Microsoft.AspNetCore.Http
-open ApiWrappers
+open Saturn
 
-let browser = pipeline {
-    plug acceptHtml
-    plug putSecureBrowserHeaders
-    plug fetchSession
-    set_header "x-pipeline-type" "Browser"
-}
+module ApiRouter =
+    open Apis.GeoLocation
+    [<CLIMutable>]
+    type LocationQuery =
+        { Postcode : string }
 
-let defaultView = scope {
-    get "/" (htmlView Index.layout)
-    get "/index.html" (redirectTo false "/")
-    get "/default.html" (redirectTo false "/")
-}
+    // Replicate this function but for the crime endpoint and the weather endpoint
+    let getDistanceToLondon next (ctx : HttpContext) = task {
+        let! location = ctx.BindModelAsync<LocationQuery>()
+        let london = { Latitude = 51.5074; Longitude = 0.1278 }
+        let! latLngForPostcode = getLatLngForPostcode (Postcode location.Postcode) |> Async.StartAsTask
+        let distanceToLondon = getDistanceBetweenPositions latLngForPostcode london
+        return! json (sprintf "Distance to London from %s is %.2fKM" location.Postcode (distanceToLondon / 1000.)) next ctx }    
 
-let browserRouter = scope {
-    not_found_handler (htmlView NotFound.layout) //Use the default 404 webpage
-    pipe_through browser //Use the default browser pipeline
-    forward "" defaultView //Use the default view
-}
+    let apiRouter = scope {
+        pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
+        get "/distance" getDistanceToLondon
+        // Add in a new endpoint here which returns crime data for a postcode
+        // Add in a new endpoint here which returns weather data for a postcode
+    }
 
-[<CLIMutable>]
-type LocationQuery =
-    { Postcode : string }
 
-// Replicate this function but for the crime endpoint and the weather endpoint
-let getDistanceToLondon next (ctx : HttpContext) = task {
-    let! location = ctx.BindModelAsync<LocationQuery>()
-    let london = { Latitude = 51.5074; Longitude = 0.1278 }
-    let! latLngForPostcode = PostcodeApi.getLatLngForPostcode (Postcode location.Postcode) |> Async.StartAsTask
-    let distanceToLondonInMetres = DistanceCalculator.getDistanceBetweenPositions latLngForPostcode london
-    let distanceToLondon = distanceToLondonInMetres / 1000.
-    return! json (sprintf "Distance to London from %s is %.2fKM" location.Postcode distanceToLondon) next ctx }    
+module ViewRouter =
+    let browser = pipeline {
+        plug acceptHtml
+        plug putSecureBrowserHeaders
+        plug fetchSession
+        set_header "x-pipeline-type" "Browser"
+    }
 
-let api = pipeline {
-    set_header "x-pipeline-type" "Api"
-}
+    let defaultView = scope {
+        get "/" (htmlView Index.layout)
+        get "/index.html" (redirectTo false "/")
+        get "/default.html" (redirectTo false "/")
+    }
 
-let apiRouter = scope {
-    pipe_through api
-    get "/distance" getDistanceToLondon
-    // Add in a new endpoint here which returns crime data for a postcode
-    // Add in a new endpoint here which returns weather data for a postcode
-}
+    let browserRouter = scope {
+        not_found_handler (htmlView NotFound.layout) //Use the default 404 webpage
+        pipe_through browser //Use the default browser pipeline
+        forward "" defaultView //Use the default view
+    }
 
 let router = scope {
-    forward "/api" apiRouter
-    forward "" browserRouter
+    forward "/api" ApiRouter.apiRouter
+    forward "" ViewRouter.browserRouter
 }

@@ -1,42 +1,53 @@
-namespace ApiWrappers
+module Apis
 
-type Position =
+open Newtonsoft.Json
+open System
+
+type Location =
     { Latitude : float
       Longitude : float }
 
-type Postcode = Postcode of string
+let private getData<'T> (url : string) = async {
+    use  wc = new Net.WebClient()
+    let! data = url |> wc.DownloadStringTaskAsync |> Async.AwaitTask
+    return JsonConvert.DeserializeObject<'T>(data) }    
 
-module PostcodeApi =
-    type PostcodeApiPayload =
-        { Latitude : float
-          Longitude : float }
-
+module GeoLocation =
+    open FSharp.Data.UnitSystems.SI.UnitNames
+    type Postcode = Postcode of string
     type PostcodeApiWrapper =
         { Status : string
-          Result : PostcodeApiPayload }
+          Result : Location }
 
     let getLatLngForPostcode (Postcode postcode) = async {
-        let url = sprintf "http://api.postcodes.io/postcodes/%s" postcode
-        let wc = new System.Net.WebClient()
-        let! data = wc.DownloadStringTaskAsync(url) |> Async.AwaitTask
-        let postcode = Newtonsoft.Json.JsonConvert.DeserializeObject<PostcodeApiWrapper>(data)
-        return { Position.Latitude = postcode.Result.Latitude; Longitude = postcode.Result.Longitude } }
+        let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> getData<PostcodeApiWrapper>
+        return postcode.Result }
 
-module PoliceApi =
+    let getDistanceBetweenPositions pos1 pos2 =
+        let lat1, lng1 = pos1.Latitude, pos1.Longitude
+        let lat2, lng2 = pos2.Latitude, pos2.Longitude
+        let inline degreesToRadians degrees = System.Math.PI * float degrees / 180.0
+        let R = 6371000.0
+        let phi1 = degreesToRadians lat1
+        let phi2 = degreesToRadians lat2
+        let deltaPhi = degreesToRadians (lat2 - lat1)
+        let deltaLambda = degreesToRadians (lng2 - lng1)
+        let a = sin (deltaPhi / 2.0) * sin (deltaPhi / 2.0) + cos phi1 * cos phi2 * sin (deltaLambda / 2.0) * sin (deltaLambda / 2.0)
+        let c = 2.0 * atan2 (sqrt a) (sqrt (1.0 - a))
+        R * c * 1.<meter>
+
+module Crime =
     type CrimeIncident =
         { category : string
           id : int
           month : string
-          Location : Position }
+          Location : Location }
 
-    let getCrimesNearPosition { Position.Latitude = lat; Longitude = lng } = async {
-        let url = sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" lat lng
-        let wc = new System.Net.WebClient()
-        let! data = wc.DownloadStringTaskAsync(url) |> Async.AwaitTask
-        let crimes = Newtonsoft.Json.JsonConvert.DeserializeObject<CrimeIncident []>(data)
-        return crimes }
+    let getCrimesNearPosition location =
+        sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" location.Latitude location.Longitude
+        |> getData<CrimeIncident array>
 
-module WeatherApi =
+module Weather =
     type WeatherLocationResponse =
         { Title : string
           WoeId : string
@@ -54,26 +65,12 @@ module WeatherApi =
           sun_set : System.DateTime
           consolidated_weather : WeatherReading [] }      
 
-    let getWeatherForPosition { Position.Latitude = lat; Longitude = lng } = async {
-        let locationUrl = sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f" lat lng
-        let wc = new System.Net.WebClient()
-        let! locationData = wc.DownloadStringTaskAsync(locationUrl) |> Async.AwaitTask
-        let locations = Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherLocationResponse []>(locationData)
+    let getWeatherForPosition location = async {
+        let! locations =
+            sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f" location.Latitude location.Longitude
+            |> getData<WeatherLocationResponse array>
         let bestLocationId = locations |> Array.sortBy (fun t -> t.Distance) |> Array.map (fun o -> o.WoeId) |> Array.head
-        let weatherUrl = sprintf "https://www.metaweather.com/api/location/%s" bestLocationId
-        let! weatherData = wc.DownloadStringTaskAsync(weatherUrl) |> Async.AwaitTask
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<WeatherApiResponse>(weatherData) }
-
-module DistanceCalculator =
-    let getDistanceBetweenPositions pos1 pos2 =
-        let lat1, lng1 = pos1.Latitude, pos1.Longitude
-        let lat2, lng2 = pos2.Latitude, pos2.Longitude
-        let inline degreesToRadians degrees = System.Math.PI * float degrees / 180.0
-        let R = 6371000.0
-        let phi1 = degreesToRadians lat1
-        let phi2 = degreesToRadians lat2
-        let deltaPhi = degreesToRadians (lat2 - lat1)
-        let deltaLambda = degreesToRadians (lng2 - lng1)
-        let a = sin (deltaPhi / 2.0) * sin (deltaPhi / 2.0) + cos phi1 * cos phi2 * sin (deltaLambda / 2.0) * sin (deltaLambda / 2.0)
-        let c = 2.0 * atan2 (sqrt a) (sqrt (1.0 - a))
-        R * c
+        return!
+            bestLocationId
+            |> sprintf "https://www.metaweather.com/api/location/%s"
+            |> getData<WeatherApiResponse> }
