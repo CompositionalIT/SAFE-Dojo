@@ -2,11 +2,8 @@ module Apis
 
 open FSharp.Control.Tasks
 open Newtonsoft.Json
+open Shared
 open System
-
-type Location =
-    { Latitude : float
-      Longitude : float }
 
 let private getData<'T> (url : string) = task {
     use  wc = new Net.WebClient()
@@ -15,12 +12,11 @@ let private getData<'T> (url : string) = task {
 
 module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
-    type Postcode = Postcode of string
     type PostcodeApiWrapper =
         { Status : string
           Result : Location }
 
-    let getLocation (Postcode postcode) = task {
+    let getLocation postcode = task {
         let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> getData<PostcodeApiWrapper>
         return postcode.Result }
 
@@ -64,33 +60,6 @@ module Weather =
         { sun_rise : System.DateTime
           sun_set : System.DateTime
           consolidated_weather : WeatherReading [] }      
-
-    type WeatherType =
-        | Snow
-        | Sleet
-        | Hail
-        | Thunderstorm
-        | HeavyRain
-        | LightRain
-        | Showers
-        | HeavyCloud
-        | LightCloud
-        | Clear
-        static member Parse =
-            let weatherTypes = FSharp.Reflection.FSharpType.GetUnionCases typeof<WeatherType>
-            fun s -> weatherTypes |> Array.find(fun w -> w.Name = s) |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
-        member this.Abbreviation =
-            match this with
-            | Snow -> "sn"
-            | Sleet -> "s"
-            | Hail -> "h"
-            | Thunderstorm -> "t"
-            | HeavyRain -> "hr"
-            | LightRain -> "lr"
-            | Showers -> "s"
-            | HeavyCloud -> "hc"
-            | LightCloud -> "lc"
-            | Clear -> "c"
 
     let getWeatherForPosition location = task {
         let! locations =

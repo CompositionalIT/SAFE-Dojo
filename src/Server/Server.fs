@@ -1,7 +1,8 @@
 open Apis
-open Giraffe
 open FSharp.Data.UnitSystems.SI.UnitNames
+open Giraffe
 open Microsoft.AspNetCore.Http
+open Shared
 open Saturn
 open System.IO
 
@@ -10,22 +11,17 @@ let port = 8085us
 
 module ApiRouter =
     open Apis.GeoLocation
-    [<CLIMutable>]
-    type Postcode = { Postcode : string }
-    type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
-    type CrimeResponse = { Crime : string; Incidents : int }
-    type WeatherResponse = { Description : string; AverageTemperature : float }
     let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 
     let getDistanceFromLondon next (ctx : HttpContext) = task {
         let! postcode = ctx.BindModelAsync<Postcode>()
-        let! location = getLocation (Postcode postcode.Postcode)
+        let! location = getLocation postcode.Postcode
         let distanceToLondon = getDistanceBetweenPositions location london
         return! json { Postcode = postcode.Postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx }    
 
     let getCrimeReport next (ctx:HttpContext) = task {
         let! postcode = ctx.BindModelAsync<Postcode>()
-        let! location = getLocation (Postcode postcode.Postcode)
+        let! location = getLocation postcode.Postcode
         let! reports = Crime.getCrimesNearPosition location
         let crimes =
             reports
@@ -36,7 +32,7 @@ module ApiRouter =
 
     let getWeatherForPosition next (ctx:HttpContext) = task {
         let! postcode = ctx.BindModelAsync<Postcode>()
-        let! location = getLocation (Postcode postcode.Postcode)
+        let! location = getLocation postcode.Postcode
         let! weather = Weather.getWeatherForPosition location
         let response =
             { WeatherResponse.Description =
