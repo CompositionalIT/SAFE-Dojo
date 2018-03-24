@@ -13,35 +13,26 @@ open Fulma
 open Fulma.Layouts
 open Fulma.Elements
 open Fulma.Elements.Form
+open Fulma.Extra.FontAwesome
 open Fulma.Components
 open Fulma.BulmaClasses
 
-
-type Model = Counter option
+type Model = obj option
 
 type Msg =
 | Increment
 | Decrement
-| Init of Result<Counter, exn>
-
-
+| Init
 
 let init () = 
-  let model = None
-  let cmd =
-    Cmd.ofPromise 
-      (fetchAs<int> "/api/init") 
-      [] 
-      (Ok >> Init) 
-      (Error >> Init)
-  model, cmd
+  None, Cmd.ofMsg Init
 
 let update msg (model : Model) =
   let model' =
     match model,  msg with
-    | Some x, Increment -> Some (x + 1)
-    | Some x, Decrement -> Some (x - 1)
-    | None, Init (Ok x) -> Some x
+    | Some _, Increment -> Some (obj())
+    | Some _, Decrement -> Some (obj())
+    | None, Init -> Some (obj())
     | _ -> None
   model', Cmd.none
 
@@ -78,19 +69,29 @@ let button txt onClick =
       Button.OnClick onClick ] 
     [ str txt ]
 
+let label txt = Label.label [] [ str txt ]
+
 let view model dispatch =
   div []
     [ Navbar.navbar [ Navbar.Color IsPrimary ]
         [ Navbar.Item.div [ ]
             [ Heading.h2 [ ]
-                [ str "SAFE Template" ] ] ]
+                [ str "Location Review!" ] ] ]
 
       Container.container []
-        [ Content.content [ Content.CustomClass Bulma.Properties.Alignment.HasTextCentered ] 
-            [ Heading.h3 [] [ str ("Press buttons to manipulate counter: " + show model) ] ]
-          Columns.columns [] 
-            [ Column.column [] [ button "-" (fun _ -> dispatch Decrement) ]
-              Column.column [] [ button "+" (fun _ -> dispatch Increment) ] ] ]
+        [
+              Field.div [ ]
+                   [ Label.label [ ] [ str "Postcode" ]
+                     Control.div [ Control.HasIconLeft
+                                   Control.HasIconRight ]
+                                 [ Input.text [ Input.Placeholder "Ex: EC2A4NE" ]
+                                   Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
+                                   Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Check ] ]
+                     Help.help [ Help.Color IsSuccess ] [ str "This postcode is valid!" ] ]
+              // Control area (submit, cancel, etc.)
+              Field.div [ Field.IsGrouped ]
+                [ Control.div [ ] [ button "Submit" ignore ] ]
+        ]
     
       Footer.footer [ ]
         [ Content.content [ Content.CustomClass Bulma.Properties.Alignment.HasTextCentered ]
