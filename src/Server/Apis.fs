@@ -1,5 +1,6 @@
 module Apis
 
+open FSharp.Control.Tasks
 open Newtonsoft.Json
 open System
 
@@ -7,9 +8,9 @@ type Location =
     { Latitude : float
       Longitude : float }
 
-let private getData<'T> (url : string) = async {
+let private getData<'T> (url : string) = task {
     use  wc = new Net.WebClient()
-    let! data = url |> wc.DownloadStringTaskAsync |> Async.AwaitTask
+    let! data = url |> wc.DownloadStringTaskAsync
     return JsonConvert.DeserializeObject<'T> data }    
 
 module GeoLocation =
@@ -19,7 +20,7 @@ module GeoLocation =
         { Status : string
           Result : Location }
 
-    let getLatLngForPostcode (Postcode postcode) = async {
+    let getLocation (Postcode postcode) = task {
         let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> getData<PostcodeApiWrapper>
         return postcode.Result }
 
@@ -42,7 +43,6 @@ module Crime =
           id : int
           month : string
           Location : Location }
-
     let getCrimesNearPosition location =
         sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" location.Latitude location.Longitude
         |> getData<CrimeIncident array>
@@ -65,7 +65,34 @@ module Weather =
           sun_set : System.DateTime
           consolidated_weather : WeatherReading [] }      
 
-    let getWeatherForPosition location = async {
+    type WeatherType =
+        | Snow
+        | Sleet
+        | Hail
+        | Thunderstorm
+        | HeavyRain
+        | LightRain
+        | Showers
+        | HeavyCloud
+        | LightCloud
+        | Clear
+        static member Parse =
+            let weatherTypes = FSharp.Reflection.FSharpType.GetUnionCases typeof<WeatherType>
+            fun s -> weatherTypes |> Array.find(fun w -> w.Name = s) |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
+        member this.Abbreviation =
+            match this with
+            | Snow -> "sn"
+            | Sleet -> "s"
+            | Hail -> "h"
+            | Thunderstorm -> "t"
+            | HeavyRain -> "hr"
+            | LightRain -> "lr"
+            | Showers -> "s"
+            | HeavyCloud -> "hc"
+            | LightCloud -> "lc"
+            | Clear -> "c"
+
+    let getWeatherForPosition location = task {
         let! locations =
             sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f" location.Latitude location.Longitude
             |> getData<WeatherLocationResponse array>

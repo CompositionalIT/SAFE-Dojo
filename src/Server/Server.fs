@@ -1,10 +1,9 @@
-open System.IO
 open Apis
-open FSharp.Data.UnitSystems.SI.UnitNames
 open Giraffe
+open FSharp.Data.UnitSystems.SI.UnitNames
 open Microsoft.AspNetCore.Http
 open Saturn
-open Shared
+open System.IO
 
 let clientPath = Path.Combine("..","Client") |> Path.GetFullPath
 let port = 8085us
@@ -12,22 +11,46 @@ let port = 8085us
 module ApiRouter =
     open Apis.GeoLocation
     [<CLIMutable>]
-    type LocationRequest = { Postcode : string }
-    type LocationResponse = { Postcode : string; DistanceToLondon : float }
+    type Postcode = { Postcode : string }
+    type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
+    type CrimeResponse = { Crime : string; Incidents : int }
+    type WeatherResponse = { Description : string; AverageTemperature : float }
     let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 
-    // Replicate this function but for the crime endpoint and the weather endpoint
-    let getDistanceToLondon next (ctx : HttpContext) = task {
-        let! location = ctx.BindModelAsync<LocationRequest>()
-        let! latLngForPostcode = getLatLngForPostcode (Postcode location.Postcode) |> Async.StartAsTask
-        let distanceToLondon = getDistanceBetweenPositions latLngForPostcode london
-        return! json { Postcode = location.Postcode; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx }    
+    let getDistanceFromLondon next (ctx : HttpContext) = task {
+        let! postcode = ctx.BindModelAsync<Postcode>()
+        let! location = getLocation (Postcode postcode.Postcode)
+        let distanceToLondon = getDistanceBetweenPositions location london
+        return! json { Postcode = postcode.Postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx }    
+
+    let getCrimeReport next (ctx:HttpContext) = task {
+        let! postcode = ctx.BindModelAsync<Postcode>()
+        let! location = getLocation (Postcode postcode.Postcode)
+        let! reports = Crime.getCrimesNearPosition location
+        let crimes =
+            reports
+            |> Array.countBy(fun r -> r.category)
+            |> Array.sortByDescending snd
+            |> Array.map(fun (k, c) -> { Crime = k; Incidents = c })
+        return! json crimes next ctx }
+
+    let getWeatherForPosition next (ctx:HttpContext) = task {
+        let! postcode = ctx.BindModelAsync<Postcode>()
+        let! location = getLocation (Postcode postcode.Postcode)
+        let! weather = Weather.getWeatherForPosition location
+        let response =
+            { WeatherResponse.Description =
+                weather.consolidated_weather
+                |> Array.maxBy(fun w -> w.weather_state_name)
+                |> fun w -> w.weather_state_name
+              AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
+        return! json response next ctx }
 
     let apiRouter = scope {
         pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
-        get "/distance" getDistanceToLondon
-        // Add in a new endpoint here which returns crime data for a postcode
-        // Add in a new endpoint here which returns weather data for a postcode
+        get "/distance" getDistanceFromLondon
+        get "/crime" getCrimeReport
+        get "/weather" getWeatherForPosition
     }
 
 let browserRouter = scope {
