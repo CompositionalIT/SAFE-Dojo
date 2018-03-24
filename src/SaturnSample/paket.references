@@ -1,8 +1,2 @@
-FSharp.Core
 Saturn
-
-Dapper
-Microsoft.Data.Sqlite
-
 Microsoft.DotNet.Watcher.Tools
-dotnet-saturn
