@@ -3,4 +3,5 @@ obj/
 bin/
 packages/
 paket-files/
-.vs/
+node_modules/
+src/Client/public/

@@ -1,0 +1,6 @@
+group Client
+Fable.Elmish.Debugger
+Fable.Elmish.React
+Fable.Elmish.HMR
+dotnet-fable
+Fulma
