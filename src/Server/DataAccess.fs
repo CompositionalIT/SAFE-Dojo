@@ -1,4 +1,4 @@
-module Apis
+module DataAccess
 
 open FSharp.Control.Tasks
 open Newtonsoft.Json
@@ -10,6 +10,7 @@ let private getData<'T> (url : string) = task {
     let! data = url |> wc.DownloadStringTaskAsync
     return JsonConvert.DeserializeObject<'T> data }    
 
+[<AutoOpen>]
 module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
     type PostcodeApiWrapper =
@@ -33,6 +34,7 @@ module GeoLocation =
         let c = 2.0 * atan2 (sqrt a) (sqrt (1.0 - a))
         R * c * 1.<meter>
 
+[<AutoOpen>]
 module Crime =
     type CrimeIncident =
         { category : string
@@ -43,6 +45,7 @@ module Crime =
         sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" location.Latitude location.Longitude
         |> getData<CrimeIncident array>
 
+[<AutoOpen>]
 module Weather =
     type WeatherLocationResponse =
         { Title : string

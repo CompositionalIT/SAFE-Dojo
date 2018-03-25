@@ -1,11 +1,10 @@
 module App
 
-open Fable.Core.JsInterop
+open Elmish
 
+open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
-
-open Elmish
 
 open Fulma
 open Fulma.Layouts
@@ -36,7 +35,7 @@ let update msg (model : Model) =
   model, Cmd.none
 
 [<AutoOpen>]
-module Helpers =
+module ViewHelpers =
     let button txt onClick = 
       Button.button
         [ Button.IsFullwidth

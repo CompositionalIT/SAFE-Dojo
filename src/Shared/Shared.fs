@@ -1,7 +1,5 @@
 namespace Shared
 
-[<CLIMutable>]
-type Postcode = { Postcode : string }
 type Location =
     { Latitude : float
       Longitude : float }
