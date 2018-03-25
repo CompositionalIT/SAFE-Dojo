@@ -63,7 +63,7 @@ module ViewHelpers =
         |> span [ ]
 
       p [ ]
-        [ strong [] [ a [ Href "https://http://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
+        [ strong [] [ a [ Href "https://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
           str " powered by: "
           components ]
 
