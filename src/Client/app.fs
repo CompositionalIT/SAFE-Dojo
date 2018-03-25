@@ -15,6 +15,7 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
+open Fable.PowerPack
 
 /// The data model driving the view
 type Model =
@@ -25,47 +26,16 @@ type Model =
 type Msg =
 | GetReport
 | PostcodeChanged of string
+| GotReport of LocationResponse
+| Error of exn
 
 /// The update function knows how to update the model given a message
 let update msg (model : Model) =
-  let model =
-    match model,  msg with
-    | _, GetReport _ -> model
-    | m, PostcodeChanged p -> { m with Postcode = p.ToUpper() }
-  model, Cmd.none
-
-[<AutoOpen>]
-module ViewHelpers =
-    let button txt onClick = 
-      Button.button
-        [ Button.IsFullwidth
-          Button.Color IsPrimary
-          Button.OnClick onClick ] 
-        [ str txt ]
-
-    let label txt = Label.label [] [ str txt ]
-
-    let safeComponents =
-      let intersperse sep ls =
-        List.foldBack (fun x -> function
-          | [] -> [x]
-          | xs -> x::sep::xs) ls []
-
-      let components =
-        [
-          "Saturn", "https://saturnframework.github.io/docs/"
-          "Fable", "http://fable.io"
-          "Elmish", "https://fable-elmish.github.io/"
-          "Fulma", "https://mangelmaxime.github.io/Fulma" 
-        ]
-        |> List.map (fun (desc,link) -> a [ Href link ] [ str desc ] )
-        |> intersperse (str ", ")
-        |> span [ ]
-
-      p [ ]
-        [ strong [] [ a [ Href "https://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
-          str " powered by: "
-          components ]
+  match model,  msg with
+  | _, GetReport _ -> model, Cmd.ofPromise (Fetch.fetchAs<LocationResponse> "/api/distance/EC2A4NE") [] GotReport Error
+  | m, PostcodeChanged p -> { m with Postcode = p.ToUpper() }, Cmd.none
+  | _, Error _ -> model, Cmd.none
+  | m, GotReport response -> { m with Response = Some response.Location }, Cmd.none
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
@@ -87,7 +57,12 @@ let view model dispatch =
                      Help.help [ Help.Color IsSuccess ] [ str "This postcode is valid!" ] ]
 
               Field.div [ Field.IsGrouped ]
-                [ Control.div [ ] [ button "Submit" (fun _ -> dispatch GetReport) ] ]
+                [ Control.div [ ] [ btn "Submit" (fun _ -> dispatch GetReport) ] ]
+
+              Field.div []
+                (match model with
+                 | { Response = None } -> []
+                 | { Response = Some location } -> [ lbl (location.ToString()) ] )
         ]
     
       Footer.footer [ ]

@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Shared/Shared.fs" />
+    <Compile Include="ViewHelpers.fs" />
     <Compile Include="app.fs" />
     <Compile Include="Client.fs" />
   </ItemGroup>

@@ -2,6 +2,7 @@ group Server
   source https://api.nuget.org/v3/index.json
 
   nuget Saturn
+  nuget Fable.JsonConverter
   clitool Microsoft.DotNet.Watcher.Tools
 
 group Client
