@@ -5,13 +5,18 @@ open FSharp.Data.UnitSystems.SI.UnitNames
 open Giraffe
 open Saturn
 open Shared
+open Microsoft.AspNetCore.Http
 
 let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 
-let getDistanceFromLondon postcode next ctx = task {
-    let! location = getLocation postcode
-    let distanceToLondon = getDistanceBetweenPositions location london
-    return! json { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx }    
+let getDistanceFromLondon postcode next (ctx:HttpContext) = task {
+    if Validation.validatePostcode postcode then
+        let! location = getLocation postcode
+        let distanceToLondon = getDistanceBetweenPositions location london
+        return! json { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
+    else
+        ctx.SetStatusCode 400
+        return! text "Invalid postcode" next ctx }
 
 let getCrimeReport postcode next ctx = task {
     let! location = getLocation postcode

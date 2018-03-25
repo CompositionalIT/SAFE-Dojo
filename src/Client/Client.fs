@@ -5,7 +5,7 @@ open Elmish.React
 open App
 
 let init () = 
-  { Postcode = null; Response = None }, Cmd.none
+  { Postcode = null; Response = None; ValidationError = None }, Cmd.none
  
 #if DEBUG
 open Elmish.Debug
