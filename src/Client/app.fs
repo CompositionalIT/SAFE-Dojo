@@ -21,6 +21,7 @@ open Fable.PowerPack
 type Model =
   { Postcode : string
     ValidationError : string option
+    ServerError : string option
     Response : Location option }
 
 /// The different types of messages in the system
@@ -33,17 +34,24 @@ type Msg =
 /// The update function knows how to update the model given a message
 let update msg model =
   match model, msg with
-  | { ValidationError = None; Postcode = postcode }, GetReport -> model, Cmd.ofPromise (Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)) [] GotReport ErrorMsg
+  | { ValidationError = None; Postcode = postcode }, GetReport ->
+    model, Cmd.ofPromise (Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)) [] GotReport ErrorMsg
   | _, GetReport -> model, Cmd.none
-  | _, GotReport response -> { model with Response = Some response.Location }, Cmd.none
+  | _, GotReport response ->
+    { model with
+        ValidationError = None
+        Response = Some response.Location
+        ServerError = None }, Cmd.none
   | _, PostcodeChanged p ->
     let p = p.ToUpper()
     { model with
         Postcode = p
         ValidationError =
           if Shared.Validation.validatePostcode p then None
-          else Some "Invalid postcode." }, Cmd.none
-  | _, ErrorMsg _ -> model, Cmd.none
+          else Some "Invalid postcode."
+        ServerError = None        
+        Response = None }, Cmd.none
+  | _, ErrorMsg e -> { model with ServerError = Some e.Message }, Cmd.none
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
@@ -67,11 +75,15 @@ let view model dispatch =
                       [ str (model.ValidationError |> Option.defaultValue "") ] ]
 
               Field.div [ Field.IsGrouped ]
-                [ Control.div [ ] [ btn "Submit" (fun _ -> dispatch GetReport) ] ]
+                [ Control.div [ ]
+                    [ Button.button
+                        [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled model.ValidationError.IsSome ]
+                        [ str "Submit" ] ] ]
 
               Field.div []
                 (match model with
-                 | { Response = None } -> []
+                 | { Response = None; ServerError = None; } -> []
+                 | { ServerError = Some error } -> [ lbl error ]
                  | { Response = Some location } -> [ lbl (location.ToString()) ] )
         ]
     
