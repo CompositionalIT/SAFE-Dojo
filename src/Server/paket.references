@@ -1,2 +1,4 @@
+group Server
+Fable.JsonConverter
 Saturn
 Microsoft.DotNet.Watcher.Tools

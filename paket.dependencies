@@ -1,8 +1,21 @@
-source https://api.nuget.org/v3/index.json
+group Server
+  source https://api.nuget.org/v3/index.json
 
-nuget Saturn
+  nuget Saturn
+  nuget Fable.JsonConverter
+  clitool Microsoft.DotNet.Watcher.Tools
 
-clitool Microsoft.DotNet.Watcher.Tools
+group Client
+  source https://api.nuget.org/v3/index.json
+
+  nuget Fable.Elmish.Debugger
+  nuget Fable.Elmish.React
+  nuget Fable.Elmish.HMR
+  nuget Fulma 1.0.0-beta-007
+
+  clitool dotnet-fable
+
 group Build
   source https://api.nuget.org/v3/index.json
+
   nuget FAKE
