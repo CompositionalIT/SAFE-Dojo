@@ -8,7 +8,7 @@ open System
 let private getData<'T> (url : string) = task {
     use  wc = new Net.WebClient()
     let! data = url |> wc.DownloadStringTaskAsync
-    return JsonConvert.DeserializeObject<'T> data }    
+    return JsonConvert.DeserializeObject<'T> data }
 
 [<AutoOpen>]
 module GeoLocation =
@@ -62,7 +62,7 @@ module Weather =
     type WeatherApiResponse =
         { sun_rise : System.DateTime
           sun_set : System.DateTime
-          consolidated_weather : WeatherReading [] }      
+          consolidated_weather : WeatherReading [] }
 
     let getWeatherForPosition location = task {
         let! locations =
