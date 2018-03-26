@@ -8,6 +8,17 @@ open Fulma
 open Fulma.Elements
 open Fulma.Elements.Form
 
+module KeyCode =
+    let enter = 13.
+    let upArrow = 38.
+    let downArrow =  40.
+
+let onKeyDown keyCode action =
+    OnKeyDown (fun (ev:Fable.Import.React.KeyboardEvent) ->
+        if ev.keyCode = keyCode then
+            ev.preventDefault()
+            action ev)
+
 let btn txt onClick = 
     Button.button
         [ Button.IsFullwidth
