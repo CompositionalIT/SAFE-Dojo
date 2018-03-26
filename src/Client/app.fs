@@ -16,6 +16,7 @@ open Fulma.BulmaClasses
 
 open Shared
 open Fable.PowerPack
+open Elmish
 
 /// The data model driving the view
 type Report =
@@ -23,10 +24,12 @@ type Report =
       Crimes : CrimeResponse array
       Weather : WeatherResponse }
 
+type ServerState = Idle | Loading | ServerError of string
+
 type Model =
     { Postcode : string
       ValidationError : string option
-      ServerError : string option
+      ServerState : ServerState
       Report : Report option }
 
 /// The different types of messages in the system
@@ -41,7 +44,7 @@ let init () =
     { Postcode = null
       Report = None
       ValidationError = None
-      ServerError = None }, Cmd.none
+      ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
@@ -52,13 +55,14 @@ let getResponse postcode = promise {
 /// The update function knows how to update the model given a message.
 let update msg model =
     match model, msg with
-    | { ValidationError = None; Postcode = postcode }, GetReport -> model, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
+    | { ValidationError = None; Postcode = postcode }, GetReport ->
+        { model with ServerState = Loading }, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
     | _, GetReport -> model, Cmd.none
     | _, GotReport response ->
         { model with
             ValidationError = None
             Report = Some response
-            ServerError = None }, Cmd.none
+            ServerState = Idle }, Cmd.none
     | _, PostcodeChanged p ->
         let p = p.ToUpper()
         { model with
@@ -66,9 +70,9 @@ let update msg model =
             ValidationError =
               if Validation.validatePostcode p then None
               else Some "Invalid postcode."
-            ServerError = None
+            ServerState = Idle
             Report = None }, Cmd.none
-    | _, ErrorMsg e -> { model with ServerError = Some e.Message }, Cmd.none
+    | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
@@ -85,7 +89,11 @@ let view model dispatch =
                     Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
                         Input.text [ Input.Placeholder "Ex: EC2A 4NE"; Input.Value model.Postcode; Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
-                        Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ (match model.ValidationError with Some _ -> Fa.icon Fa.I.Exclamation | _ -> Fa.icon Fa.I.Check) ] ]
+                        (match model with
+                         | { ServerState = Loading } -> span [ Class "icon is-small is-right" ] [ i [ Class "fa fa-spinner faa-spin animated" ] [] ] 
+                         | { ValidationError = Some _ } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Exclamation ]
+                         | { ValidationError = None } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Check ])
+                    ]
                     Help.help
                        [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
                        [ str (model.ValidationError |> Option.defaultValue "") ]
@@ -97,16 +105,26 @@ let view model dispatch =
                             [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled model.ValidationError.IsSome ]
                             [ str "Submit" ] ] 
                 ]
+
             match model with
-            | { Report = None; ServerError = None; } -> ()
-            | { ServerError = Some error } -> yield Field.div [] [ lbl error ]
+            | { Report = None; ServerState = (Idle | Loading) } -> ()
+            | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
             | { Report = Some model } ->
-                yield 
-                    Field.div [] [
-                        iframe [
-                            Style [ Width 500; Height 400 ]
-                            Src (sprintf "https://www.bing.com/maps/embed?h=400&w=500&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.Latitude model.Location.Location.Longitude) ] []
-                    ]
+                yield
+                    Card.card [ ] [
+                        Card.header [ ] [
+                            Card.Header.title [ Card.Header.Title.IsCentered ] [ str (sprintf "%s (%s - %s)" model.Location.Postcode model.Location.Location.Region model.Location.Location.Town) ]
+                            Card.Header.icon [ ] [ i [ ClassName "fa fa-address-card" ] [ ] ]
+                            ]
+                        Card.content [ ] [
+                            Content.content [ ]
+                                [ iframe [
+                                    Style [ Height 310; Width 410 ]
+                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude) ]
+                                    []
+                                ]
+                            ]
+                        ]
         ]
 
         Footer.footer [] [

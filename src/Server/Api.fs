@@ -12,7 +12,7 @@ let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 let getDistanceFromLondon postcode next (ctx:HttpContext) = task {
     if Validation.validatePostcode postcode then
         let! location = getLocation postcode
-        let distanceToLondon = getDistanceBetweenPositions location london
+        let distanceToLondon = getDistanceBetweenPositions location.LatLong london
         return! json { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
     else
         ctx.SetStatusCode 400
@@ -20,7 +20,7 @@ let getDistanceFromLondon postcode next (ctx:HttpContext) = task {
 
 let getCrimeReport postcode next ctx = task {
     let! location = getLocation postcode
-    let! reports = Crime.getCrimesNearPosition location
+    let! reports = Crime.getCrimesNearPosition location.LatLong
     let crimes =
         reports
         |> Array.countBy(fun r -> r.category)
@@ -30,7 +30,7 @@ let getCrimeReport postcode next ctx = task {
 
 let getWeatherForPosition postcode next ctx= task {
     let! location = getLocation postcode
-    let! weather = Weather.getWeatherForPosition location
+    let! weather = Weather.getWeatherForPosition location.LatLong
     let response =
         { WeatherResponse.Description =
             weather.consolidated_weather
