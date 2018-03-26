@@ -15,7 +15,7 @@ let mainRouter = scope {
   forward "/api" apiRouter
   forward "" browserRouter }
 
-let config (services:Microsoft.Extensions.DependencyInjection.IServiceCollection) =
+let config (services:IServiceCollection) =
   let fableJsonSettings = Newtonsoft.Json.JsonSerializerSettings()
   fableJsonSettings.Converters.Add(Fable.JsonConverter())
   services.AddSingleton<IJsonSerializer>(NewtonsoftJsonSerializer fableJsonSettings) |> ignore

@@ -26,6 +26,7 @@ type WeatherType =
         | Snow -> "sn" | Sleet -> "s" | Hail -> "h" | Thunderstorm -> "t" | HeavyRain -> "hr"
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
+/// Provides validation on data. Shared across both client and server.
 module Validation =
     open System.Text.RegularExpressions
     let validatePostcode postcode =

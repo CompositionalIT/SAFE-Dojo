@@ -18,29 +18,39 @@ open Shared
 open Fable.PowerPack
 
 /// The data model driving the view
+type Report =
+  { Location : LocationResponse
+    Crimes : CrimeResponse array
+    Weather : WeatherResponse }
+
 type Model =
   { Postcode : string
     ValidationError : string option
     ServerError : string option
-    Response : Location option }
+    Report : Report option }
 
 /// The different types of messages in the system
 type Msg =
 | GetReport
 | PostcodeChanged of string
-| GotReport of LocationResponse
+| GotReport of Report
 | ErrorMsg of exn
+
+let getResponse postcode = promise {
+  let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
+  let! crimes = Fetch.fetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) []
+  let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
+  return { Location = location; Crimes = crimes; Weather = weather } }
 
 /// The update function knows how to update the model given a message
 let update msg model =
   match model, msg with
-  | { ValidationError = None; Postcode = postcode }, GetReport ->
-    model, Cmd.ofPromise (Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)) [] GotReport ErrorMsg
+  | { ValidationError = None; Postcode = postcode }, GetReport -> model, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
   | _, GetReport -> model, Cmd.none
   | _, GotReport response ->
     { model with
         ValidationError = None
-        Response = Some response.Location
+        Report = Some response
         ServerError = None }, Cmd.none
   | _, PostcodeChanged p ->
     let p = p.ToUpper()
@@ -50,7 +60,7 @@ let update msg model =
           if Shared.Validation.validatePostcode p then None
           else Some "Invalid postcode."
         ServerError = None        
-        Response = None }, Cmd.none
+        Report = None }, Cmd.none
   | _, ErrorMsg e -> { model with ServerError = Some e.Message }, Cmd.none
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
@@ -82,9 +92,9 @@ let view model dispatch =
 
               Field.div []
                 (match model with
-                 | { Response = None; ServerError = None; } -> []
+                 | { Report = None; ServerError = None; } -> []
                  | { ServerError = Some error } -> [ lbl error ]
-                 | { Response = Some location } -> [ lbl (location.ToString()) ] )
+                 | { Report = Some report } -> [ lbl (report.ToString()) ] )
         ]
     
       Footer.footer [ ]
