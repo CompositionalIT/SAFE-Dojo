@@ -105,7 +105,10 @@ let view model dispatch =
                 Field.div [] [
                     Label.label [] [ str "Postcode" ]
                     Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
-                        Input.text [ Input.Placeholder "Ex: EC2A 4NE"; Input.Value model.Postcode; Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)) ] ]
+                        Input.text
+                            [ Input.Placeholder "Ex: EC2A 4NE"
+                              Input.Value model.Postcode
+                              Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
                         (match model with
                          | { ServerState = Loading } -> span [ Class "icon is-small is-right" ] [ i [ Class "fa fa-spinner faa-spin animated" ] [] ] 
