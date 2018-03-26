@@ -5,6 +5,7 @@ open Elmish
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
+open Fable.PowerPack
 
 open Fulma
 open Fulma.Layouts
@@ -15,8 +16,6 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open Fable.PowerPack
-open Elmish
 
 /// The data model driving the view
 type Report =
@@ -110,6 +109,7 @@ let view model dispatch =
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
             | { Report = Some model } ->
+                let latit, longit = model.Location.Location.LatLong.Latitude, model.Location.Location.LatLong.Longitude
                 yield
                     Card.card [ ] [
                         Card.header [ ] [
@@ -120,7 +120,7 @@ let view model dispatch =
                             Content.content [ ]
                                 [ iframe [
                                     Style [ Height 310; Width 410 ]
-                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude) ]
+                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=16&style=r&" latit longit) ]
                                     []
                                 ]
                             ]
