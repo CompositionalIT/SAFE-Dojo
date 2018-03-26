@@ -36,13 +36,20 @@ type Msg =
 | GotReport of Report
 | ErrorMsg of exn
 
+/// The init function is called to start the message pump with an initial view.
+let init () = 
+  { Postcode = null
+    Report = None
+    ValidationError = None
+    ServerError = None }, Cmd.none
+
 let getResponse postcode = promise {
   let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
   let! crimes = Fetch.fetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) []
   let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
   return { Location = location; Crimes = crimes; Weather = weather } }
-
-/// The update function knows how to update the model given a message
+ 
+/// The update function knows how to update the model given a message.
 let update msg model =
   match model, msg with
   | { ValidationError = None; Postcode = postcode }, GetReport -> model, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
@@ -57,7 +64,7 @@ let update msg model =
     { model with
         Postcode = p
         ValidationError =
-          if Shared.Validation.validatePostcode p then None
+          if Validation.validatePostcode p then None
           else Some "Invalid postcode."
         ServerError = None        
         Report = None }, Cmd.none
