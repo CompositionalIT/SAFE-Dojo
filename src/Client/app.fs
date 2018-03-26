@@ -100,6 +100,12 @@ let view model dispatch =
                       iframe [
                         Style [ Width 500; Height 400 ]
                         Src (sprintf "https://www.bing.com/maps/embed?h=400&w=500&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.Latitude model.Location.Location.Longitude) ] [ ]
+                      div [  ] [
+                        Image.image [Image.Is128x128] [
+                          img [Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation)]
+                        ]
+                        sprintf "The temperature is currently %.1f°C" model.Weather.AverageTemperature |> str
+                      ]
                     ]
                   ])
         ]
