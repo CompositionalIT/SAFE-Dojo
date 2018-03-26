@@ -43,5 +43,4 @@ let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
     getf "/distance/%s" getDistanceFromLondon
     getf "/crime/%s" getCrimeReport
-    getf "/weather/%s" getWeatherForPosition
-}
+    getf "/weather/%s" getWeatherForPosition }
