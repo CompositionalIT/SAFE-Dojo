@@ -94,7 +94,14 @@ let view model dispatch =
                 (match model with
                  | { Report = None; ServerError = None; } -> []
                  | { ServerError = Some error } -> [ lbl error ]
-                 | { Report = Some report } -> [ lbl (report.ToString()) ] )
+                 | { Report = Some model } ->
+                  [
+                    div [] [
+                      iframe [
+                        Style [ Width 500; Height 400 ]
+                        Src (sprintf "https://www.bing.com/maps/embed?h=400&w=500&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.Latitude model.Location.Location.Longitude) ] [ ]
+                    ]
+                  ])
         ]
     
       Footer.footer [ ]
