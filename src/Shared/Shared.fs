@@ -1,8 +1,12 @@
 namespace Shared
 
-type Location =
+type LatLong =
     { Latitude : float
       Longitude : float }
+type Location =
+    { Town : string
+      Region : string
+      LatLong : LatLong }      
 
 type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
 type CrimeResponse = { Crime : string; Incidents : int }

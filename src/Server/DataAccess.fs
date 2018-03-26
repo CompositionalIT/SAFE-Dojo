@@ -8,18 +8,22 @@ open System
 let private getData<'T> (url : string) = task {
     use  wc = new Net.WebClient()
     let! data = url |> wc.DownloadStringTaskAsync
-    return JsonConvert.DeserializeObject<'T> data }    
+    return JsonConvert.DeserializeObject<'T> data }
 
 [<AutoOpen>]
 module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
+    type PostcodeApiDetail = { longitude : float; latitude : float; nuts : string; admin_district : string }
     type PostcodeApiWrapper =
         { Status : string
-          Result : Location }
+          Result : PostcodeApiDetail }
 
     let getLocation postcode = task {
         let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> getData<PostcodeApiWrapper>
-        return postcode.Result }
+        return
+            { LatLong = { Latitude = postcode.Result.latitude; Longitude = postcode.Result.longitude }
+              Town = postcode.Result.admin_district
+              Region = postcode.Result.nuts } }
 
     let getDistanceBetweenPositions pos1 pos2 =
         let lat1, lng1 = pos1.Latitude, pos1.Longitude
@@ -40,7 +44,7 @@ module Crime =
         { category : string
           id : int
           month : string
-          Location : Location }
+          Location : LatLong }
     let getCrimesNearPosition location =
         sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" location.Latitude location.Longitude
         |> getData<CrimeIncident array>
@@ -62,7 +66,7 @@ module Weather =
     type WeatherApiResponse =
         { sun_rise : System.DateTime
           sun_set : System.DateTime
-          consolidated_weather : WeatherReading [] }      
+          consolidated_weather : WeatherReading [] }
 
     let getWeatherForPosition location = task {
         let! locations =
