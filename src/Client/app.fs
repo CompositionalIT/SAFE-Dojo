@@ -5,6 +5,8 @@ open Elmish
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
+open Fable.Recharts
+open Fable.Recharts.Props
 
 open Fulma
 open Fulma.Layouts
@@ -74,6 +76,22 @@ let update msg model =
             Report = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
+let viewCrimeChart report =
+    let cleanData =
+        report.Crimes
+        |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+
+    Content.content []
+        [ Heading.h3 [] [ str "Crime" ]
+          barChart
+            [ Chart.Data cleanData
+              Chart.Width 600.
+              Chart.Height 500.
+              Chart.Layout Vertical ]
+            [ xaxis [ Cartesian.Type "number" ] []
+              yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
+              bar [ Cartesian.DataKey "Incidents" ] [] ] ]
+
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
     div [] [
@@ -123,6 +141,7 @@ let view model dispatch =
                                     Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude) ]
                                     []
                                 ]
+                            viewCrimeChart model
                             ]
                         ]
         ]

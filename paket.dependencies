@@ -11,6 +11,7 @@ group Client
   nuget Fable.Elmish.Debugger
   nuget Fable.Elmish.React
   nuget Fable.Elmish.HMR
+  nuget Fable.Recharts
   nuget Fulma 1.0.0-beta-007
 
   clitool dotnet-fable
