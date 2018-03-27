@@ -70,9 +70,7 @@ let update msg model =
             Postcode = p
             ValidationError =
               if Validation.validatePostcode p then None
-              else Some "Invalid postcode."
-            ServerState = Idle
-            Report = None }, Cmd.none
+              else Some "Invalid postcode." }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
 [<AutoOpen>]
