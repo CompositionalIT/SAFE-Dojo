@@ -51,7 +51,7 @@ let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
     let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
     
-    (* Task 4.3 WEATHER: Fetch the weather from the api you created.
+    (* Task 4.3 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
     return { Location = location; Crimes = crimes } }
@@ -72,7 +72,7 @@ let update msg model =
         { model with
             Postcode = p
             (* Task 3.1 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
-               Note that the validation is the same shared code as what is run on the server! *)
+               Note that the validation is the same shared code that runs on the server! *)
             ValidationError = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
@@ -102,15 +102,15 @@ module ViewParts =
                   bar [ Cartesian.DataKey "Incidents" ] [] ]
         ]
 
-    let getBingUrl latLong =
+    let getBingMapUrl latLong =
         sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
 
     let bingMapTile (latLong:LatLong) =
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             iframe [
                 Style [ Height 410; Width 810 ]
-                (* Task 2.1 MAPS: Use the getBingUrl function to build a valid maps URL using the supplied LatLong.
-                   You can use it to create a Src object and include it in the list of the iframe's properties *)
+                (* Task 2.1 MAPS: Use the getBingMapUrl function to build a valid maps URL using the supplied LatLong.
+                   You can use it to add a Src attribute to this iframe. *)
             ] [ ]
         ]
 
