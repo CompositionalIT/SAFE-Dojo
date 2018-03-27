@@ -172,12 +172,6 @@ let view model dispatch =
                                 ]
                               ]
                             ]
-                            // div [ ClassName Bulma.Properties.Alignment.HasTextCentered ] [
-                            //   Image.image [ Image.Is128x128 ] [
-                            //     img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
-                            //     Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
-                            //   ]
-                            // ]
                           ]
                         ]
                       ]
@@ -188,8 +182,10 @@ let view model dispatch =
                           ]
                         ]
                        ]                   
-                  ]
+                  ]        
         ]
+
+        br [ ]
 
         Footer.footer [] [
             Content.content
