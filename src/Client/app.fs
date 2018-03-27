@@ -138,10 +138,8 @@ let view model dispatch =
                     Tile.ancestor [ ] [
                       Tile.parent [ Tile.Size Tile.Is12 ] [
                         Tile.tile [ Tile.Size Tile.Is12 ] [
-                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            Heading.p [ ] [
-                              str "Map"
-                            ]
+                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                            Heading.p [ ] [ str "Map" ]
                             bingMap model.Location.Location.LatLong
                           ]
                         ]
@@ -151,12 +149,12 @@ let view model dispatch =
                     Tile.ancestor [ ] [
                       Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
                         Tile.child [ ] [
-                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
                             Heading.h2 [ ] [ str "Location" ]
                           ]
                         ]
                         Tile.child [ ] [
-                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
                             Heading.h2 [ ] [ str "Weather" ]
                             Level.level [ ] [
                               Level.item [ Level.Item.HasTextCentered ] [
@@ -177,7 +175,7 @@ let view model dispatch =
                       ]
                       Tile.parent [ Tile.Size Tile.Is8 ] [
                         Tile.tile [ ] [
-                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
                             crimeChart model.Crimes
                           ]
                         ]
