@@ -18,6 +18,7 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
+open Fable
 
 /// The data model driving the view
 type Report =
@@ -75,62 +76,62 @@ let update msg model =
 
 [<AutoOpen>]
 module ViewParts =
+    let basicTile title options content =
+        Tile.tile options [
+            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
+                (Heading.h2 [] [ str title ] :: content)
+        ]
+    let childTile title content =
+        Tile.child [ ] [
+            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
+                (Heading.h2 [ ] [ str title ] :: content)
+        ]
+    
     let crimeTile crimes =
         let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
-        Tile.tile [ ] [
-          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-            div [] [
-              Heading.h2 [] [ str "Crime" ]
-              barChart
+        basicTile "Crime" [ ] [
+            barChart
                 [ Chart.Data cleanData
                   Chart.Width 600.
                   Chart.Height 500.
                   Chart.Layout Vertical ]
                 [ xaxis [ Cartesian.Type "number" ] []
                   yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
-                  bar [ Cartesian.DataKey "Incidents" ] [] ] ] ] ]
+                  bar [ Cartesian.DataKey "Incidents" ] [] ]
+        ]
 
     let bingMapTile latLong =
-      Tile.tile [ Tile.Size Tile.Is12 ] [
-        Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-          Heading.p [ ] [ str "Map" ]
-          iframe [
-            Style [ Height 410; Width 810 ]
-            Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
-          ] [ ]
+        basicTile "Map" [ Tile.Size Tile.Is12 ] [
+            iframe [
+                Style [ Height 410; Width 810 ]
+                Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
+            ] [ ]
         ]
-      ]
 
     let weatherTile weatherReport =
-        Tile.child [ ] [
-          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-            Heading.h2 [ ] [ str "Weather" ]
+        childTile "Weather" [
             Level.level [ ] [
-              Level.item [ Level.Item.HasTextCentered ] [
-                div [ ] [
-                  Level.heading [ ] [
-                    Image.image [ Image.Is128x128 ] [
-                      img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse weatherReport.Description).Abbreviation) ]
+                Level.item [ Level.Item.HasTextCentered ] [
+                    div [ ] [
+                        Level.heading [ ] [
+                            Image.image [ Image.Is128x128 ] [
+                                img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse weatherReport.Description).Abbreviation) ]
+                            ]
+                        ]
+                        Level.title [ ] [
+                            Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" weatherReport.AverageTemperature |> str ]
+                        ]
                     ]
-                  ]
-                  Level.title [ ] [
-                    Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" weatherReport.AverageTemperature |> str ]
-                  ]
                 ]
-              ]
             ]
-          ]
         ]
     let locationTile model =
-        Tile.child [ ] [
-          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-            Heading.h2 [ ] [ str "Location" ]
+        childTile "Location" [
             div [ ] [
-              Heading.h3 [ ] [ str model.Location.Location.Town ]
-              Heading.h4 [ ] [ str model.Location.Location.Region ]
-              Heading.h4 [ ] [ sprintf "%.1fKM to London" model.Location.DistanceToLondon |> str ]
+                Heading.h3 [ ] [ str model.Location.Location.Town ]
+                Heading.h4 [ ] [ str model.Location.Location.Region ]
+                Heading.h4 [ ] [ sprintf "%.1fKM to London" model.Location.DistanceToLondon |> str ]
             ]
-          ]
         ]
              
 
