@@ -24,7 +24,9 @@ In this task, you'll be adding a new endpoint to the backend application which p
 
 1.3 In the same manner as the distance endpoint above, add a new endpoint ```/crime``` which also accepts a postcode. Connect it to the ```getCrimeReport``` function.
 
-1.4 Navigate to the application in the web browser and observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint. 
+1.4 Navigate to the application in the web browser and observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint
+
+1.5 Look at the front end code to see how the data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
 
 ## 2. Add shared code
 
@@ -47,6 +49,8 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 3.2 Using your retrieved URL, update the Src attribute on the iframe to retrieve embed the Bing map
 
 3.3 Navigate to the web application and observe how the Bing map is now being rendered in the UI
+
+3.4 Start to explore how data flows from the updated model through to the UI. What causes the map to update?
 
 ## 4. Implement weather endpoint
 
