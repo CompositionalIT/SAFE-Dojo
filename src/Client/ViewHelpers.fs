@@ -47,3 +47,6 @@ let safeComponents =
         [ strong [] [ a [ Href "https://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
           str " powered by: "
           components ]
+
+module Result =
+    let defaultValue v r = match r with Ok x -> x | Error _ -> v

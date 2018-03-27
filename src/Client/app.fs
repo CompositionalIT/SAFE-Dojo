@@ -18,6 +18,7 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
+open System
 
 /// The data model driving the view
 type Report =
@@ -49,7 +50,7 @@ let init () =
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
-    let! crimes = Fetch.fetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) []
+    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
     let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
     return { Location = location; Crimes = crimes; Weather = weather } }
  
@@ -80,8 +81,8 @@ let viewCrimeChart report =
         report.Crimes
         |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
 
-    Content.content []
-        [ Heading.h3 [] [ str "Crime" ]
+    div []
+        [ Heading.h2 [] [ str "Crime" ]
           barChart
             [ Chart.Data cleanData
               Chart.Width 600.
@@ -96,7 +97,7 @@ let view model dispatch =
     div [] [
         Navbar.navbar [ Navbar.Color IsPrimary ] [
             Navbar.Item.div [] [
-                Heading.h2 [] [ str "Location Review!" ] ]
+                Heading.h1 [] [ str "Location Review!" ] ]
             ]
         
         Container.container [] [
@@ -130,23 +131,48 @@ let view model dispatch =
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
             | { Report = Some model } ->
-                let latit, longit = model.Location.Location.LatLong.Latitude, model.Location.Location.LatLong.Longitude
                 yield
-                    Card.card [ ] [
-                        Card.header [ ] [
-                            Card.Header.title [ Card.Header.Title.IsCentered ] [ str (sprintf "%s (%s - %s)" model.Location.Postcode model.Location.Location.Region model.Location.Location.Town) ]
-                            Card.Header.icon [ ] [ i [ ClassName "fa fa-address-card" ] [ ] ]
+                    Tile.ancestor [ ] [
+                      Tile.parent [ Tile.Size Tile.Is12 ] [
+                        Tile.tile [ Tile.Size Tile.Is12 ] [
+                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                            Heading.p [ ] [
+                              str "Map"
                             ]
-                        Card.content [ ] [
-                            Content.content [ ]
-                                [ iframe [
-                                    Style [ Height 310; Width 410 ]
-                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=16&style=r&" latit longit) ]
-                                    []
-                                ]
-                            viewCrimeChart model
-                            ]
+                            iframe [
+                              Style [ Height 400; Width 800 ]
+                              Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude)
+                            ] [ ]
+                          ]
                         ]
+                      ]
+                    ]
+                yield
+                    Tile.ancestor [ ] [
+                      Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
+                        Tile.child [ ] [
+                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                            Heading.h2 [ ] [ str "Location" ]
+                          ]
+                        ]
+                        Tile.child [ ] [
+                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                            Heading.h2 [ ] [ str "Weather" ]
+                            Image.image [ Image.Is128x128 ] [
+                              img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
+                              p [ ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
+                            ]
+                          ]
+                        ]
+                      ]
+                      Tile.parent [ Tile.Size Tile.Is8 ] [
+                        Tile.tile [ ] [
+                          Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                            viewCrimeChart model
+                          ]
+                        ]
+                       ]                   
+                  ]
         ]
 
         Footer.footer [] [
