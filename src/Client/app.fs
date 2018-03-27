@@ -23,6 +23,7 @@ open Shared
 type Report =
     { Location : LocationResponse
       Crimes : CrimeResponse array }
+
 type ServerState = Idle | Loading | ServerError of string
 
 /// The overall data model driving the view.
@@ -50,7 +51,9 @@ let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
     let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
     
-    // TODO 1.4 WEATHER: Fetch the Weather API and add it to the Report type before assigning here.
+    (* Task 4.3 WEATHER: Fetch the weather from the api you created.
+       Then, save its value into the Report below. You'll need to add a new
+       field to the Report type first, though! *)
     return { Location = location; Crimes = crimes } }
  
 /// The update function knows how to update the model given a message.
@@ -68,7 +71,8 @@ let update msg model =
         let p = p.ToUpper()
         { model with
             Postcode = p
-            // TODO 3.1 Validation Error. Use the Validation.validatePostcode function to implement shared client-side form validation.
+            (* Task 3.1 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
+               Note that the validation is the same shared code as what is run on the server! *)
             ValidationError = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
@@ -105,7 +109,8 @@ module ViewParts =
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             iframe [
                 Style [ Height 410; Width 810 ]
-                // TODO 2.1 MAPS: Use the getBingUrl to get a valid maps URL for the Lat/Long coords supplied and set it to the iframe's Src
+                (* Task 2.1 MAPS: Use the getBingUrl function to build a valid maps URL using the supplied LatLong.
+                   You can use it to create a Src object and include it in the list of the iframe's properties *)
             ] [ ]
         ]
 
@@ -121,7 +126,8 @@ module ViewParts =
                         ]
                         Level.title [ ] [
                             Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
-                                // TODO 1.3 WEATHER: Bind to the temperature and display here.
+                                (* Task 4.4 WEATHER: Get the temperature from the given weather report
+                                   and display it here instead of an empty string. *)
                                 str ""
                             ]
                         ]
@@ -180,19 +186,21 @@ let view model dispatch =
             | { Report = Some model } ->
                 yield
                     Tile.ancestor [ ] [
-                      Tile.parent [ Tile.Size Tile.Is12 ] [
-                        bingMapTile model.Location.Location.LatLong
-                      ]
+                        Tile.parent [ Tile.Size Tile.Is12 ] [
+                            bingMapTile model.Location.Location.LatLong
+                        ]
                     ]
                 yield
                     Tile.ancestor [ ] [
-                      Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
-                        locationTile model
-                        // TODO 1.4 WEATHER: Add the weather tile here
-                      ]
-                      Tile.parent [ Tile.Size Tile.Is8 ] [
-                        crimeTile model.Crimes
-                      ]                   
+                        Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
+                            locationTile model
+                            (* Task 4.5 WEATHER: Generate the view code for the weather tile
+                               using the weatherTile function, supplying the weather report
+                               from the model, and include it here as part of the list *)
+                        ]
+                        Tile.parent [ Tile.Size Tile.Is8 ] [
+                            crimeTile model.Crimes
+                        ]                   
                   ]        
         ]
 
