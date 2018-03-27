@@ -5,6 +5,9 @@ open Elmish
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
+open Fable.PowerPack
+open Fable.Recharts
+open Fable.Recharts.Props
 
 open Fulma
 open Fulma.Layouts
@@ -15,8 +18,6 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open Fable.PowerPack
-open Elmish
 
 /// The data model driving the view
 type Report =
@@ -74,6 +75,22 @@ let update msg model =
             Report = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
+let viewCrimeChart report =
+    let cleanData =
+        report.Crimes
+        |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+
+    Content.content []
+        [ Heading.h3 [] [ str "Crime" ]
+          barChart
+            [ Chart.Data cleanData
+              Chart.Width 600.
+              Chart.Height 500.
+              Chart.Layout Vertical ]
+            [ xaxis [ Cartesian.Type "number" ] []
+              yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
+              bar [ Cartesian.DataKey "Incidents" ] [] ] ]
+
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
     div [] [
@@ -87,7 +104,10 @@ let view model dispatch =
                 Field.div [] [
                     Label.label [] [ str "Postcode" ]
                     Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
-                        Input.text [ Input.Placeholder "Ex: EC2A 4NE"; Input.Value model.Postcode; Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)) ] ]
+                        Input.text
+                            [ Input.Placeholder "Ex: EC2A 4NE"
+                              Input.Value model.Postcode
+                              Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
                         (match model with
                          | { ServerState = Loading } -> span [ Class "icon is-small is-right" ] [ i [ Class "fa fa-spinner faa-spin animated" ] [] ] 
@@ -110,6 +130,7 @@ let view model dispatch =
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
             | { Report = Some model } ->
+                let latit, longit = model.Location.Location.LatLong.Latitude, model.Location.Location.LatLong.Longitude
                 yield
                     Card.card [ ] [
                         Card.header [ ] [
@@ -120,9 +141,10 @@ let view model dispatch =
                             Content.content [ ]
                                 [ iframe [
                                     Style [ Height 310; Width 410 ]
-                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=11&typ=s&sty=r&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude) ]
+                                    Src (sprintf "https://www.bing.com/maps/embed?h=300&w=400&cp=%f~%f&lvl=16&style=r&" latit longit) ]
                                     []
                                 ]
+                            viewCrimeChart model
                             ]
                         ]
         ]
