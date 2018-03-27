@@ -158,10 +158,26 @@ let view model dispatch =
                         Tile.child [ ] [
                           Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
                             Heading.h2 [ ] [ str "Weather" ]
-                            Image.image [ Image.Is128x128 ] [
-                              img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
-                              p [ ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
+                            Level.level [ ] [
+                              Level.item [ Level.Item.HasTextCentered ] [
+                                div [ ] [
+                                  Level.heading [ ] [
+                                    Image.image [ Image.Is128x128 ] [
+                                      img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
+                                    ]
+                                  ]
+                                  Level.title [ ] [
+                                    Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
+                                  ]
+                                ]
+                              ]
                             ]
+                            // div [ ClassName Bulma.Properties.Alignment.HasTextCentered ] [
+                            //   Image.image [ Image.Is128x128 ] [
+                            //     img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
+                            //     Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
+                            //   ]
+                            // ]
                           ]
                         ]
                       ]
