@@ -49,7 +49,7 @@ let init () =
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
-    let! crimes = Fetch.fetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) []
+    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
     let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
     return { Location = location; Crimes = crimes; Weather = weather } }
  
