@@ -31,21 +31,21 @@ let getCrimeReport postcode next ctx = task {
         return! json crimes next ctx
     else return! invalidPostcode next ctx }
 
-let getWeatherForPosition postcode next ctx = task {
-    if Validation.validatePostcode postcode then
-        let! location = getLocation postcode
-        let! weather = Weather.getWeatherForPosition location.LatLong
-        let response =
-            { WeatherResponse.Description =
-                weather.consolidated_weather
-                |> Array.maxBy(fun w -> w.weather_state_name)
-                |> fun w -> w.weather_state_name
-              AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
-        return! json response next ctx
-    else return! invalidPostcode next ctx }
+let private asWeatherResponse weather =
+    { WeatherResponse.Description =
+        weather.consolidated_weather
+        |> Array.maxBy(fun w -> w.weather_state_name)
+        |> fun w -> w.weather_state_name
+      AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
+
+
+// TODO 1.1 WEATHER: Implement get weather for postcode
+let getWeatherForPosition postcode next ctx = task {  
+    return! json { Description = ""; AverageTemperature = 0. } next ctx }
 
 let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
     getf "/distance/%s" getDistanceFromLondon
-    getf "/crime/%s" getCrimeReport
-    getf "/weather/%s" getWeatherForPosition }
+    // TODO: 4.1 CRIME: Add crime endpoint here using the getCrimeReport web part.
+    // TODO 1.2 WEATHER: Add weather endpoint here
+    }

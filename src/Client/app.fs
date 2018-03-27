@@ -2,6 +2,7 @@ module App
 
 open Elmish
 
+open Fable
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
@@ -18,23 +19,20 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open Fable
 
-/// The data model driving the view
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array
-      Weather : WeatherResponse }
-
+      Crimes : CrimeResponse array }
 type ServerState = Idle | Loading | ServerError of string
 
+/// The overall data model driving the view.
 type Model =
     { Postcode : string
       ValidationError : string option
       ServerState : ServerState
       Report : Report option }
 
-/// The different types of messages in the system
+/// The different types of messages in the system.
 type Msg =
     | GetReport
     | PostcodeChanged of string
@@ -51,8 +49,9 @@ let init () =
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
     let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
-    let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
-    return { Location = location; Crimes = crimes; Weather = weather } }
+    
+    // TODO 1.4 WEATHER: Fetch the Weather API and add it to the Report type before assigning here.
+    return { Location = location; Crimes = crimes } }
  
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -69,9 +68,8 @@ let update msg model =
         let p = p.ToUpper()
         { model with
             Postcode = p
-            ValidationError =
-              if Validation.validatePostcode p then None
-              else Some "Invalid postcode." }, Cmd.none
+            // TODO 3.1 Validation Error. Use the Validation.validatePostcode function to implement shared client-side form validation.
+            ValidationError = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
 [<AutoOpen>]
@@ -100,11 +98,14 @@ module ViewParts =
                   bar [ Cartesian.DataKey "Incidents" ] [] ]
         ]
 
-    let bingMapTile latLong =
+    let getBingUrl latLong =
+        sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
+
+    let bingMapTile (latLong:LatLong) =
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             iframe [
                 Style [ Height 410; Width 810 ]
-                Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
+                // TODO 2.1 MAPS: Use the getBingUrl to get a valid maps URL for the Lat/Long coords supplied and set it to the iframe's Src
             ] [ ]
         ]
 
@@ -119,7 +120,10 @@ module ViewParts =
                             ]
                         ]
                         Level.title [ ] [
-                            Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" weatherReport.AverageTemperature |> str ]
+                            Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
+                                // TODO 1.3 WEATHER: Bind to the temperature and display here.
+                                str ""
+                            ]
                         ]
                     ]
                 ]
@@ -184,7 +188,7 @@ let view model dispatch =
                     Tile.ancestor [ ] [
                       Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
                         locationTile model
-                        weatherTile model.Weather
+                        // TODO 1.4 WEATHER: Add the weather tile here
                       ]
                       Tile.parent [ Tile.Size Tile.Is8 ] [
                         crimeTile model.Crimes
