@@ -18,7 +18,6 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open System
 
 /// The data model driving the view
 type Report =
@@ -71,26 +70,30 @@ let update msg model =
             Postcode = p
             ValidationError =
               if Validation.validatePostcode p then None
-              else Some "Invalid postcode."
-            ServerState = Idle
-            Report = None }, Cmd.none
+              else Some "Invalid postcode." }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
 
-let viewCrimeChart report =
-    let cleanData =
-        report.Crimes
-        |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+[<AutoOpen>]
+module ViewParts =
+    let crimeChart crimes =
+        let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
 
-    div []
-        [ Heading.h2 [] [ str "Crime" ]
-          barChart
-            [ Chart.Data cleanData
-              Chart.Width 600.
-              Chart.Height 500.
-              Chart.Layout Vertical ]
-            [ xaxis [ Cartesian.Type "number" ] []
-              yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
-              bar [ Cartesian.DataKey "Incidents" ] [] ] ]
+        div []
+            [ Heading.h2 [] [ str "Crime" ]
+              barChart
+                [ Chart.Data cleanData
+                  Chart.Width 600.
+                  Chart.Height 500.
+                  Chart.Layout Vertical ]
+                [ xaxis [ Cartesian.Type "number" ] []
+                  yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
+                  bar [ Cartesian.DataKey "Incidents" ] [] ] ]
+    let bingMap latLong =
+        iframe [
+          Style [ Height 410; Width 810 ]
+          Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
+        ] [ ]
+             
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
@@ -139,10 +142,7 @@ let view model dispatch =
                             Heading.p [ ] [
                               str "Map"
                             ]
-                            iframe [
-                              Style [ Height 400; Width 800 ]
-                              Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude)
-                            ] [ ]
+                            bingMap model.Location.Location.LatLong
                           ]
                         ]
                       ]
@@ -184,7 +184,7 @@ let view model dispatch =
                       Tile.parent [ Tile.Size Tile.Is8 ] [
                         Tile.tile [ ] [
                           Notification.notification [ Notification.Option.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            viewCrimeChart model
+                            crimeChart model.Crimes
                           ]
                         ]
                        ]                   
