@@ -18,7 +18,6 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open System
 
 /// The data model driving the view
 type Report =
@@ -140,7 +139,7 @@ let view model dispatch =
                               str "Map"
                             ]
                             iframe [
-                              Style [ Height 400; Width 800 ]
+                              Style [ Height 410; Width 810 ]
                               Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" model.Location.Location.LatLong.Latitude model.Location.Location.LatLong.Longitude)
                             ] [ ]
                           ]
