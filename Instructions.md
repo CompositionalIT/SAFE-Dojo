@@ -18,7 +18,7 @@ vi. The front end application also supports hot module reloading. Try changing s
 
 In this task, you'll be adding a new endpoint to the backend application which provides crime statistics. By the end of this task you should have an understanding of how routes are defined in the Saturn web framework.
 
-1.1 Navigate to the file ```src/Server/app.fs``` and find where the routes are defined in the apiRouter value
+1.1 Navigate to the file ```src/Server/api.fs``` and find where the routes are defined in the apiRouter value
 
 1.2 Observe how we define a route for the distance endpoint. Note the function name and the signature of the ```getDistanceFromLondon``` function
 
@@ -30,7 +30,7 @@ In this task, you'll be adding a new endpoint to the backend application which p
 
 In this task, you'll take some validation code which already exists on the backend service and use it within your front end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
 
-2.1 Navigate to ```src/Client/app.fs``` and look in the ```update``` function. Observe the ```PostcodeChanged event```
+2.1 Navigate to ```src/Client/app.fs``` and look in the ```update``` function. Observe the ```PostcodeChanged``` event
 
 2.2 Using the ```Validation.validatePostcode``` function, implement some validation logic, updating the model as appropriate
 
@@ -52,9 +52,9 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 In this task, you need to add another tile to the UI including all the associated work on the backend of the system as well. We'll be adding a tile which shows the current weather for the given postcode as an image and then updating the tile to add in the current temperature. By the end of this task you should start to understand how a full stack SAFE application is built.
 
-4.1 In ```src/Server/api.fs``` implement the ```getWeatherResponse``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
+4.1 In ```src/Server/api.fs``` implement the ```getWeatherForPosition``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
 
-4.2 As in the task earlier, add a new route to the router which routes traffic to the ```getWeatherResponse``` function
+4.2 As in the task earlier, add a new route to the router which routes traffic to the ```getWeatherForPosition``` function
 
 4.3 Verify that your endpoint works and returns data either using CURL or your web browser
 
