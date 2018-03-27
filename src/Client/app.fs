@@ -75,11 +75,12 @@ let update msg model =
 
 [<AutoOpen>]
 module ViewParts =
-    let crimeChart crimes =
+    let crimeTile crimes =
         let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
-
-        div []
-            [ Heading.h2 [] [ str "Crime" ]
+        Tile.tile [ ] [
+          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+            div [] [
+              Heading.h2 [] [ str "Crime" ]
               barChart
                 [ Chart.Data cleanData
                   Chart.Width 600.
@@ -87,12 +88,45 @@ module ViewParts =
                   Chart.Layout Vertical ]
                 [ xaxis [ Cartesian.Type "number" ] []
                   yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
-                  bar [ Cartesian.DataKey "Incidents" ] [] ] ]
-    let bingMap latLong =
-        iframe [
-          Style [ Height 410; Width 810 ]
-          Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
-        ] [ ]
+                  bar [ Cartesian.DataKey "Incidents" ] [] ] ] ] ]
+
+    let bingMapTile latLong =
+      Tile.tile [ Tile.Size Tile.Is12 ] [
+        Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+          Heading.p [ ] [ str "Map" ]
+          iframe [
+            Style [ Height 410; Width 810 ]
+            Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&sty=h&src=SHELL&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
+          ] [ ]
+        ]
+      ]
+
+    let weatherTile weatherReport =
+        Tile.child [ ] [
+          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+            Heading.h2 [ ] [ str "Weather" ]
+            Level.level [ ] [
+              Level.item [ Level.Item.HasTextCentered ] [
+                div [ ] [
+                  Level.heading [ ] [
+                    Image.image [ Image.Is128x128 ] [
+                      img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse weatherReport.Description).Abbreviation) ]
+                    ]
+                  ]
+                  Level.title [ ] [
+                    Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" weatherReport.AverageTemperature |> str ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+    let locationTile model =
+        Tile.child [ ] [
+          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+            Heading.h2 [ ] [ str "Location" ]
+          ]
+        ]
              
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
@@ -137,49 +171,18 @@ let view model dispatch =
                 yield
                     Tile.ancestor [ ] [
                       Tile.parent [ Tile.Size Tile.Is12 ] [
-                        Tile.tile [ Tile.Size Tile.Is12 ] [
-                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            Heading.p [ ] [ str "Map" ]
-                            bingMap model.Location.Location.LatLong
-                          ]
-                        ]
+                        bingMapTile model.Location.Location.LatLong
                       ]
                     ]
                 yield
                     Tile.ancestor [ ] [
                       Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
-                        Tile.child [ ] [
-                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            Heading.h2 [ ] [ str "Location" ]
-                          ]
-                        ]
-                        Tile.child [ ] [
-                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            Heading.h2 [ ] [ str "Weather" ]
-                            Level.level [ ] [
-                              Level.item [ Level.Item.HasTextCentered ] [
-                                div [ ] [
-                                  Level.heading [ ] [
-                                    Image.image [ Image.Is128x128 ] [
-                                      img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" (WeatherType.Parse model.Weather.Description).Abbreviation) ]
-                                    ]
-                                  ]
-                                  Level.title [ ] [
-                                    Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [ sprintf "%.1f°C" model.Weather.AverageTemperature |> str ]
-                                  ]
-                                ]
-                              ]
-                            ]
-                          ]
-                        ]
+                        locationTile model
+                        weatherTile model.Weather
                       ]
                       Tile.parent [ Tile.Size Tile.Is8 ] [
-                        Tile.tile [ ] [
-                          Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
-                            crimeChart model.Crimes
-                          ]
-                        ]
-                       ]                   
+                        crimeTile model.Crimes
+                      ]                   
                   ]        
         ]
 
