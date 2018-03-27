@@ -125,6 +125,11 @@ module ViewParts =
         Tile.child [ ] [
           Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
             Heading.h2 [ ] [ str "Location" ]
+            div [ ] [
+              Heading.h3 [ ] [ str model.Location.Location.Town ]
+              Heading.h4 [ ] [ str model.Location.Location.Region ]
+              Heading.h4 [ ] [ sprintf "%.1fKM to London" model.Location.DistanceToLondon |> str ]
+            ]
           ]
         ]
              
