@@ -10,3 +10,6 @@ Please read the instructions.md for a guide on completing this dojo to learn all
    * [VS Code](https://code.visualstudio.com/) + [Ionide](https://github.com/ionide/ionide-vscode-fsharp) extension
    * [Visual Studio 2017](https://www.visualstudio.com/downloads/)
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
+
+## Building
+Run `build.cmd` or `build.sh`.
