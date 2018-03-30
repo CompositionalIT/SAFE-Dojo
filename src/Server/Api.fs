@@ -31,18 +31,20 @@ let getCrimeReport postcode next ctx = task {
         return! json crimes next ctx
     else return! invalidPostcode next ctx }
 
-let getWeatherForPosition postcode next ctx = task {
+let private asWeatherResponse weather =
+    { WeatherResponse.Description =
+        weather.consolidated_weather
+        |> Array.maxBy(fun w -> w.weather_state_name)
+        |> fun w -> w.weather_state_name
+      AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
+
+
+let getWeatherForPosition postcode next ctx = task {  
     if Validation.validatePostcode postcode then
         let! location = getLocation postcode
         let! weather = Weather.getWeatherForPosition location.LatLong
-        let response =
-            { WeatherResponse.Description =
-                weather.consolidated_weather
-                |> Array.maxBy(fun w -> w.weather_state_name)
-                |> fun w -> w.weather_state_name
-              AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
-        return! json response next ctx
-    else return! invalidPostcode next ctx }
+        return! json (weather |> asWeatherResponse) next ctx
+    else return! invalidPostcode next ctx }    
 
 let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })

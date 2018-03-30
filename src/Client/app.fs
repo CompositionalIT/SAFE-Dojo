@@ -2,6 +2,7 @@ module App
 
 open Elmish
 
+open Fable
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
@@ -18,9 +19,8 @@ open Fulma.Components
 open Fulma.BulmaClasses
 
 open Shared
-open Fable
 
-/// The data model driving the view
+/// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
       Crimes : CrimeResponse array
@@ -28,13 +28,14 @@ type Report =
 
 type ServerState = Idle | Loading | ServerError of string
 
+/// The overall data model driving the view.
 type Model =
     { Postcode : string
       ValidationError : string option
       ServerState : ServerState
       Report : Report option }
 
-/// The different types of messages in the system
+/// The different types of messages in the system.
 type Msg =
     | GetReport
     | PostcodeChanged of string
@@ -52,6 +53,7 @@ let init () =
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
     let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
+    
     let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
     return { Location = location; Crimes = crimes; Weather = weather } }
  
@@ -102,11 +104,14 @@ module ViewParts =
                   bar [ Cartesian.DataKey "Incidents" ] [] ]
         ]
 
-    let bingMapTile latLong =
+    let getBingMapUrl latLong =
+        sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
+
+    let bingMapTile (latLong:LatLong) =
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             iframe [
                 Style [ Height 410; Width 810 ]
-                Src (sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude)
+                Src (getBingMapUrl latLong)
             ] [ ]
         ]
 
@@ -181,19 +186,19 @@ let view model dispatch =
             | { Report = Some model } ->
                 yield
                     Tile.ancestor [ ] [
-                      Tile.parent [ Tile.Size Tile.Is12 ] [
-                        bingMapTile model.Location.Location.LatLong
-                      ]
+                        Tile.parent [ Tile.Size Tile.Is12 ] [
+                            bingMapTile model.Location.Location.LatLong
+                        ]
                     ]
                 yield
                     Tile.ancestor [ ] [
-                      Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
-                        locationTile model
-                        weatherTile model.Weather
-                      ]
-                      Tile.parent [ Tile.Size Tile.Is8 ] [
-                        crimeTile model.Crimes
-                      ]                   
+                        Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
+                            locationTile model
+                            weatherTile model.Weather
+                        ]
+                        Tile.parent [ Tile.Size Tile.Is8 ] [
+                            crimeTile model.Crimes
+                        ]                   
                   ]        
         ]
 
