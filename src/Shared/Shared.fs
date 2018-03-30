@@ -15,7 +15,7 @@ type WeatherType =
     | Snow
     | Sleet
     | Hail
-    | Thunderstorm
+    | Thunder
     | HeavyRain
     | LightRain
     | Showers
@@ -27,7 +27,7 @@ type WeatherType =
         fun s -> weatherTypes |> Array.find(fun w -> w.Name = s) |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
     member this.Abbreviation =
         match this with
-        | Snow -> "sn" | Sleet -> "s" | Hail -> "h" | Thunderstorm -> "t" | HeavyRain -> "hr"
+        | Snow -> "sn" | Sleet -> "s" | Hail -> "h" | Thunder -> "t" | HeavyRain -> "hr"
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
 /// Provides validation on data. Shared across both client and server.
