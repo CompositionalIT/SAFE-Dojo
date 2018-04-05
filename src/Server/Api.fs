@@ -39,7 +39,7 @@ let private asWeatherResponse weather =
       AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
 
 
-let getWeatherForPosition postcode next ctx = task {  
+let getWeather postcode next ctx = task {  
     if Validation.validatePostcode postcode then
         let! location = getLocation postcode
         let! weather = Weather.getWeatherForPosition location.LatLong
