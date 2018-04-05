@@ -31,7 +31,7 @@ let getCrimeReport postcode next ctx = task {
         return! json crimes next ctx
     else return! invalidPostcode next ctx }
 
-let private asWeatherResponse (weather:DataAccess.Weather.WeatherResponse.Root) =
+let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Root) =
     { WeatherResponse.Description =
         weather.ConsolidatedWeather
         |> Array.countBy(fun w -> w.WeatherStateName)
@@ -39,12 +39,10 @@ let private asWeatherResponse (weather:DataAccess.Weather.WeatherResponse.Root) 
         |> fst
       AverageTemperature = weather.ConsolidatedWeather |> Array.averageBy(fun r -> float r.TheTemp) }
 
-
 let getWeather postcode next ctx = task {  
     (* Task 4.1 WEATHER: Implement a function that retrieves the weather for
-       the given postcode. Use the getLocation, getWeatherForPosition and
-       asWeatherResponse functions to get a proper response, and then plug it
-       in below instead of the stub. *)
+       the given postcode. Use the GeoLocation.getLocation, Weather.getWeatherForPosition and
+       asWeatherResponse functions to create and return a WeatherResponse instead of the stub. *)
     return! json { Description = ""; AverageTemperature = 0. } next ctx }
 
 let apiRouter = scope {
@@ -55,6 +53,6 @@ let apiRouter = scope {
        using the getCrimeReport web part function. Use the above distance
        route as an example of how to add a new route. *)    
         
-    (* Task 4.2 WEATHER: Hook up the weather endpoint to the getWeatherForPosition function. *)
+    (* Task 4.2 WEATHER: Hook up the weather endpoint to the getWeather function. *)
     
     }

@@ -7,10 +7,10 @@ open Shared
 [<AutoOpen>]
 module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
-    type PostcodeApi = JsonProvider<"http://api.postcodes.io/postcodes/EC2A4NE">
+    type PostcodesIO = JsonProvider<"http://api.postcodes.io/postcodes/EC2A4NE">
 
     let getLocation postcode = task {
-        let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> PostcodeApi.AsyncLoad
+        let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> PostcodesIO.AsyncLoad
         return
             { LatLong = { Latitude = float postcode.Result.Latitude; Longitude = float postcode.Result.Longitude }
               Town = postcode.Result.AdminDistrict
@@ -31,23 +31,23 @@ module GeoLocation =
 
 [<AutoOpen>]
 module Crime =
-    type CrimeApi = JsonProvider<"https://data.police.uk/api/crimes-street/all-crime?lat=51.5074&lng=0.1278">
+    type PoliceUkCrime = JsonProvider<"https://data.police.uk/api/crimes-street/all-crime?lat=51.5074&lng=0.1278">
     let getCrimesNearPosition location =
         (location.Latitude, location.Longitude)
         ||> sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f"
-        |> CrimeApi.AsyncLoad
+        |> PoliceUkCrime.AsyncLoad
         |> Async.StartAsTask
 [<AutoOpen>]
 module Weather =
-    type WeatherLocations = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
-    type WeatherResponse = JsonProvider<"https://www.metaweather.com/api/location/1393672">
+    type MetaWeatherSearch = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
+    type MetaWeatherLocation = JsonProvider<"https://www.metaweather.com/api/location/1393672">
     let getWeatherForPosition location = task {
         let! locations =
             (location.Latitude, location.Longitude)
             ||> sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f"
-            |> WeatherLocations.AsyncLoad
+            |> MetaWeatherSearch.AsyncLoad
         let bestLocationId = locations |> Array.sortBy (fun t -> t.Distance) |> Array.map (fun o -> o.Woeid) |> Array.head
         return!
             bestLocationId
             |> sprintf "https://www.metaweather.com/api/location/%d"
-            |> WeatherResponse.AsyncLoad }
+            |> MetaWeatherLocation.AsyncLoad }
