@@ -31,7 +31,7 @@ let getCrimeReport postcode next ctx = task {
         return! json crimes next ctx
     else return! invalidPostcode next ctx }
 
-let private asWeatherResponse (weather:DataAccess.Weather.WeatherResponse.Root) =
+let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Root) =
     { WeatherResponse.Description =
         weather.ConsolidatedWeather
         |> Array.countBy(fun w -> w.WeatherStateName)
