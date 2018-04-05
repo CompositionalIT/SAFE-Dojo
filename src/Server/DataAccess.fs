@@ -1,29 +1,20 @@
 module DataAccess
 
 open FSharp.Control.Tasks
-open Newtonsoft.Json
+open FSharp.Data
 open Shared
-open System
-
-let private getData<'T> (url : string) = task {
-    use  wc = new Net.WebClient()
-    let! data = url |> wc.DownloadStringTaskAsync
-    return JsonConvert.DeserializeObject<'T> data }
 
 [<AutoOpen>]
 module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
-    type PostcodeApiDetail = { longitude : float; latitude : float; nuts : string; admin_district : string }
-    type PostcodeApiWrapper =
-        { Status : string
-          Result : PostcodeApiDetail }
+    type PostcodeApi = JsonProvider<"http://api.postcodes.io/postcodes/EC2A4NE">
 
     let getLocation postcode = task {
-        let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> getData<PostcodeApiWrapper>
+        let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> PostcodeApi.AsyncLoad
         return
-            { LatLong = { Latitude = postcode.Result.latitude; Longitude = postcode.Result.longitude }
-              Town = postcode.Result.admin_district
-              Region = postcode.Result.nuts } }
+            { LatLong = { Latitude = float postcode.Result.Latitude; Longitude = float postcode.Result.Longitude }
+              Town = postcode.Result.AdminDistrict
+              Region = postcode.Result.Nuts } }
 
     let getDistanceBetweenPositions pos1 pos2 =
         let lat1, lng1 = pos1.Latitude, pos1.Longitude
@@ -40,40 +31,23 @@ module GeoLocation =
 
 [<AutoOpen>]
 module Crime =
-    type CrimeIncident =
-        { category : string
-          id : int
-          month : string
-          Location : LatLong }
+    type CrimeApi = JsonProvider<"https://data.police.uk/api/crimes-street/all-crime?lat=51.5074&lng=0.1278">
     let getCrimesNearPosition location =
-        sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f" location.Latitude location.Longitude
-        |> getData<CrimeIncident array>
-
+        (location.Latitude, location.Longitude)
+        ||> sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f"
+        |> CrimeApi.AsyncLoad
+        |> Async.StartAsTask
 [<AutoOpen>]
 module Weather =
-    type WeatherLocationResponse =
-        { Title : string
-          WoeId : string
-          Distance : int }
-
-    type WeatherReading =
-        { weather_state_name : string
-          wind_direction_compass : string
-          min_temp : float
-          max_temp : float
-          the_temp : float }
-
-    type WeatherApiResponse =
-        { sun_rise : System.DateTime
-          sun_set : System.DateTime
-          consolidated_weather : WeatherReading [] }
-
+    type WeatherLocations = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
+    type WeatherResponse = JsonProvider<"https://www.metaweather.com/api/location/1393672">
     let getWeatherForPosition location = task {
         let! locations =
-            sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f" location.Latitude location.Longitude
-            |> getData<WeatherLocationResponse array>
-        let bestLocationId = locations |> Array.sortBy (fun t -> t.Distance) |> Array.map (fun o -> o.WoeId) |> Array.head
+            (location.Latitude, location.Longitude)
+            ||> sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f"
+            |> WeatherLocations.AsyncLoad
+        let bestLocationId = locations |> Array.sortBy (fun t -> t.Distance) |> Array.map (fun o -> o.Woeid) |> Array.head
         return!
             bestLocationId
-            |> sprintf "https://www.metaweather.com/api/location/%s"
-            |> getData<WeatherApiResponse> }
+            |> sprintf "https://www.metaweather.com/api/location/%d"
+            |> WeatherResponse.AsyncLoad }

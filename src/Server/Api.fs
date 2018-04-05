@@ -25,19 +25,19 @@ let getCrimeReport postcode next ctx = task {
         let! reports = Crime.getCrimesNearPosition location.LatLong
         let crimes =
             reports
-            |> Array.countBy(fun r -> r.category)
+            |> Array.countBy(fun r -> r.Category)
             |> Array.sortByDescending snd
             |> Array.map(fun (k, c) -> { Crime = k; Incidents = c })
         return! json crimes next ctx
     else return! invalidPostcode next ctx }
 
-let private asWeatherResponse weather =
+let private asWeatherResponse (weather:DataAccess.Weather.WeatherResponse.Root) =
     { WeatherResponse.Description =
-        weather.consolidated_weather
-        |> Array.maxBy(fun w -> w.weather_state_name)
-        |> fun w -> w.weather_state_name
-      AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
-
+        weather.ConsolidatedWeather
+        |> Array.countBy(fun w -> w.WeatherStateName)
+        |> Array.maxBy snd
+        |> fst
+      AverageTemperature = weather.ConsolidatedWeather |> Array.averageBy(fun r -> float r.TheTemp) }
 
 let getWeather postcode next ctx = task {  
     if Validation.validatePostcode postcode then
@@ -50,4 +50,4 @@ let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
     getf "/distance/%s" getDistanceFromLondon
     getf "/crime/%s" getCrimeReport
-    getf "/weather/%s" getWeatherForPosition }
+    getf "/weather/%s" getWeather }

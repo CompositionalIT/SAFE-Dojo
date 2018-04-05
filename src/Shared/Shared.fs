@@ -24,7 +24,10 @@ type WeatherType =
     | Clear
     static member Parse =
         let weatherTypes = FSharp.Reflection.FSharpType.GetUnionCases typeof<WeatherType>
-        fun s -> weatherTypes |> Array.find(fun w -> w.Name = s) |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
+        fun (s:string) ->
+            weatherTypes
+            |> Array.find(fun w -> w.Name = s.Replace(" ", ""))
+            |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
     member this.Abbreviation =
         match this with
         | Snow -> "sn" | Sleet -> "s" | Hail -> "h" | Thunder -> "t" | HeavyRain -> "hr"
