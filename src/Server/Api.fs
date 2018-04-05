@@ -39,7 +39,7 @@ let private asWeatherResponse weather =
       AverageTemperature = weather.consolidated_weather |> Array.averageBy(fun r -> r.the_temp) }
 
 
-let getWeatherForPosition postcode next ctx = task {  
+let getWeather postcode next ctx = task {  
     (* Task 4.1 WEATHER: Implement a function that retrieves the weather for
        the given postcode. Use the getLocation, getWeatherForPosition and
        asWeatherResponse functions to get a proper response, and then plug it
