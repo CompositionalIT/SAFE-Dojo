@@ -32,11 +32,12 @@ let getCrimeReport postcode next ctx = task {
     else return! invalidPostcode next ctx }
 
 let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Root) =
-    { WeatherResponse.Description =
+    { WeatherType =
         weather.ConsolidatedWeather
         |> Array.countBy(fun w -> w.WeatherStateName)
         |> Array.maxBy snd
         |> fst
+        |> WeatherType.Parse
       AverageTemperature = weather.ConsolidatedWeather |> Array.averageBy(fun r -> float r.TheTemp) }
 
 let getWeather postcode next ctx = task {  

@@ -10,7 +10,6 @@ type Location =
 
 type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
 type CrimeResponse = { Crime : string; Incidents : int }
-type WeatherResponse = { Description : string; AverageTemperature : float }
 type WeatherType =
     | Snow
     | Sleet
@@ -32,6 +31,8 @@ type WeatherType =
         match this with
         | Snow -> "sn" | Sleet -> "s" | Hail -> "h" | Thunder -> "t" | HeavyRain -> "hr"
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
+
+type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
 
 /// Provides validation on data. Shared across both client and server.
 module Validation =
