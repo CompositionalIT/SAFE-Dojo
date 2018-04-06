@@ -72,7 +72,7 @@ let update msg model =
         let p = p.ToUpper()
         { model with
             Postcode = p
-            (* Task 3.1 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
+            (* Task 2.2 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
             ValidationError = None }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
