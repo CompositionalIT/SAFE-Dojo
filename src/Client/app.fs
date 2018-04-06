@@ -20,6 +20,7 @@ open Fulma.BulmaClasses
 
 open Shared
 
+/// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
       Crimes : CrimeResponse array }
@@ -161,6 +162,7 @@ let view model dispatch =
                         Input.text
                             [ Input.Placeholder "Ex: EC2A 4NE"
                               Input.Value model.Postcode
+                              Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
                         (match model with
@@ -176,13 +178,21 @@ let view model dispatch =
                 Field.div [ Field.IsGrouped ] [
                     Control.div [] [
                         Button.button
-                            [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled model.ValidationError.IsSome ]
-                            [ str "Submit" ] ] 
+                            [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled (model.ValidationError.IsSome || model.ServerState = ServerState.Loading) ]
+                            [ str "Submit" ] ]
                 ]
 
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
-            | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
+            | { ServerState = ServerError error } ->
+                yield
+                    Field.div [] [
+                        Tag.list [ Tag.List.HasAddons; Tag.List.IsCentered ] [
+                            Tag.tag [ Tag.Color Color.IsDanger; Tag.Size IsMedium ] [
+                                str error
+                            ]
+                        ]
+                    ]
             | { Report = Some model } ->
                 yield
                     Tile.ancestor [ ] [
