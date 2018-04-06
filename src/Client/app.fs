@@ -183,7 +183,15 @@ let view model dispatch =
 
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
-            | { ServerState = ServerError error } -> yield Field.div [] [ str error ]
+            | { ServerState = ServerError error } ->
+                yield
+                    Field.div [] [
+                        Tag.list [ Tag.List.HasAddons; Tag.List.IsCentered ] [
+                            Tag.tag [ Tag.Color Color.IsDanger; Tag.Size IsMedium ] [
+                                str error
+                            ]
+                        ]
+                    ]
             | { Report = Some model } ->
                 yield
                     Tile.ancestor [ ] [
