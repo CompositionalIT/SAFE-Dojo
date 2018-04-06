@@ -21,6 +21,5 @@ group Client
 
 group Build
   source https://api.nuget.org/v3/index.json
-  storage: none
 
   nuget FAKE
