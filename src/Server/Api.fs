@@ -44,7 +44,7 @@ let getWeather postcode next ctx = task {
     (* Task 4.1 WEATHER: Implement a function that retrieves the weather for
        the given postcode. Use the GeoLocation.getLocation, Weather.getWeatherForPosition and
        asWeatherResponse functions to create and return a WeatherResponse instead of the stub. *)
-    return! json { Description = ""; AverageTemperature = 0. } next ctx }
+    return! json { WeatherType = WeatherType.Clear; AverageTemperature = 0. } next ctx }
 
 let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
