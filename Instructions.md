@@ -44,7 +44,7 @@ In this task, you'll take some validation code which already exists on the backe
 
 In this task, you'll add a map to the UI which shows the area surrounding the postcode on a map. By the end of this task, you'll understand how the view code in Elmish interacts with the Elmish data model.
 
-3.1 In ```src/Client/app.fs``` update the ```mapTile``` function to call the ```getBingMapUrl``` function and get a valid URL to embed a Bing map into the UI
+3.1 In ```src/Client/app.fs``` update the ```bingMapTile``` function to call the ```getBingMapUrl``` function and get a valid URL to embed a Bing map into the UI
 
 3.2 Using your retrieved URL, update the Src attribute on the iframe to retrieve embed the Bing map
 
