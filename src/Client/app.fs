@@ -158,6 +158,7 @@ let view model dispatch =
                         Input.text
                             [ Input.Placeholder "Ex: EC2A 4NE"
                               Input.Value model.Postcode
+                              Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
                         (match model with
@@ -173,7 +174,7 @@ let view model dispatch =
                 Field.div [ Field.IsGrouped ] [
                     Control.div [] [
                         Button.button
-                            [ Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled model.ValidationError.IsSome ]
+                            [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled (model.ValidationError.IsSome || model.ServerState = ServerState.Loading) ]
                             [ str "Submit" ]
                         Button.button
                             [ Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch ClearResult); Button.Disabled model.Report.IsNone ]
