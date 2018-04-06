@@ -1,7 +1,6 @@
 
 
 GROUP Build
-STORAGE: NONE
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FAKE (4.64.11)
