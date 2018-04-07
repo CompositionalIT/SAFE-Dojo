@@ -51,10 +51,11 @@ let init () =
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
 let getResponse postcode = promise {
-    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
-    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
-    
+    let! locationResponse = Fetch.postRecord "/api/distance" { Postcode = postcode } []
+    let! location = locationResponse.json<LocationResponse>()
+    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])    
     let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
+
     return { Location = location; Crimes = crimes; Weather = weather } }
  
 /// The update function knows how to update the model given a message.

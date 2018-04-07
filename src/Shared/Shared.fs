@@ -7,7 +7,7 @@ type Location =
     { Town : string
       Region : string
       LatLong : LatLong }      
-
+type GetLocationRequest = { Postcode : string }
 type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
 type CrimeResponse = { Crime : string; Incidents : int }
 type WeatherType =
