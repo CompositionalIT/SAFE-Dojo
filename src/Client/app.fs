@@ -210,7 +210,7 @@ let view model dispatch =
                     Tile.ancestor [ ] [
                         Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
                             locationTile model
-                            (* Task 4.5 WEATHER: Generate the view code for the weather tile
+                            (* Task 4.6 WEATHER: Generate the view code for the weather tile
                                using the weatherTile function, supplying the weather report
                                from the model, and include it here as part of the list *)
                         ]
