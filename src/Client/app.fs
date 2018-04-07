@@ -166,7 +166,6 @@ let view model dispatch =
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
                         (match model with
-                         | { ServerState = Loading } -> span [ Class "icon is-small is-right" ] [ i [ Class "fa fa-spinner faa-spin animated" ] [] ] 
                          | { ValidationError = Some _ } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Exclamation ]
                          | { ValidationError = None } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Check ])
                     ]
@@ -176,10 +175,17 @@ let view model dispatch =
                 ]
             yield
                 Field.div [ Field.IsGrouped ] [
-                    Control.div [] [
-                        Button.button
-                            [ Button.IsFullwidth; Button.Color IsPrimary; Button.OnClick (fun _ -> dispatch GetReport); Button.Disabled (model.ValidationError.IsSome || model.ServerState = ServerState.Loading) ]
-                            [ str "Submit" ] ]
+                    Level.level [ ] [
+                        Level.left [] [
+                            Level.item [] [
+                                Button.button
+                                    [ Button.IsFullwidth
+                                      Button.Color IsPrimary
+                                      Button.OnClick (fun _ -> dispatch GetReport)
+                                      Button.Disabled (model.ValidationError.IsSome)
+                                      Button.IsLoading (model.ServerState = ServerState.Loading) ]
+                                    [ str "Submit" ] ] ] ]
+
                 ]
 
             match model with
