@@ -75,3 +75,17 @@ In this task, you need to add another tile to the UI including all the associate
 ## 5. Adding a clear button
 
 This task is left as an exercise for the reader. In addition to the Submit button in the UI, add a Clear button, which clears the UI state and returns the UI to its initial state.
+
+## 6. Trying the POST verb
+
+Change a routes to be POST based, rather than GET. You'll need to do the following:
+
+i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
+
+### On the client
+ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can call ```json``` on the response to retrieve the typed result from the server.
+
+### On the server
+c. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
+
+d. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync()``` to retrieve the body as a ```PostcodeRequest```.
