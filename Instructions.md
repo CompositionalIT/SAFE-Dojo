@@ -6,35 +6,35 @@ i. Clone this repo
 
 ii. Start the server and client by navigating to this directory in your terminal and run ```build.cmd Run``` on Windows or ```./build.sh Run``` on Mac and Linux
 
-iii. Your web browser should automatically be opened to the correct page and after some time, you should see the application running. You can also open the web page by navigating to http://localhost:8080
+iii. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
 
-iv. When you run the application, the dotnet watch tool is also run which detects file changes and automatically recompiles and reloads the application
+iv. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application.
 
-v. Try changing an endpoint response and see how it's automatically reflected in the running application
+v. In `api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
 
-vi. The front end application also supports hot module reloading. Try changing some of the view code and see how the front end automatically updates in the browser whilst also retaining the application state
+vi. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing some of the view code in `app.fs` in the Client and see how the front end automatically updates in the browser whilst still retaining the application state.
 
 ## 1. Add a new endpoint
 
-In this task, you'll be adding a new endpoint to the backend application which provides crime statistics. By the end of this task you should have an understanding of how routes are defined in the Saturn web framework.
+In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
 
-1.1 Navigate to the file ```src/Server/api.fs``` and find where the routes are defined in the apiRouter value
+1.1 Navigate to ```src/Server/api.fs``` and find where the routes are defined in the `apiRouter` value.
 
-1.2 Observe how we define a route for the distance endpoint. Note the function name and the signature of the ```getDistanceFromLondon``` function
+1.2 Observe how we define a route for the distance endpoint. Also, note the function name and the signature of the ```getDistanceFromLondon``` function.
 
 1.3 In the same manner as the distance endpoint above, add a new endpoint ```/crime``` which also accepts a postcode. Connect it to the ```getCrimeReport``` function.
 
-1.4 Navigate to the application in the web browser and observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint
+1.4 Navigate to the application in the web browser and observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
 
-1.5 Look at the front end code to see how the data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
+1.5 Look at the `app.fs` in the Client to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
 
 ## 2. Add shared code
 
 In this task, you'll take some validation code which already exists on the backend service and use it within your front end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
 
-2.1 Navigate to ```src/Client/app.fs``` and look in the ```update``` function. Observe the ```PostcodeChanged``` event
+2.1 Navigate to ```src/Client/app.fs```. Look in the ```update``` function and examine the ```PostcodeChanged``` message handler. This code runs whenever the user changes the postcode field.
 
-2.2 Using the ```Validation.validatePostcode``` function, implement some validation logic, updating the model as appropriate
+2.2 Using the ```Validation.validatePostcode``` function, implement some validation logic to confirm that the postcode is valid. You'll need to update the ```ValidationError``` field in the model appropriate with either ```Some``` error or ```None```.
 
 2.3 Observe how the ```Validation.validatePostcode``` function is also being used in the back end code as well as the front end code
 
@@ -44,7 +44,7 @@ In this task, you'll take some validation code which already exists on the backe
 
 In this task, you'll add a map to the UI which shows the area surrounding the postcode on a map. By the end of this task, you'll understand how the view code in Elmish interacts with the Elmish data model.
 
-3.1 In ```src/Client/app.fs``` update the ```mapTile``` function to call the ```getBingMapUrl``` function and get a valid URL to embed a Bing map into the UI
+3.1 In ```src/Client/app.fs``` update the ```bingMapTile``` function to call the ```getBingMapUrl``` function and get a valid URL to embed a Bing map into the UI
 
 3.2 Using your retrieved URL, update the Src attribute on the iframe to retrieve embed the Bing map
 
@@ -75,3 +75,17 @@ In this task, you need to add another tile to the UI including all the associate
 ## 5. Adding a clear button
 
 This task is left as an exercise for the reader. In addition to the Submit button in the UI, add a Clear button, which clears the UI state and returns the UI to its initial state.
+
+## 6. Trying the POST verb
+
+Change a routes to be POST based, rather than GET. You'll need to do the following:
+
+i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
+
+### On the client
+ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can call ```json``` on the response to retrieve the typed result from the server.
+
+### On the server
+c. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
+
+d. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync()``` to retrieve the body as a ```PostcodeRequest```.
