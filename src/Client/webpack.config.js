@@ -42,7 +42,8 @@ module.exports = {
       }
     },
     hot: true,
-    inline: true
+    inline: true,
+    port: 8080
   },
   module: {
     rules: [
