@@ -20,7 +20,8 @@ let getDistanceFromLondon next (ctx:HttpContext) = task {
         return! json { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
     else return! invalidPostcode next ctx }
 
-let getCrimeReport postcode next ctx = task {
+let getCrimeReport next (ctx:HttpContext) = task {
+    let! { Postcode = postcode } = ctx.BindModelAsync<GetLocationRequest>()
     if Validation.validatePostcode postcode then
         let! location = getLocation postcode
         let! reports = Crime.getCrimesNearPosition location.LatLong
@@ -41,7 +42,8 @@ let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Ro
         |> WeatherType.Parse
       AverageTemperature = weather.ConsolidatedWeather |> Array.averageBy(fun r -> float r.TheTemp) }
 
-let getWeather postcode next ctx = task {  
+let getWeather next (ctx:HttpContext) = task {  
+    let! { Postcode = postcode } = ctx.BindModelAsync<GetLocationRequest>()
     if Validation.validatePostcode postcode then
         let! location = getLocation postcode
         let! weather = Weather.getWeatherForPosition location.LatLong
@@ -51,5 +53,5 @@ let getWeather postcode next ctx = task {
 let apiRouter = scope {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
     post "/distance" getDistanceFromLondon
-    getf "/crime/%s" getCrimeReport
-    getf "/weather/%s" getWeather }
+    post "/crime" getCrimeReport
+    post "/weather" getWeather }

@@ -53,8 +53,16 @@ let init () =
 let getResponse postcode = promise {
     let! locationResponse = Fetch.postRecord "/api/distance" { Postcode = postcode } []
     let! location = locationResponse.json<LocationResponse>()
-    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])    
-    let! weather = Fetch.fetchAs<WeatherResponse> (sprintf "api/weather/%s" postcode) []
+    let! crimesResponse = Fetch.tryPostRecord "api/crime" { Postcode = postcode } []
+    let! crimes =
+        match crimesResponse with
+        | Ok x -> x.json<CrimeResponse array>()
+        | Error _ -> Promise.lift [||]
+    let! weatherResponse = Fetch.postRecord "api/weather" { Postcode = postcode } []
+    // This does not work properly. 
+    let! weather = weatherResponse.json<WeatherResponse>()
+    // This does.
+    //let! weather = weatherResponse.text() |> Promise.map ofJson<WeatherResponse>
 
     return { Location = location; Crimes = crimes; Weather = weather } }
  
