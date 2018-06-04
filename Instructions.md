@@ -83,7 +83,12 @@ Change a routes to be POST based, rather than GET. You'll need to do the followi
 i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can call ```json``` on the response to retrieve the typed result from the server.
+ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can use a combination ```text``` on the response and `ofJson<'T>` to safely retrieve the typed result from the server. Do not use ```json``` on the response as it does not work with more complex F# types e.g. DUs. Tip: you can easily create a helper function to compose ```text()``` and ```ofJson<'T>```:
+
+```fsharp
+let getJsonSafe<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map ofJson<'T>
+```
+
 
 ### On the server
 c. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
