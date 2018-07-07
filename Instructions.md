@@ -56,9 +56,9 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 In this task, you need to add another tile to the UI including all the associated work on the backend of the system as well. We'll be adding a tile which shows the current weather for the given postcode as an image and then updating the tile to add in the current temperature. By the end of this task you should start to understand how a full stack SAFE application is built.
 
-4.1 In ```src/Server/api.fs``` implement the ```getWeatherForPosition``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
+4.1 In ```src/Server/api.fs``` implement the ```getWeather``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
 
-4.2 As in the task earlier, add a new route to the router which routes traffic to the ```getWeatherForPosition``` function
+4.2 As in the task earlier, add a new route to the router which routes traffic to the ```getWeather``` function
 
 4.3 Verify that your endpoint works and returns data either using CURL or your web browser
 
