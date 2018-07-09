@@ -2,7 +2,7 @@
 
 This self-study repository is designed to allow you to experience the SAFE stack based on an ready-made application that you can build on top of. It will take around 90 minutes for you to complete if you have no experience in any of these technologies.
 
-Please read the [instructions.md](Instructions.md) for a guide on completing this dojo to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#.
+The `master` branch has the "incomplete" solution; please read the [instructions.md](Instructions.md) for a guide on completing this dojo to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#. There is a "completed" version in the `suggested-solution` branch.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Please read the [instructions.md](Instructions.md) for a guide on completing thi
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Building
-`build.cmd run` or `build.sh run`.
+`build.cmd run` or `build.sh run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `build jsPackageManager=npm run`.
 
 If using Visual Studio 2017, do NOT attempt to build directly in VS. You *must* use `build.cmd` to compile and run the application.
 

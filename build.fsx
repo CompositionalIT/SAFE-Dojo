@@ -28,15 +28,10 @@ type JsPackageManager =
     | NPM -> "install"
     | YARN -> "install --frozen-lockfile"
 
-let getJsPackageManager param = 
-  match param with
-    | "npm" -> NPM
-    | "yarn" -> YARN
-    | _ -> failwithf "wrong jsPackageManager param, please use npm or yarn"
-
 let jsPackageManager = 
-  getBuildParamOrDefault "jsPackageManager" "yarn"
-  |> getJsPackageManager
+  match getBuildParam "jsPackageManager" with
+  | "npm" -> NPM
+  | "yarn" | _ -> YARN
 
 let mutable dotnetCli = "dotnet"
 
