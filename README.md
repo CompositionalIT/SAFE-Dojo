@@ -6,7 +6,7 @@ Please read the [instructions.md](Instructions.md) for a guide on completing thi
 
 ## Prerequisites
 
-* [.NET Core SDK 2.x](https://www.microsoft.com/net/download/) installed
+* [dotnet SDK 2.1.4](https://github.com/dotnet/cli/releases/tag/v2.1.4) The .NET Core SDK
 * [Yarn](https://yarnpkg.com/lang/en/docs/install/) package manager
 * [Node 8.x](https://nodejs.org/en/download/) installed for the front end components
 * [Mono](https://www.mono-project.com/docs/getting-started/install/) if you're running on Linux or OSX
