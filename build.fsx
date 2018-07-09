@@ -15,7 +15,28 @@ let platformTool tool winTool =
   |> function Some t -> t | _ -> failwithf "%s not found" tool
 
 let nodeTool = platformTool "node" "node.exe"
-let yarnTool = platformTool "yarn" "yarn.cmd"
+
+type JsPackageManager = 
+  | NPM
+  | YARN
+  member this.Tool =
+    match this with
+    | NPM -> platformTool "npm" "npm.cmd"
+    | YARN -> platformTool "yarn" "yarn.cmd"
+   member this.ArgsInstall =
+    match this with
+    | NPM -> "install"
+    | YARN -> "install --frozen-lockfile"
+
+let getJsPackageManager param = 
+  match param with
+    | "npm" -> NPM
+    | "yarn" -> YARN
+    | _ -> failwithf "wrong jsPackageManager param, please use npm or yarn"
+
+let jsPackageManager = 
+  getBuildParamOrDefault "jsPackageManager" "yarn"
+  |> getJsPackageManager
 
 let mutable dotnetCli = "dotnet"
 
@@ -34,9 +55,7 @@ Target "Clean" (fun _ ->
 Target "InstallClient" (fun _ ->
   printfn "Node version:"
   run nodeTool "--version" __SOURCE_DIRECTORY__
-  printfn "Yarn version:"
-  run yarnTool "--version" __SOURCE_DIRECTORY__
-  run yarnTool "install --frozen-lockfile" __SOURCE_DIRECTORY__
+  run jsPackageManager.Tool jsPackageManager.ArgsInstall  __SOURCE_DIRECTORY__
   run dotnetCli "restore" clientPath
 )
 
