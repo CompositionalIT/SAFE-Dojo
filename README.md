@@ -18,5 +18,5 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 ## Building
 `build.cmd run` or `build.sh run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `build jsPackageManager=npm run`.
 
-If using Visual Studio 2017, do NOT attempt to build directly in VS. You *must* use `build.cmd` to compile and run the application.
+If using Visual Studio 2017, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `build.cmd` to compile and run the application.
 
