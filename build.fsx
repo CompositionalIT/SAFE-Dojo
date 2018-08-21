@@ -54,15 +54,6 @@ Target "InstallClient" (fun _ ->
   run dotnetCli "restore" clientPath
 )
 
-Target "RestoreServer" (fun () -> 
-  run dotnetCli "restore" serverPath
-)
-
-Target "Build" (fun () ->
-  run dotnetCli "build" serverPath
-  run dotnetCli "fable webpack -- -p" clientPath
-)
-
 Target "Run" (fun () ->
   let server = async { run dotnetCli "watch run" serverPath }
   let client = async { run dotnetCli "fable webpack-dev-server" clientPath }
@@ -77,13 +68,8 @@ Target "Run" (fun () ->
   |> ignore
 )
 
-
 "Clean"
   ==> "InstallClient"
-  ==> "Build"
-
-"InstallClient"
-  ==> "RestoreServer"
   ==> "Run"
 
-RunTargetOrDefault "Build"
+RunTargetOrDefault "Run"

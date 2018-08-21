@@ -5,7 +5,6 @@ group Server
   nuget Saturn
   nuget Fable.JsonConverter
   nuget FSharp.Data 3.0.0-beta
-  clitool Microsoft.DotNet.Watcher.Tools
 
 group Client
   source https://api.nuget.org/v3/index.json
