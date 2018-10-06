@@ -86,8 +86,7 @@ i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store
 ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can use a combination ```text``` on the response and `ofJson<'T>` to safely retrieve the typed result from the server. Do not use ```json``` on the response as it does not work with more complex F# types e.g. DUs. Tip: you can easily create a helper function to compose ```text()``` and ```ofJson<'T>```. If you take this approach, then note the addition of the ```PassGenericsAttribute```, this tells Fable to maintain type information for the generics and allows us to propagate the type information from the parent function call down to the children:
 
 ```fsharp
-[<PassGenerics>]
-let getJsonSafe<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map ofJson<'T>
+let inline getJsonSafe<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map ofJson<'T>
 ```
 
 
