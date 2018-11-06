@@ -1,17 +1,21 @@
-#r @"packages/build/FAKE/tools/FakeLib.dll"
+#r "paket: groupref Build //"
+#load "./.fake/build.fsx/intellisense.fsx"
+#if !FAKE
+  #r "netstandard"
+#endif
 
-open System
+open Fake.Core
+open Fake.DotNet
+open Fake.IO
 
-open Fake
-
-let serverPath = "./src/Server" |> FullName
-let clientPath = "./src/Client" |> FullName
-let deployDir = "./deploy" |> FullName
+let serverPath = "./src/Server" |> Path.getFullName
+let clientPath = "./src/Client" |> Path.getFullName
+let deployDir = "./deploy" |> Path.getFullName
 
 let platformTool tool winTool =
-  let tool = if isUnix then tool else winTool
+  let tool = if Environment.isUnix then tool else winTool
   tool
-  |> ProcessHelper.tryFindFileOnPath
+  |> ProcessUtils.tryFindFileOnPath
   |> function Some t -> t | _ -> failwithf "%s not found" tool
 
 let nodeTool = platformTool "node" "node.exe"
@@ -28,38 +32,61 @@ type JsPackageManager =
     | NPM -> "install"
     | YARN -> "install --frozen-lockfile"
 
-let jsPackageManager = 
-  match getBuildParam "jsPackageManager" with
-  | "npm" -> NPM
-  | "yarn" | _ -> YARN
+let jsPackageManager =
+  let ctx = Context.forceFakeContext ()
+  let arg =
+    ctx.Arguments
+    |> List.tryFind (fun s -> s.StartsWith("jsPackageManager"))
+    |> Option.map (fun s -> s.Split('=') |> Array.last)
+  match arg with
+  | Some "npm" -> NPM
+  | Some "yarn" | None -> YARN
+  | Some _ -> failwith "Invalid JS package manager"
 
-let mutable dotnetCli = "dotnet"
+let runTool cmd args workingDir =
+    let arguments = args |> String.split ' ' |> Arguments.OfArgs
+    Command.RawCommand (cmd, arguments)
+    |> CreateProcess.fromCommand
+    |> CreateProcess.withWorkingDirectory workingDir
+    |> CreateProcess.ensureExitCode
+    |> Proc.run
+    |> ignore
 
-let run cmd args workingDir =
-  let result =
-    ExecProcess (fun info ->
-      info.FileName <- cmd
-      info.WorkingDirectory <- workingDir
-      info.Arguments <- args) TimeSpan.MaxValue
-  if result <> 0 then failwithf "'%s %s' failed" cmd args
+let runDotNet cmd workingDir =
+    let result =
+        DotNet.exec (DotNet.Options.withWorkingDirectory workingDir) cmd ""
+    if result.ExitCode <> 0 then failwithf "'dotnet %s' failed in %s" cmd workingDir
 
-Target "Clean" (fun _ -> 
-  CleanDirs [deployDir]
+let openBrowser url =
+    //https://github.com/dotnet/corefx/issues/10361
+    Command.ShellCommand url
+    |> CreateProcess.fromCommand
+    |> CreateProcess.ensureExitCodeWithMessage "opening browser failed"
+    |> Proc.run
+    |> ignore
+
+Target.create "Clean" (fun _ -> 
+  Shell.cleanDirs [deployDir]
 )
 
-Target "InstallClient" (fun _ ->
-  printfn "Node version:"
-  run nodeTool "--version" __SOURCE_DIRECTORY__
-  run jsPackageManager.Tool jsPackageManager.ArgsInstall  __SOURCE_DIRECTORY__
-  run dotnetCli "restore" clientPath
+Target.create "InstallClient" (fun _ ->
+  Trace.tracefn "Node version:"
+  runTool nodeTool "--version" __SOURCE_DIRECTORY__
+  runTool jsPackageManager.Tool jsPackageManager.ArgsInstall  __SOURCE_DIRECTORY__
+  runDotNet "restore" clientPath
 )
 
-Target "Run" (fun () ->
-  let server = async { run dotnetCli "watch run" serverPath }
-  let client = async { run dotnetCli "fable webpack-dev-server" clientPath }
+Target.create "Build" (fun _ ->
+    runDotNet "build" serverPath
+    runDotNet "fable webpack-cli -- --config src/Client/webpack.config.js -p" clientPath
+)
+
+Target.create "Run" (fun _ ->
+  let server = async { runDotNet "watch run" serverPath }
+  let client = async { runDotNet "fable webpack-dev-server -- --config webpack.config.js" clientPath }
   let browser = async {
-    Threading.Thread.Sleep 5000
-    Diagnostics.Process.Start "http://localhost:8080" |> ignore
+    do! Async.Sleep 5000
+    openBrowser "http://localhost:8080"
   }
 
   [ server; client; browser]
@@ -68,8 +95,14 @@ Target "Run" (fun () ->
   |> ignore
 )
 
+open Fake.Core.TargetOperators
+
 "Clean"
   ==> "InstallClient"
-  ==> "Run"
+  ==> "Build"
 
-RunTargetOrDefault "Run"
+"Clean"
+    ==> "InstallClient"
+    ==> "Run"
+
+Target.runOrDefaultWithArguments "Build"

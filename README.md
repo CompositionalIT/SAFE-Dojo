@@ -7,7 +7,8 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 ## Prerequisites
 
 * [dotnet SDK 2.1.4](https://github.com/dotnet/cli/releases/tag/v2.1.4) The .NET Core SDK
-* [Yarn](https://yarnpkg.com/lang/en/docs/install/) package manager
+* [Yarn](https://yarnpkg.com/lang/en/docs/install/) package manager (Optional. You can use NPM via command-line switch)
+* [FAKE 5](https://fake.build/) installed as a [global tool](https://fake.build/fake-gettingstarted.html#Install-FAKE)
 * [Node 8.x](https://nodejs.org/en/download/) installed for the front end components
 * [Mono](https://www.mono-project.com/docs/getting-started/install/) if you're running on Linux or OSX
 * An F# code editor such as:
@@ -16,9 +17,9 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Building
-`build.cmd run` or `build.sh run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `build jsPackageManager=npm run`.
+`fake build -t run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `fake build -t run jsPackageManager=npm`.
 
 If you're in VS Code, you can simply hit `CTRL`+`SHIFT`+`B` to build and run the application.
 
-If using Visual Studio 2017, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `build.cmd` to compile and run the application.
+If using Visual Studio 2017, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `fake build -t run` to compile and run the application.
 

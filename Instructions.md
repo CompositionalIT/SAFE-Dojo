@@ -4,7 +4,7 @@
 
 i. Clone this repo
 
-ii. Start the server and client by navigating to this directory in your terminal and run ```build.cmd Run``` on Windows or ```./build.sh Run``` on Mac and Linux
+ii. Start the server and client by navigating to this directory in your terminal and run ```fake build -t run```
 
 iii. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
 
