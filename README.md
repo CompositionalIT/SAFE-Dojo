@@ -16,7 +16,7 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Building
-`build.cmd run` or `build.sh run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `build jsPackageManager=npm run`.
+`build.cmd run` or `./build.sh run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `build jsPackageManager=npm run`.
 
 If you're in VS Code, you can simply hit `CTRL`+`SHIFT`+`B` to build and run the application.
 
