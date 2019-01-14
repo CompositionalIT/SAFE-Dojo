@@ -83,10 +83,10 @@ Change a routes to be POST based, rather than GET. You'll need to do the followi
 i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can use a combination ```text``` on the response and `ofJson<'T>` to safely retrieve the typed result from the server. Do not use ```json``` on the response as it does not work with more complex F# types e.g. DUs. Tip: you can easily create a helper function to compose ```text()``` and ```ofJson<'T>```. If you take this approach, then note the addition of the ``inline`` modifier, this is needed to ensure that the type information is not lost when we create this function:
+ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```; you can use a combination ```text``` on the response and `ofJson<'T>` to safely retrieve the typed result from the server. Do not use ```json``` on the response as it does not work with more complex F# types e.g. DUs. Tip: you can easily create a helper function to compose ```text()``` and ```Decode.Auto.unsafeFromString<'T>```. If you take this approach, then note the addition of the ``inline`` modifier, this is needed to ensure that the type information is not lost when we create this function:
 
 ```fsharp
-let inline getJsonSafe<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map ofJson<'T>
+let inline getJson<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map Decode.Auto.unsafeFromString<'T>
 ```
 
 
