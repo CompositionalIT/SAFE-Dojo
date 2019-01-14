@@ -5,8 +5,6 @@ open Fable.Helpers.React
 open Fable.Helpers.React.Props
 
 open Fulma
-open Fulma.Elements
-open Fulma.Elements.Form
 
 module KeyCode =
     let enter = 13.
@@ -21,7 +19,7 @@ let onKeyDown keyCode action =
 
 let btn txt onClick = 
     Button.button
-        [ Button.IsFullwidth
+        [ Button.IsFullWidth
           Button.Color IsPrimary
           Button.OnClick onClick ] 
         [ str txt ]

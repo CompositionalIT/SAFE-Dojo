@@ -3,6 +3,7 @@ module App
 open Elmish
 
 open Fable
+open Fable.FontAwesome
 open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
@@ -11,12 +12,6 @@ open Fable.Recharts
 open Fable.Recharts.Props
 
 open Fulma
-open Fulma.Layouts
-open Fulma.Elements
-open Fulma.Elements.Form
-open Fulma.Extra.FontAwesome
-open Fulma.Components
-open Fulma.BulmaClasses
 
 open Shared
 
@@ -48,9 +43,12 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
+let decoderForLocationResponse = Thoth.Json.Decode.Auto.generateDecoder<LocationResponse> ()
+let decoderForCrimeResponse = Thoth.Json.Decode.Auto.generateDecoder<CrimeResponse array>()
+
 let getResponse postcode = promise {
-    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) []
-    let! crimes = Fetch.tryFetchAs<CrimeResponse array> (sprintf "api/crime/%s" postcode) [] |> Promise.map (Result.defaultValue [||])
+    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
+    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
     
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
@@ -164,10 +162,12 @@ let view model dispatch =
                               Input.Value model.Postcode
                               Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
-                        Icon.faIcon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.icon Fa.I.Building ]
+                        Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
                         (match model with
-                         | { ValidationError = Some _ } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Exclamation ]
-                         | { ValidationError = None } -> Icon.faIcon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.icon Fa.I.Check ])
+                         | { ValidationError = Some _ } -> 
+                            Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
+                         | { ValidationError = None } -> 
+                            Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
                     ]
                     Help.help
                        [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
@@ -179,7 +179,7 @@ let view model dispatch =
                         Level.left [] [
                             Level.item [] [
                                 Button.button
-                                    [ Button.IsFullwidth
+                                    [ Button.IsFullWidth
                                       Button.Color IsPrimary
                                       Button.OnClick (fun _ -> dispatch GetReport)
                                       Button.Disabled (model.ValidationError.IsSome)
@@ -224,7 +224,7 @@ let view model dispatch =
 
         Footer.footer [] [
             Content.content
-                [ Content.CustomClass Bulma.Properties.Alignment.HasTextCentered ]
+                [ Content.Modifiers [ Fulma.Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ] ]
                 [ safeComponents ]
         ]
     ]

@@ -1,4 +1,5 @@
 group Server
-Fable.JsonConverter
-FSharp.Data
-Saturn
+    FSharp.Core
+    Saturn
+    Thoth.Json.Giraffe
+    FSharp.Data
