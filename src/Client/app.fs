@@ -67,7 +67,6 @@ let update msg model =
             Report = Some response
             ServerState = Idle }, Cmd.none
     | _, PostcodeChanged p ->
-        let p = p.ToUpper()
         { model with
             Postcode = p
             (* Task 2.2 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
@@ -160,6 +159,7 @@ let view model dispatch =
                         Input.text
                             [ Input.Placeholder "Ex: EC2A 4NE"
                               Input.Value model.Postcode
+                              Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
                               Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
