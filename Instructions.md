@@ -10,7 +10,7 @@ iii. Your web browser should automatically be opened to the correct page and aft
 
 iv. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application.
 
-v. In `api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
+v. In `Api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
 
 vi. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing some of the view code in `app.fs` in the Client and see how the front end automatically updates in the browser whilst still retaining the application state.
 
@@ -18,7 +18,7 @@ vi. The front end application also supports [hot module reloading](https://webpa
 
 In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
 
-1.1 Navigate to ```src/Server/api.fs``` and find where the routes are defined in the `apiRouter` value.
+1.1 Navigate to ```src/Server/Api.fs``` and find where the routes are defined in the `apiRouter` value.
 
 1.2 Observe how we define a route for the distance endpoint. Also, note the function name and the signature of the ```getDistanceFromLondon``` function.
 
@@ -56,7 +56,7 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 In this task, you need to add another tile to the UI including all the associated work on the backend of the system as well. We'll be adding a tile which shows the current weather for the given postcode as an image and then updating the tile to add in the current temperature. By the end of this task you should start to understand how a full stack SAFE application is built.
 
-4.1 In ```src/Server/api.fs``` implement the ```getWeather``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
+4.1 In ```src/Server/Api.fs``` implement the ```getWeather``` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The ```asWeatherResponse``` function will help to simplify the process of mapping the data
 
 4.2 As in the task earlier, add a new route to the router which routes traffic to the ```getWeather``` function
 
