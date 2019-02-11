@@ -6,14 +6,13 @@
 #r "Facades/netstandard" // https://github.com/ionide/ionide-vscode-fsharp/issues/839#issuecomment-396296095
 #endif
 
-open System
-
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
 
 let serverPath = Path.getFullName "./src/Server"
 let clientPath = Path.getFullName "./src/Client"
+let clientDeployPath = Path.combine clientPath "deploy"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -27,8 +26,28 @@ let platformTool tool winTool =
             "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
         failwith errorMsg
 
+type JsPackageManager = 
+    | NPM
+    | YARN
+    member this.RestoreTool =
+        match this with
+        | NPM -> platformTool "npm" "npm.cmd"
+        | YARN -> platformTool "yarn" "yarn.cmd"
+    member this.RunTool =
+        match this with
+        | NPM -> platformTool "npx" "npx.cmd"
+        | YARN -> platformTool "yarn" "yarn.cmd"
+    member this.ArgsInstall =
+        match this with
+        | NPM -> "install"
+        | YARN -> "install --frozen-lockfile"
+
+let jsPackageManager = 
+    match Environment.environVarOrDefault "jsPackageManager" "yarn" with
+    | "npm" -> NPM
+    | "yarn" | _ -> YARN
+
 let nodeTool = platformTool "node" "node.exe"
-let yarnTool = platformTool "yarn" "yarn.cmd"
 
 let runTool cmd args workingDir =
     let arguments = args |> String.split ' ' |> Arguments.OfArgs
@@ -52,29 +71,33 @@ let openBrowser url =
     |> Proc.run
     |> ignore
 
+
 Target.create "Clean" (fun _ ->
-    Shell.cleanDirs [deployDir]
+    [ deployDir
+      clientDeployPath ]
+    |> Shell.cleanDirs
 )
 
 Target.create "InstallClient" (fun _ ->
     printfn "Node version:"
     runTool nodeTool "--version" __SOURCE_DIRECTORY__
-    printfn "Yarn version:"
-    runTool yarnTool "--version" __SOURCE_DIRECTORY__
-    runTool yarnTool "install --frozen-lockfile" __SOURCE_DIRECTORY__
+    printfn "Npm version:"
+    runTool jsPackageManager.RestoreTool "--version"  __SOURCE_DIRECTORY__
+    runTool jsPackageManager.RestoreTool "install" __SOURCE_DIRECTORY__
     runDotNet "restore" clientPath
 )
 
 Target.create "Build" (fun _ ->
     runDotNet "build" serverPath
-    runDotNet "fable webpack-cli -- --config src/Client/webpack.config.js -p" clientPath
+    runTool jsPackageManager.RunTool "webpack-cli -p" __SOURCE_DIRECTORY__
 )
+
 Target.create "Run" (fun _ ->
     let server = async {
         runDotNet "watch run" serverPath
     }
     let client = async {
-        runDotNet "fable webpack-dev-server -- --config src/Client/webpack.config.js" clientPath
+        runTool jsPackageManager.RunTool "webpack-dev-server" __SOURCE_DIRECTORY__
     }
     let browser = async {
         do! Async.Sleep 5000
@@ -96,11 +119,15 @@ Target.create "Run" (fun _ ->
 )
 
 
+
+
+
 open Fake.Core.TargetOperators
 
 "Clean"
     ==> "InstallClient"
     ==> "Build"
+
 
 "Clean"
     ==> "InstallClient"
