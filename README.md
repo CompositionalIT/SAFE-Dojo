@@ -17,7 +17,7 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Building
-`fake build -t run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `fake build -t run jsPackageManager=npm`.
+`fake build -t run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `fake build -t run -e jsPackageManager=npm`.
 
 If you're in VS Code, you can simply hit `CTRL`+`SHIFT`+`B` to build and run the application.
 
