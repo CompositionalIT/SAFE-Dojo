@@ -42,7 +42,7 @@ type JsPackageManager =
         | NPM -> "install"
         | YARN -> "install --frozen-lockfile"
 
-let jsPackageManager = 
+let getJsPackageManager () = 
     match Environment.environVarOrDefault "jsPackageManager" "yarn" with
     | "npm" -> NPM
     | "yarn" | _ -> YARN
@@ -79,6 +79,8 @@ Target.create "Clean" (fun _ ->
 )
 
 Target.create "InstallClient" (fun _ ->
+    let jsPackageManager = getJsPackageManager ()
+
     printfn "Node version:"
     runTool nodeTool "--version" __SOURCE_DIRECTORY__
     printfn "Npm version:"
@@ -88,11 +90,15 @@ Target.create "InstallClient" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
+    let jsPackageManager = getJsPackageManager ()
+
     runDotNet "build" serverPath
     runTool jsPackageManager.RunTool "webpack-cli -p" __SOURCE_DIRECTORY__
 )
 
 Target.create "Run" (fun _ ->
+    let jsPackageManager = getJsPackageManager ()
+    
     let server = async {
         runDotNet "watch run" serverPath
     }
