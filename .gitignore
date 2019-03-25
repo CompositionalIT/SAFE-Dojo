@@ -12,3 +12,4 @@ release.sh
 .idea/
 *.DotSettings.user
 deploy
+/.ionide/
