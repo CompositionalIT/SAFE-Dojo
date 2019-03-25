@@ -6,6 +6,7 @@ open Giraffe
 open Microsoft.AspNetCore.Http
 open Saturn
 open Shared
+open FSharp.Control.Tasks
 
 let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 let invalidPostcode next (ctx:HttpContext) =
@@ -46,7 +47,7 @@ let getWeather postcode next ctx = task {
        asWeatherResponse functions to create and return a WeatherResponse instead of the stub. *)
     return! json { WeatherType = WeatherType.Clear; AverageTemperature = 0. } next ctx }
 
-let apiRouter = scope {
+let apiRouter = router {
     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
     getf "/distance/%s" getDistanceFromLondon
     

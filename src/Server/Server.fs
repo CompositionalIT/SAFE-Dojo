@@ -4,25 +4,23 @@ open Giraffe.Serialization
 open Microsoft.Extensions.DependencyInjection
 open Saturn
 open System.IO
+open Thoth.Json.Giraffe
 
 let clientPath = Path.Combine("..","Client") |> Path.GetFullPath
 let port = 8085us
 
-let browserRouter = scope {
+let browserRouter = router {
     get "/" (htmlFile (Path.Combine(clientPath, "/index.html"))) }
 
-let mainRouter = scope {
+let mainRouter = router {
     forward "/api" apiRouter
     forward "" browserRouter }
 
 let config (services:IServiceCollection) =
-    let fableJsonSettings = Newtonsoft.Json.JsonSerializerSettings()
-    fableJsonSettings.Converters.Add(Fable.JsonConverter())
-    services.AddSingleton<IJsonSerializer>(NewtonsoftJsonSerializer fableJsonSettings) |> ignore
-    services
+    services.AddSingleton<Giraffe.Serialization.Json.IJsonSerializer>(Thoth.Json.Giraffe.ThothSerializer())
 
 let app = application {
-    router mainRouter
+    use_router mainRouter
     url ("http://0.0.0.0:" + port.ToString() + "/")
     memory_cache 
     use_static clientPath

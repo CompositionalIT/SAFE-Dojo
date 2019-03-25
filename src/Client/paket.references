@@ -1,7 +1,12 @@
 group Client
-Fable.Elmish.Debugger
-Fable.Elmish.React
-Fable.Elmish.HMR
-Fable.Recharts
-dotnet-fable
-Fulma
+    FSharp.Core
+    Fable.Elmish.Debugger
+    Fable.Elmish.React
+    Fable.Elmish.HMR
+    Fable.Core
+    Fulma
+    Fable.Recharts
+    Fable.FontAwesome
+    Fable.FontAwesome.Free
+
+    dotnet-fable
