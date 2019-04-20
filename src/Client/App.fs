@@ -37,7 +37,7 @@ type Msg =
     | ErrorMsg of exn
 
 /// The init function is called to start the message pump with an initial view.
-let init () = 
+let init () =
     { Postcode = null
       Report = None
       ValidationError = None
@@ -49,12 +49,12 @@ let decoderForCrimeResponse = Thoth.Json.Decode.Auto.generateDecoder<CrimeRespon
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
     let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
-    
+
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
     return { Location = location; Crimes = crimes } }
- 
+
 /// The update function knows how to update the model given a message.
 let update msg model =
     match model, msg with
@@ -86,7 +86,7 @@ module ViewParts =
             Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
                 (Heading.h2 [ ] [ str title ] :: content)
         ]
-    
+
     let crimeTile crimes =
         let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
         basicTile "Crime" [ ] [
@@ -141,18 +141,24 @@ module ViewParts =
                 Heading.h4 [ ] [ sprintf "%.1fKM to London" model.Location.DistanceToLondon |> str ]
             ]
         ]
-             
+
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
     div [] [
-        Navbar.navbar [ Navbar.Color IsPrimary ] [
-            Navbar.Item.div [] [
-                Heading.h1 [] [ str "Location Review!" ] ]
+        Hero.hero [ Hero.Color Color.IsInfo ] [
+            Hero.body [ ] [
+                Container.container [ Container.IsFluid
+                                      Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [
+                    Heading.h1 [ ] [
+                        str "UK Location Data Mashup"
+                    ]
+                ]
             ]
-        
+        ]
+
         Container.container [] [
-            yield 
+            yield
                 Field.div [] [
                     Label.label [] [ str "Postcode" ]
                     Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
@@ -164,9 +170,9 @@ let view model dispatch =
                               Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
                         Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
                         (match model with
-                         | { ValidationError = Some _ } -> 
+                         | { ValidationError = Some _ } ->
                             Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
-                         | { ValidationError = None } -> 
+                         | { ValidationError = None } ->
                             Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
                     ]
                     Help.help
@@ -208,7 +214,7 @@ let view model dispatch =
                     ]
                 yield
                     Tile.ancestor [ ] [
-                        Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [ 
+                        Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
                             locationTile model
                             (* Task 4.6 WEATHER: Generate the view code for the weather tile
                                using the weatherTile function, supplying the weather report
@@ -216,8 +222,8 @@ let view model dispatch =
                         ]
                         Tile.parent [ Tile.Size Tile.Is8 ] [
                             crimeTile model.Crimes
-                        ]                   
-                  ]        
+                        ]
+                  ]
         ]
 
         br [ ]
