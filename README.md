@@ -6,14 +6,14 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 
 ## Prerequisites
 
-* [dotnet SDK 2.1.4 or higher](https://github.com/dotnet/cli/releases/tag/v2.1.4) The .NET Core SDK
-* [FAKE 5](https://fake.build/fake-gettingstarted.html#Install-FAKE) F# build tool
-* [Yarn](https://yarnpkg.com/lang/en/docs/install/) package manager
+* [dotnet SDK 2.1.4 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
+* [FAKE 5](https://fake.build/fake-gettingstarted.html#Install-FAKE) F# build tool installed as a global tool
+* [Yarn](https://yarnpkg.com/lang/en/docs/install/) NPM package manager
 * [Node 10.x](https://nodejs.org/en/download/) installed for the front end components
 * [Mono](https://www.mono-project.com/docs/getting-started/install/) if you're running on Linux or OSX
 * An F# code editor such as:
    * [VS Code](https://code.visualstudio.com/) + [Ionide](https://github.com/ionide/ionide-vscode-fsharp) extension
-   * [Visual Studio 2017](https://www.visualstudio.com/downloads/)
+   * [Visual Studio](https://www.visualstudio.com/downloads/)
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Building
@@ -21,5 +21,4 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 
 If you're in VS Code, you can simply hit `CTRL`+`SHIFT`+`B` to build and run the application.
 
-If using Visual Studio 2017, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `fake build` to compile and run the application.
-
+If using Visual Studio, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `fake build` to compile and run the application.
