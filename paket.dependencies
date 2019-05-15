@@ -31,7 +31,7 @@ group Build
     framework: netstandard2.0
     storage: none
 
-    nuget FSharp.Core 4.3.4 // https://github.com/fsharp/FAKE/issues/2001
+    nuget FSharp.Core
     nuget Fake.Core.Target
     nuget Fake.DotNet.Cli
     nuget Fake.IO.FileSystem

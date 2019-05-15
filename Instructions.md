@@ -34,9 +34,9 @@ In this task, you'll take some validation code which already exists on the backe
 
 2.1 Navigate to ```src/Client/App.fs```. Look in the ```update``` function and examine the ```PostcodeChanged``` message handler. This code runs whenever the user changes the postcode field.
 
-2.2 Using the ```Validation.validatePostcode``` function, implement some validation logic to confirm that the postcode is valid. You'll need to update the ```ValidationError``` field in the model appropriate with either ```Some``` error or ```None```.
+2.2 Using the ```Validation.isValidPostcode``` function, implement some validation logic to confirm that the postcode is valid. You'll need to update the ```ValidationError``` field in the model appropriate with either ```Some``` error or ```None```.
 
-2.3 Observe how the ```Validation.validatePostcode``` function is also being used in the back end code as well as the front end code
+2.3 Observe how the ```Validation.isValidPostcode``` function is also being used in the back-end as well as the front-end code
 
 2.4 Navigate to the web application and try typing in an invalid postcode into the text box. Notice how your validation error is now being propagated into the UI
 
