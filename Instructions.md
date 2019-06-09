@@ -30,7 +30,7 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 ## 2. Add shared code
 
-In this task, you'll take some validation code which already exists on the backend service and use it within your front end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
+In this task, you'll take some validation code which already exists on the backend service and use it within your front-end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
 
 2.1 Navigate to ```src/Client/App.fs```. Look in the ```update``` function and examine the ```PostcodeChanged``` message handler. This code runs whenever the user changes the postcode field.
 
@@ -78,7 +78,7 @@ This task is left as an exercise for the reader. In addition to the Submit butto
 
 ## 6. Trying the POST verb
 
-Change a routes to be POST based, rather than GET. You'll need to do the following:
+Change a route to be POST based, rather than GET. You'll need to do the following:
 
 i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
