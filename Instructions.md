@@ -78,17 +78,15 @@ This task is left as an exercise for the reader. In addition to the Submit butto
 
 Change a route to be POST based, rather than GET. You'll need to do the following:
 
-i. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
+1. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-ii. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```. Notice that the return type is different though when using ```postRecord```. To get the data returned from the server you can use a combination ```text``` method on the response and the ```Decode.Auto.unsafeFromString<'T>``` function to safely retrieve the typed result from the server. Do not use ```json``` on the response as it does not work with more complex F# types e.g. DUs. Tip: you can easily create a helper function to compose ```text()``` and ```Decode.Auto.unsafeFromString<'T>```. If you take this approach, then note the addition of the ``inline`` modifier, this is needed to ensure that the type information is not lost when we create this function:
+1. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```.
+1. Change the url so that it is not parameterised any longer; instead, the second argument should be the payload record of the ```PostcodeRequest``` type.
+1. Notice that the return type is different though when using ```postRecord```. To get the data returned from the server you can use a combination ```text``` method on the response and the ```Decode.Auto.unsafeFromString<'T>``` function to safely retrieve the typed result from the server
 
-```fsharp
-let inline getJson<'T> (response:Fetch.Fetch_types.Response) = response.text() |> Promise.map Decode.Auto.unsafeFromString<'T>
-```
-
+> Do **not** use the ```json``` helper function on the response, as it does not work with more complex F# types e.g. DUs.
 
 ### On the server
-c. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
-
-d. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync()``` to retrieve the body as a ```PostcodeRequest```.
+1. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
+1. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync<PostcodeRequest>()``` to retrieve the body as a ```PostcodeRequest```.

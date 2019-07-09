@@ -1,8 +1,6 @@
 module App
 
 open Elmish
-
-open Fable
 open Fable.FontAwesome
 open Fable.Core.JsInterop
 open Fable.Helpers.React
@@ -10,10 +8,9 @@ open Fable.Helpers.React.Props
 open Fable.PowerPack
 open Fable.Recharts
 open Fable.Recharts.Props
-
 open Fulma
-
 open Shared
+open Thoth.Json
 
 /// The different elements of the completed report.
 type Report =
@@ -43,9 +40,9 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let decoderForLocationResponse = Thoth.Json.Decode.Auto.generateDecoder<LocationResponse> ()
-let decoderForCrimeResponse = Thoth.Json.Decode.Auto.generateDecoder<CrimeResponse array>()
-let decoderForWeather = Thoth.Json.Decode.Auto.generateDecoder<WeatherResponse>()
+let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse> ()
+let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
+let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
