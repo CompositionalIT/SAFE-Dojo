@@ -45,6 +45,7 @@ let init () =
 
 let decoderForLocationResponse = Thoth.Json.Decode.Auto.generateDecoder<LocationResponse> ()
 let decoderForCrimeResponse = Thoth.Json.Decode.Auto.generateDecoder<CrimeResponse array>()
+let decoderForWeather = Thoth.Json.Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
@@ -190,8 +191,10 @@ let view model dispatch =
                                       Button.OnClick (fun _ -> dispatch GetReport)
                                       Button.Disabled (model.ValidationError.IsSome)
                                       Button.IsLoading (model.ServerState = ServerState.Loading) ]
-                                    [ str "Submit" ] ] ] ]
-
+                                    [ str "Submit" ]
+                            ]
+                        ]
+                    ]
                 ]
 
             match model with

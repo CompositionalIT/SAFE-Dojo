@@ -1,21 +1,19 @@
 # Instructions
 
 ## Prologue: Build and Run
+1. Clone this repo
+1. Ensure that you have installed all the pre-requisites in `README.md`
+1. Start the server and client by navigating to this directory in your terminal and run ```fake build```
+1. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
+1. You should see a search entry box with a Submit button. Enter the UK postcode `EC2A 4NE` and hit Submit: you will see several empty panels and some basic Location details on the postcode.
 
-i. Clone this repo
+Also note the following:
 
-ii. Start the server and client by navigating to this directory in your terminal and run ```fake build -t Run```
-
-iii. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
-
-iv. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application.
-
-v. In `Api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
-
-vi. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing some of the view code in `App.fs` in the Client and see how the front end automatically updates in the browser whilst still retaining the application state.
+1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application.
+1. In `Api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
+1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing some of the view code in `App.fs` in the Client and see how the front end automatically updates in the browser whilst still retaining the application state.
 
 ## 1. Add a new endpoint
-
 In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
 
 1.1 Navigate to ```src/Server/Api.fs``` and find where the routes are defined in the `apiRouter` value.
@@ -24,7 +22,7 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 1.3 In the same manner as the distance endpoint above, add a new endpoint ```/crime``` which also accepts a postcode. Connect it to the ```getCrimeReport``` function.
 
-1.4 Navigate to the application in the web browser and observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
+1.4 Navigate to the application in the web browser and run a postcode search; observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
 
 1.5 Look at the `app.fs` in the Client to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
 
@@ -64,7 +62,7 @@ In this task, you need to add another tile to the UI including all the associate
 
 4.4 On the front end in the file ```src/Client/App.fs```, update the ```Report``` type to include the ```WeatherResponse```
 
-4.5 In ```src/Client/App.fs``` in the ```getResponse``` function, call your endpoint using Fetch as the other APIs and populate your Report with the returned data
+4.5 In ```src/Client/App.fs``` in the ```getResponse``` function, call your endpoint using `tryFetch` as the other API call, and populate the `Report` field with the returned data
 
 4.6 Update the ```view``` function to include a call to the ```weatherTile``` function
 

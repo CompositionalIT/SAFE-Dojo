@@ -26,7 +26,7 @@ let platformTool tool winTool =
             "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
         failwith errorMsg
 
-type JsPackageManager = 
+type JsPackageManager =
     | NPM
     | YARN
     member this.RestoreTool =
@@ -42,7 +42,7 @@ type JsPackageManager =
         | NPM -> "install"
         | YARN -> "install --frozen-lockfile"
 
-let getJsPackageManager () = 
+let getJsPackageManager () =
     match Environment.environVarOrDefault "jsPackageManager" "yarn" with
     | "npm" -> NPM
     | "yarn" | _ -> YARN
@@ -98,7 +98,7 @@ Target.create "Build" (fun _ ->
 
 Target.create "Run" (fun _ ->
     let jsPackageManager = getJsPackageManager ()
-    
+
     let server = async {
         runDotNet "watch run" serverPath
     }
@@ -139,4 +139,4 @@ open Fake.Core.TargetOperators
     ==> "InstallClient"
     ==> "Run"
 
-Target.runOrDefaultWithArguments "Build"
+Target.runOrDefaultWithArguments "Run"
