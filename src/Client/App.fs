@@ -15,7 +15,8 @@ open Thoth.Json
 /// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array }
+      Crimes : CrimeResponse array
+      Weather : WeatherResponse }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -32,6 +33,7 @@ type Msg =
     | PostcodeChanged of string
     | GotReport of Report
     | ErrorMsg of exn
+    | Clear
 
 /// The init function is called to start the message pump with an initial view.
 let init () =
@@ -45,13 +47,11 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
+    let! location = Fetch.postRecord "/api/distance" { Postcode = postcode } []
+    let! location = location.text()
     let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
-
-    (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
-       Then, save its value into the Report below. You'll need to add a new
-       field to the Report type first, though! *)
-    return { Location = location; Crimes = crimes } }
+    let! weather = Fetch.fetchAs (sprintf "api/weather/%s" postcode) decoderForWeather []
+    return { Location = location |> Decode.Auto.unsafeFromString; Crimes = crimes; Weather = weather } }
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -67,10 +67,11 @@ let update msg model =
     | _, PostcodeChanged p ->
         { model with
             Postcode = p
-            (* Task 2.2 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
-               Note that the validation is the same shared code that runs on the server! *)
-            ValidationError = None }, Cmd.none
+            ValidationError =
+                if Validation.isValidPostcode p then None
+                else Some "Invalid postcode!" }, Cmd.none
     | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
+    | _, Clear -> init()
 
 [<AutoOpen>]
 module ViewParts =
@@ -102,11 +103,11 @@ module ViewParts =
         sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
 
     let bingMapTile (latLong:LatLong) =
+        let url = getBingMapUrl latLong
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             iframe [
+                Src url
                 Style [ Height 410; Width 810 ]
-                (* Task 3.1 MAPS: Use the getBingMapUrl function to build a valid maps URL using the supplied LatLong.
-                   You can use it to add a Src attribute to this iframe. *)
             ] [ ]
         ]
 
@@ -190,6 +191,14 @@ let view model dispatch =
                                       Button.IsLoading (model.ServerState = ServerState.Loading) ]
                                     [ str "Submit" ]
                             ]
+                            Level.item [] [
+                                Button.button
+                                    [ Button.IsFullWidth
+                                      Button.Color IsPrimary
+                                      Button.OnClick (fun _ -> dispatch Clear)
+                                      Button.IsLoading (model.ServerState = ServerState.Loading) ]
+                                    [ str "Clear" ]
+                            ]
                         ]
                     ]
                 ]
@@ -216,9 +225,7 @@ let view model dispatch =
                     Tile.ancestor [ ] [
                         Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
                             locationTile model
-                            (* Task 4.6 WEATHER: Generate the view code for the weather tile
-                               using the weatherTile function, supplying the weather report
-                               from the model, and include it here as part of the list *)
+                            weatherTile model.Weather
                         ]
                         Tile.parent [ Tile.Size Tile.Is8 ] [
                             crimeTile model.Crimes
