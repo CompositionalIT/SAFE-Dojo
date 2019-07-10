@@ -85,7 +85,7 @@ Change a route to be POST based, rather than GET. You'll need to do the followin
 1. Change the url so that it is not parameterised any longer; instead, the second argument should be the payload record of the ```PostcodeRequest``` type.
 1. Notice that the return type is different though when using ```postRecord```. To get the data returned from the server you can use a combination ```text``` method on the response and the ```Decode.Auto.unsafeFromString<'T>``` function to safely retrieve the typed result from the server
 
-> Do **not** use the ```json``` helper function on the response, as it does not work with more complex F# types e.g. DUs.
+> Do **not** use the ```json``` helper function on the response, as it does not work with more complex F# types e.g. Discriminated Unions.
 
 ### On the server
 1. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
