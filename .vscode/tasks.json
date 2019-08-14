@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "Run SAFE app",
-            "command": "build",
+            "command": "fake build -t run",
             "type": "shell",
             "group": {
                 "kind": "build",
