@@ -6,19 +6,18 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 
 ## Prerequisites
 
-* [dotnet SDK 2.1.4 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
+* [dotnet SDK 3.1.1 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
 * [FAKE 5](https://fake.build/fake-gettingstarted.html#Install-FAKE) F# build tool installed as a global tool
 * [Yarn](https://yarnpkg.com/lang/en/docs/install/) NPM package manager
 * [Node 10.x](https://nodejs.org/en/download/) installed for the front end components
-* [Mono](https://www.mono-project.com/docs/getting-started/install/) if you're running on Linux or OSX
 * An F# code editor such as:
    * [VS Code](https://code.visualstudio.com/) + [Ionide](https://github.com/ionide/ionide-vscode-fsharp) extension
    * [Visual Studio](https://www.visualstudio.com/downloads/)
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
-## Building
-`fake build -t run`. You can optionally use npm instead of yarn by supplying the `jsPackageManager=npm` argument e.g. `fake build -t run -e jsPackageManager=npm`.
+## Running the app
+`fake build -t run`.
 
-If you're in VS Code, you can simply hit `CTRL`+`SHIFT`+`B` to build and run the application.
+If you're in VS Code, you can simply hit `F5` to build and run the application.
 
-If using Visual Studio, [do NOT attempt to build the solution directly in VS](https://github.com/CompositionalIT/SAFE-Dojo/issues/24). You *must* use `fake build` to compile and run the application.
+If using Visual Studio, do NOT attempt to build the solution directly in VS. Instead *must* use `fake build` to compile and run the application.
