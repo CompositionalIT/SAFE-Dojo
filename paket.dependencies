@@ -1,6 +1,6 @@
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp2.1
+    framework: netcoreapp3.1
     storage: none
 
     nuget FSharp.Core

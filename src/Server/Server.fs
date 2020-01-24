@@ -22,7 +22,7 @@ let config (services:IServiceCollection) =
 let app = application {
     use_router mainRouter
     url ("http://0.0.0.0:" + port.ToString() + "/")
-    memory_cache 
+    memory_cache
     use_static clientPath
     service_config config
     use_gzip }
