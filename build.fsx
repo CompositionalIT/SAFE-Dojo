@@ -6,14 +6,20 @@
 #r "Facades/netstandard" // https://github.com/ionide/ionide-vscode-fsharp/issues/839#issuecomment-396296095
 #endif
 
+open System
+
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
+
+Target.initEnvironment ()
 
 let serverPath = Path.getFullName "./src/Server"
 let clientPath = Path.getFullName "./src/Client"
 let clientDeployPath = Path.combine clientPath "deploy"
 let deployDir = Path.getFullName "./deploy"
+
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
 let platformTool tool winTool =
     let tool = if Environment.isUnix then tool else winTool
@@ -26,28 +32,8 @@ let platformTool tool winTool =
             "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
         failwith errorMsg
 
-type JsPackageManager =
-    | NPM
-    | YARN
-    member this.RestoreTool =
-        match this with
-        | NPM -> platformTool "npm" "npm.cmd"
-        | YARN -> platformTool "yarn" "yarn.cmd"
-    member this.RunTool =
-        match this with
-        | NPM -> platformTool "npx" "npx.cmd"
-        | YARN -> platformTool "yarn" "yarn.cmd"
-    member this.ArgsInstall =
-        match this with
-        | NPM -> "install"
-        | YARN -> "install --frozen-lockfile"
-
-let getJsPackageManager () =
-    match Environment.environVarOrDefault "jsPackageManager" "yarn" with
-    | "npm" -> NPM
-    | "yarn" | _ -> YARN
-
 let nodeTool = platformTool "node" "node.exe"
+let yarnTool = platformTool "yarn" "yarn.cmd"
 
 let runTool cmd args workingDir =
     let arguments = args |> String.split ' ' |> Arguments.OfArgs
@@ -79,31 +65,29 @@ Target.create "Clean" (fun _ ->
 )
 
 Target.create "InstallClient" (fun _ ->
-    let jsPackageManager = getJsPackageManager ()
-
     printfn "Node version:"
     runTool nodeTool "--version" __SOURCE_DIRECTORY__
-    printfn "Npm version:"
-    runTool jsPackageManager.RestoreTool "--version"  __SOURCE_DIRECTORY__
-    runTool jsPackageManager.RestoreTool "install" __SOURCE_DIRECTORY__
-    runDotNet "restore" clientPath
+    printfn "Yarn version:"
+    runTool yarnTool "--version" __SOURCE_DIRECTORY__
+    runTool yarnTool "install --frozen-lockfile" __SOURCE_DIRECTORY__
 )
 
 Target.create "Build" (fun _ ->
-    let jsPackageManager = getJsPackageManager ()
-
     runDotNet "build" serverPath
-    runTool jsPackageManager.RunTool "webpack-cli -p" __SOURCE_DIRECTORY__
+    Shell.regexReplaceInFileWithEncoding
+        "let app = \".+\""
+       ("let app = \"" + release.NugetVersion + "\"")
+        System.Text.Encoding.UTF8
+        (Path.combine clientPath "Version.fs")
+    runTool yarnTool "webpack-cli -p" __SOURCE_DIRECTORY__
 )
 
 Target.create "Run" (fun _ ->
-    let jsPackageManager = getJsPackageManager ()
-
     let server = async {
         runDotNet "watch run" serverPath
     }
     let client = async {
-        runTool jsPackageManager.RunTool "webpack-dev-server" __SOURCE_DIRECTORY__
+        runTool yarnTool "webpack-dev-server" __SOURCE_DIRECTORY__
     }
     let browser = async {
         do! Async.Sleep 5000
@@ -128,6 +112,7 @@ Target.create "Run" (fun _ ->
 
 
 
+
 open Fake.Core.TargetOperators
 
 "Clean"
@@ -139,4 +124,4 @@ open Fake.Core.TargetOperators
     ==> "InstallClient"
     ==> "Run"
 
-Target.runOrDefaultWithArguments "Run"
+Target.runOrDefaultWithArguments "Build"

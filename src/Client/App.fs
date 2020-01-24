@@ -3,14 +3,14 @@ module App
 open Elmish
 open Fable.FontAwesome
 open Fable.Core.JsInterop
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.PowerPack
+open Fable.React
+open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
 open Shared
 open Thoth.Json
+open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -45,8 +45,8 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
-    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
+    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)
+    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) |> Promise.map (Result.defaultValue [||])
 
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
