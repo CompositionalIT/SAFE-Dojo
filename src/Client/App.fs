@@ -46,7 +46,9 @@ let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
     let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)
-    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) |> Promise.map (Result.defaultValue [||])
+    let! crimes =
+        Fetch.tryFetchAs (sprintf "api/crime/%s" postcode)
+        |> Promise.map (Result.defaultValue [||])
 
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
@@ -57,8 +59,9 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
-    | _, GetReport -> model, Cmd.none
+        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+    | _, GetReport ->
+        model, Cmd.none
     | _, GotReport response ->
         { model with
             ValidationError = None
@@ -70,7 +73,8 @@ let update msg model =
             (* Task 2.2 Validation. Use the Validation.validatePostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
             ValidationError = None }, Cmd.none
-    | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
+    | _, ErrorMsg e ->
+        { model with ServerState = ServerError e.Message }, Cmd.none
 
 [<AutoOpen>]
 module ViewParts =
