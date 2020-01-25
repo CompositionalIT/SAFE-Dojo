@@ -161,80 +161,75 @@ let view model dispatch =
         ]
 
         Container.container [] [
-            yield
-                Field.div [] [
-                    Label.label [] [ str "Postcode" ]
-                    Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
-                        Input.text
-                            [ Input.Placeholder "Ex: EC2A 4NE"
-                              Input.Value model.Postcode
-                              Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
-                              Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
-                              Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
-                        Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
-                        (match model with
-                         | { ValidationError = Some _ } ->
-                            Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
-                         | { ValidationError = None } ->
-                            Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
-                    ]
-                    Help.help
-                       [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
-                       [ str (model.ValidationError |> Option.defaultValue "") ]
+            Field.div [] [
+                Label.label [] [ str "Postcode" ]
+                Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
+                    Input.text
+                        [ Input.Placeholder "Ex: EC2A 4NE"
+                          Input.Value model.Postcode
+                          Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
+                          Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
+                          Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
+                    Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
+                    (match model with
+                     | { ValidationError = Some _ } ->
+                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
+                     | { ValidationError = None } ->
+                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
                 ]
-            yield
-                Field.div [ Field.IsGrouped ] [
-                    Level.level [ ] [
-                        Level.left [] [
-                            Level.item [] [
-                                Button.button
-                                    [ Button.IsFullWidth
-                                      Button.Color IsPrimary
-                                      Button.OnClick (fun _ -> dispatch GetReport)
-                                      Button.Disabled (model.ValidationError.IsSome)
-                                      Button.IsLoading (model.ServerState = ServerState.Loading) ]
-                                    [ str "Submit" ]
-                            ]
-                            Level.item [] [
-                                Button.button
-                                    [ Button.IsFullWidth
-                                      Button.Color IsPrimary
-                                      Button.OnClick (fun _ -> dispatch Clear)
-                                      Button.IsLoading (model.ServerState = ServerState.Loading) ]
-                                    [ str "Clear" ]
-                            ]
+                Help.help
+                   [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
+                   [ str (model.ValidationError |> Option.defaultValue "") ]
+            ]
+            Field.div [ Field.IsGrouped ] [
+                Level.level [ ] [
+                    Level.left [] [
+                        Level.item [] [
+                            Button.button
+                                [ Button.IsFullWidth
+                                  Button.Color IsPrimary
+                                  Button.OnClick (fun _ -> dispatch GetReport)
+                                  Button.Disabled (model.ValidationError.IsSome)
+                                  Button.IsLoading (model.ServerState = ServerState.Loading) ]
+                                [ str "Submit" ]
+                        ]
+                        Level.item [] [
+                            Button.button
+                                [ Button.IsFullWidth
+                                  Button.Color IsPrimary
+                                  Button.OnClick (fun _ -> dispatch Clear)
+                                  Button.Disabled (model.ServerState = ServerState.Loading) ]
+                                [ str "Clear" ]
                         ]
                     ]
                 ]
+            ]
 
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } ->
-                yield
-                    Field.div [] [
-                        Tag.list [ Tag.List.HasAddons; Tag.List.IsCentered ] [
-                            Tag.tag [ Tag.Color Color.IsDanger; Tag.Size IsMedium ] [
-                                str error
-                            ]
+                Field.div [] [
+                    Tag.list [ Tag.List.HasAddons; Tag.List.IsCentered ] [
+                        Tag.tag [ Tag.Color Color.IsDanger; Tag.Size IsMedium ] [
+                            str error
                         ]
                     ]
+                ]
             | { Report = Some model } ->
-                yield
-                    Tile.ancestor [ ] [
-                        Tile.parent [ Tile.Size Tile.Is12 ] [
-                            bingMapTile model.Location.Location.LatLong
-                        ]
+                Tile.ancestor [ ] [
+                    Tile.parent [ Tile.Size Tile.Is12 ] [
+                        bingMapTile model.Location.Location.LatLong
                     ]
-                yield
-                    Tile.ancestor [ ] [
-                        Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
-                            locationTile model
-                            weatherTile model.Weather
-                        ]
-                        Tile.parent [ Tile.Size Tile.Is8 ] [
-                            crimeTile model.Crimes
-                        ]
-                  ]
+                ]
+                Tile.ancestor [ ] [
+                    Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
+                        locationTile model
+                        weatherTile model.Weather
+                    ]
+                    Tile.parent [ Tile.Size Tile.Is8 ] [
+                        crimeTile model.Crimes
+                    ]
+              ]
         ]
 
         br [ ]
