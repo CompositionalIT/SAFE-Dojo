@@ -20,6 +20,7 @@
         "open-sans-fonts": "^1.5.1",
         "react": "^16.10.2",
         "react-dom": "^16.10.2",
+        "recharts": "^1.4.2",
         "remotedev": "^0.2.9",
         "resolve-url-loader": "^3.1.0",
         "sass": "^1.23.0",
@@ -29,7 +30,9 @@
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.9",
         "webpack-dev-server": "^3.8.2",
-        "whatwg-fetch": "^3.0.0",
-        "recharts": "^1.4.2"
+        "whatwg-fetch": "^3.0.0"
+    },
+    "dependencies": {
+        "bulmaswatch": "^0.7.5"
     }
 }
