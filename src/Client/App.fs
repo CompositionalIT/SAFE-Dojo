@@ -3,14 +3,14 @@ module App
 open Elmish
 open Fable.FontAwesome
 open Fable.Core.JsInterop
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.PowerPack
+open Fable.React
+open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
 open Shared
 open Thoth.Json
+open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -45,8 +45,11 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location = Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode) decoderForLocationResponse []
-    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
+    let! location =
+        Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)
+    let! crimes =
+        Fetch.fetchAs (sprintf "api/crime/%s" postcode)
+        |> Promise.catch(fun _ -> [||]) // if the endpoint doesn't exist, just return an empty array!
 
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
@@ -57,8 +60,9 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
-    | _, GetReport -> model, Cmd.none
+        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+    | _, GetReport ->
+        model, Cmd.none
     | _, GotReport response ->
         { model with
             ValidationError = None
@@ -70,7 +74,8 @@ let update msg model =
             (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
             ValidationError = None }, Cmd.none
-    | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
+    | _, ErrorMsg e ->
+        { model with ServerState = ServerError e.Message }, Cmd.none
 
 [<AutoOpen>]
 module ViewParts =

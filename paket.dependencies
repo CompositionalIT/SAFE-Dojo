@@ -1,6 +1,6 @@
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp2.1
+    framework: netcoreapp3.1
     storage: none
 
     nuget FSharp.Core
@@ -13,16 +13,16 @@ group Client
     framework: netstandard2.0
     storage: none
 
-    nuget Fable.Core ~> 2
-    nuget Fable.Elmish ~> 2
-    nuget Fable.Elmish.Debugger ~> 2
-    nuget Fable.Elmish.React ~> 2
-    nuget Fable.Elmish.HMR ~> 2
-    nuget Fable.React ~> 4
-    nuget Fulma ~> 1
+    nuget Fable.Core ~> 3
+    nuget Fable.Elmish ~> 3
+    nuget Fable.Elmish.Debugger ~> 3
+    nuget Fable.Elmish.HMR ~> 4
+    nuget Fable.Elmish.React ~> 3
+    nuget Thoth.Fetch ~> 1
+    nuget Fable.React ~> 5
+    nuget Fulma ~> 2
+    nuget Fable.FontAwesome.Free ~> 2
     nuget Fable.Recharts
-    nuget Fable.FontAwesome
-    nuget Fable.FontAwesome.Free
 
     clitool dotnet-fable ~> 2
 
@@ -32,6 +32,7 @@ group Build
     storage: none
 
     nuget FSharp.Core
+    nuget Fake.Core.ReleaseNotes
     nuget Fake.Core.Target
     nuget Fake.DotNet.Cli
     nuget Fake.IO.FileSystem
