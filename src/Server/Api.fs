@@ -15,10 +15,10 @@ let invalidPostcode next (ctx:HttpContext) =
 
 let getDistanceFromLondon next (ctx:HttpContext) = task {
     let! postcodeRequest = ctx.BindModelAsync<PostcodeRequest>()
-    if Validation.isValidPostcode postcodeRequest.Postcode then
-        let! location = getLocation postcodeRequest.Postcode
+    if Validation.isValidPostcode postcodeRequest.SearchedPostcode then
+        let! location = getLocation postcodeRequest.SearchedPostcode
         let distanceToLondon = getDistanceBetweenPositions location.LatLong london
-        return! json { Postcode = postcodeRequest.Postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
+        return! json { Postcode = postcodeRequest.SearchedPostcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
     else return! invalidPostcode next ctx }
 
 let getCrimeReport postcode next ctx = task {

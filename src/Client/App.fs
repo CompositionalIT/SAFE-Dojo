@@ -47,11 +47,11 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location = Fetch.post "/api/distance" { Postcode = postcode }
+    let! location = Fetch.post("/api/distance", { SearchedPostcode = postcode })
     let! crimes =
         Fetch.fetchAs (sprintf "api/crime/%s" postcode)
         |> Promise.catch(fun _ -> [||]) // if the endpoint doesn't exist, just return an empty array!
-    let! weather = Fetch.fetchAs (sprintf "api/weather/%s" postcode) decoderForWeather []
+    let! weather = Fetch.fetchAs (sprintf "api/weather/%s" postcode)
     return { Location = location |> Decode.Auto.unsafeFromString; Crimes = crimes; Weather = weather } }
 
 /// The update function knows how to update the model given a message.

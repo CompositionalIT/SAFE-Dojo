@@ -33,7 +33,7 @@ type WeatherType =
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
 type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
-type PostcodeRequest = { Postcode : string }
+type PostcodeRequest = { SearchedPostcode : string }
 /// Provides validation on data. Shared across both client and server.
 module Validation =
     open System.Text.RegularExpressions
