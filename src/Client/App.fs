@@ -94,7 +94,7 @@ module ViewParts =
             barChart [
                 Chart.Data cleanData
                 Chart.Width 600.
-                Chart.Height 450.
+                Chart.Height 500.
                 Chart.Layout Vertical ] [
 
                 xaxis [ Cartesian.Type "number" ] []
