@@ -3,7 +3,7 @@ module Client
 open Elmish
 open Elmish.React
 open App
- 
+
 #if DEBUG
 open Elmish.Debug
 open Elmish.HMR
@@ -12,9 +12,8 @@ open Elmish.HMR
 Program.mkProgram init update view
 #if DEBUG
 |> Program.withConsoleTrace
-|> Program.withHMR
 #endif
-|> Program.withReact "elmish-app"
+|> Program.withReactSynchronous "elmish-app"
 #if DEBUG
 |> Program.withDebugger
 #endif

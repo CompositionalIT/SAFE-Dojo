@@ -3,7 +3,7 @@
 ## Prologue: Build and Run
 1. Clone this repo
 1. Ensure that you have installed all the pre-requisites in `README.md`
-1. Start the server and client by navigating to this directory in your terminal and run ```fake build```
+1. Start the server and client by navigating to this directory in your terminal and run ```dotnet fake build```
 1. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
 1. You should see a search entry box with a Submit button. Enter the UK postcode `EC2A 4NE` and hit Submit: you will see several empty panels and some basic Location details on the postcode.
 
@@ -62,7 +62,7 @@ In this task, you need to add another tile to the UI including all the associate
 
 4.4 On the front end in the file ```src/Client/App.fs```, update the ```Report``` type to include the ```WeatherResponse```
 
-4.5 In ```src/Client/App.fs``` in the ```getResponse``` function, call your endpoint using `tryFetch` as the other API call, and populate the `Report` field with the returned data
+4.5 In ```src/Client/App.fs``` in the ```getResponse``` function, call your endpoint using `fetchAs` per the other API call, and populate the `Report` field with the returned data
 
 4.6 Update the ```view``` function to include a call to the ```weatherTile``` function
 
@@ -81,12 +81,9 @@ Change a route to be POST based, rather than GET. You'll need to do the followin
 1. Create a new ```PostcodeRequest``` record in ```Shared.fs``` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-1. Update the code that sends a request to the server to use ```postRecord``` instead of ```fetchAs```.
-1. Change the url so that it is not parameterised any longer; instead, the second argument should be the payload record of the ```PostcodeRequest``` type.
-1. Notice that the return type is different though when using ```postRecord```. To get the data returned from the server you can use a combination ```text``` method on the response and the ```Decode.Auto.unsafeFromString<'T>``` function to safely retrieve the typed result from the server
-
-> Do **not** use the ```json``` helper function on the response, as it does not work with more complex F# types e.g. DUs.
+1. Update the code that sends a request to the server to use ```Fetch.post``` instead of ```Fetch.fetchAs```.
+1. Change the url so that it is not parameterised any longer, and supply a ```PostcodeRequest``` record as the second argument (the payload).
 
 ### On the server
 1. Modify the associated route in ```apiRouter``` to use ```post``` rather than ```getF```.
-1. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync<PostcodeRequest>()``` to retrieve the body as a ```PostcodeRequest```.
+1. Update the handler function to no longer retrieve the postcode via the query string. Instead, use ```ctx.BindModelAsync<PostcodeRequest>()``` to retrieve the body as a ```PostcodeRequest``` (you might need to add a type annotation to `ctx` to get intellisense to "show up"!).

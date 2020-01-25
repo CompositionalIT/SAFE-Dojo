@@ -3,14 +3,14 @@ module App
 open Elmish
 open Fable.FontAwesome
 open Fable.Core.JsInterop
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.PowerPack
+open Fable.React
+open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
 open Shared
 open Thoth.Json
+open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -47,9 +47,10 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location = Fetch.postRecord "/api/distance" { Postcode = postcode } []
-    let! location = location.text()
-    let! crimes = Fetch.tryFetchAs (sprintf "api/crime/%s" postcode) decoderForCrimeResponse [] |> Promise.map (Result.defaultValue [||])
+    let! location = Fetch.post "/api/distance" { Postcode = postcode }
+    let! crimes =
+        Fetch.fetchAs (sprintf "api/crime/%s" postcode)
+        |> Promise.catch(fun _ -> [||]) // if the endpoint doesn't exist, just return an empty array!
     let! weather = Fetch.fetchAs (sprintf "api/weather/%s" postcode) decoderForWeather []
     return { Location = location |> Decode.Auto.unsafeFromString; Crimes = crimes; Weather = weather } }
 
@@ -57,8 +58,9 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.ofPromise getResponse postcode GotReport ErrorMsg
-    | _, GetReport -> model, Cmd.none
+        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+    | _, GetReport ->
+        model, Cmd.none
     | _, GotReport response ->
         { model with
             ValidationError = None
@@ -70,8 +72,10 @@ let update msg model =
             ValidationError =
                 if Validation.isValidPostcode p then None
                 else Some "Invalid postcode!" }, Cmd.none
-    | _, ErrorMsg e -> { model with ServerState = ServerError e.Message }, Cmd.none
-    | _, Clear -> init()
+    | _, ErrorMsg e ->
+        { model with ServerState = ServerError e.Message }, Cmd.none
+    | _, Clear ->
+        init()
 
 [<AutoOpen>]
 module ViewParts =
