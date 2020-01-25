@@ -91,14 +91,19 @@ module ViewParts =
     let crimeTile crimes =
         let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
         basicTile "Crime" [ ] [
-            barChart
-                [ Chart.Data cleanData
-                  Chart.Width 600.
-                  Chart.Height 500.
-                  Chart.Layout Vertical ]
-                [ xaxis [ Cartesian.Type "number" ] []
-                  yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
-                  bar [ Cartesian.DataKey "Incidents" ] [] ]
+            barChart [
+                Chart.Data cleanData
+                Chart.Width 600.
+                Chart.Height 450.
+                Chart.Layout Vertical ] [
+
+                xaxis [ Cartesian.Type "number" ] []
+                yaxis [ Cartesian.Type "category"; Cartesian.DataKey "Crime"; Cartesian.Width 200. ] []
+                bar [ Cartesian.DataKey "Incidents"; Cartesian.Custom("fill", "#8884d8") ] []
+                cartesianGrid [ Cartesian.Custom("strokeDasharray", "3 3") ] [ ]
+                legend [] []
+                tooltip [] []
+            ]
         ]
 
     let getBingMapUrl latLong =
