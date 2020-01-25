@@ -141,7 +141,7 @@ module ViewParts =
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
 let view model dispatch =
-    div [] [
+    section [] [
         Hero.hero [ Hero.Color Color.IsInfo ] [
             Hero.body [ ] [
                 Container.container [ Container.IsFluid

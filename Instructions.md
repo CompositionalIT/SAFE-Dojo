@@ -9,9 +9,10 @@
 
 Also note the following:
 
-1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application.
-1. In `Api.fs` in the Server, try changing an endpoint response and see in the console window the application restarts, and the change is automatically reflected in the running application.
-1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing some of the view code in `App.fs` in the Client and see how the front end automatically updates in the browser whilst still retaining the application state.
+1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 16) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restarts, and the next time you make a query you will see your hard-coded text appear.
+1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `App.fs` file; save the file and see how the front end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
+
+This method of rapid, iterative development is a powerful tool for SAFE apps.
 
 ## 1. Add a new endpoint
 In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
@@ -62,7 +63,7 @@ In this task, you need to add another tile to the UI including all the associate
 
 4.4 On the front end in the file `src/Client/App.fs`, update the `Report` type to include the `WeatherResponse`
 
-4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `fetchAs` per the other API call, and populate the `Report` field with the returned data
+4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `Fetch.get` per the other API call, and populate the `Report` field with the returned data
 
 4.6 Update the `view` function to include a call to the `weatherTile` function
 
@@ -81,7 +82,7 @@ Change a route to be POST based, rather than GET. You'll need to do the followin
 1. Create a new `PostcodeRequest` record in `Shared.fs` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-1. Update the code that sends a request to the server to use `Fetch.post` instead of `Fetch.fetchAs`.
+1. Update the code that sends a request to the server to use `Fetch.post` instead of `Fetch.get`.
 1. Change the url so that it is not parameterised any longer, and supply a `PostcodeRequest` record as the second argument (the payload).
 
 ### On the server
