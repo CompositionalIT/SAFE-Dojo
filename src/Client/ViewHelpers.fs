@@ -36,7 +36,7 @@ let safeComponents =
         [ "Saturn", "https://saturnframework.github.io/docs/"
           "Fable", "http://fable.io"
           "Elmish", "https://fable-elmish.github.io/"
-          "Fulma", "https://mangelmaxime.github.io/Fulma" ]
+          "Fulma", "https://fulma.github.io/Fulma/" ]
         |> List.map (fun (desc,link) -> a [ Href link ] [ str desc ] )
         |> intersperse (str ", ")
         |> span []
