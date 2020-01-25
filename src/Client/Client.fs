@@ -13,7 +13,7 @@ Program.mkProgram init update view
 #if DEBUG
 |> Program.withConsoleTrace
 #endif
-|> Program.withReactBatched "elmish-app"
+|> Program.withReactSynchronous "elmish-app"
 #if DEBUG
 |> Program.withDebugger
 #endif
