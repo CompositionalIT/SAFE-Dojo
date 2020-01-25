@@ -62,7 +62,7 @@ In this task, you need to add another tile to the UI including all the associate
 
 4.4 On the front end in the file `src/Client/App.fs`, update the `Report` type to include the `WeatherResponse`
 
-4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `fetchAs` per the other API call, and populate the `Report` field with the returned data
+4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `Fetch.get` per the other API call, and populate the `Report` field with the returned data
 
 4.6 Update the `view` function to include a call to the `weatherTile` function
 
@@ -81,7 +81,7 @@ Change a route to be POST based, rather than GET. You'll need to do the followin
 1. Create a new `PostcodeRequest` record in `Shared.fs` which will store the Postcode sent to the server as the body of the request, instead of in the query string.
 
 ### On the client
-1. Update the code that sends a request to the server to use `Fetch.post` instead of `Fetch.fetchAs`.
+1. Update the code that sends a request to the server to use `Fetch.post` instead of `Fetch.get`.
 1. Change the url so that it is not parameterised any longer, and supply a `PostcodeRequest` record as the second argument (the payload).
 
 ### On the server

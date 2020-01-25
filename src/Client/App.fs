@@ -45,11 +45,9 @@ let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
 let getResponse postcode = promise {
-    let! location =
-        Fetch.fetchAs<LocationResponse> (sprintf "/api/distance/%s" postcode)
-    let! crimes =
-        Fetch.fetchAs (sprintf "api/crime/%s" postcode)
-        |> Promise.catch(fun _ -> [||]) // if the endpoint doesn't exist, just return an empty array!
+    let! location = Fetch.get<LocationResponse>(sprintf "/api/distance/%s" postcode)
+    // if the endpoint doesn't exist, just return an empty array!
+    let! crimes = Fetch.get<CrimeResponse array>(sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
 
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
