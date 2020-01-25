@@ -42,17 +42,12 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse> ()
-let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
-let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
-
 let getResponse postcode = promise {
     let! location = Fetch.post("/api/distance", { SearchedPostcode = postcode })
-    let! crimes =
-        Fetch.fetchAs (sprintf "api/crime/%s" postcode)
-        |> Promise.catch(fun _ -> [||]) // if the endpoint doesn't exist, just return an empty array!
-    let! weather = Fetch.fetchAs (sprintf "api/weather/%s" postcode)
-    return { Location = location |> Decode.Auto.unsafeFromString; Crimes = crimes; Weather = weather } }
+    // if the endpoint doesn't exist, just return an empty array!
+    let! crimes = Fetch.get (sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
+    let! weather = Fetch.get (sprintf "api/weather/%s" postcode)
+    return { Location = location; Crimes = crimes; Weather = weather } }
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -127,9 +122,7 @@ module ViewParts =
                         ]
                         Level.title [ ] [
                             Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
-                                (* Task 4.8 WEATHER: Get the temperature from the given weather report
-                                   and display it here instead of an empty string. *)
-                                str ""
+                                str (sprintf "%dc" (int weatherReport.AverageTemperature))
                             ]
                         ]
                     ]
