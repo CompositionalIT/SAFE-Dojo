@@ -2,6 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Watch SAFE App",
+            "type": "chrome",
+            "request": "launch",
+            "preLaunchTask": "Watch Client and Server",
+            "url": "http://localhost:8080",
+            "env": {
+                "vsCodeSession":"true"
+            },
+            "webRoot": "${workspaceFolder}/src/Client",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///*": "${workspaceFolder}/*",
+            }
+        },
+        {
             "name": "Debug Server",
             "type": "coreclr",
             "request": "launch",
@@ -20,21 +35,6 @@
             "request": "launch",
             "preLaunchTask": "Watch Client",
             "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}/src/Client",
-            "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "webpack:///*": "${workspaceFolder}/*",
-            }
-        },
-        {
-            "name": "Watch SAFE App",
-            "type": "chrome",
-            "request": "launch",
-            "preLaunchTask": "Watch Client and Server",
-            "url": "http://localhost:8080",
-            "env": {
-                "vsCodeSession":"true"
-            },
             "webRoot": "${workspaceFolder}/src/Client",
             "sourceMaps": true,
             "sourceMapPathOverrides": {
