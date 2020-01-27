@@ -7,6 +7,7 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 ## Prerequisites
 
 * [dotnet SDK 3.1.1 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
+* [FAKE 5](https://fake.build/fake-gettingstarted.html#Install-FAKE) F# build tool installed as a global tool
 * [Yarn](https://yarnpkg.com/lang/en/docs/install/) NPM package manager
 * [Node 10.x](https://nodejs.org/en/download/) installed for the front end components
 * An F# code editor such as:
@@ -15,7 +16,8 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Running the app
-`dotnet fake build`.
+If this is your first time doing this, run `dotnet tool restore` first and then
+`dotnet fake build`. If not, skip the first command.
 
 If you're in VS Code, you can simply hit `F5` to build and run the application.
 
