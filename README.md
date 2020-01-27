@@ -21,4 +21,4 @@ If this is your first time doing this, run `dotnet tool restore` first and then
 
 If you're in VS Code, you can simply hit `F5` to build and run the application.
 
-If using Visual Studio, do NOT attempt to build the solution directly in VS. Instead *must* use `fake build` to compile and run the application.
+If using Visual Studio, do NOT attempt to build the solution directly in VS. Instead *must* use `dotnet fake build` to compile and run the application.
