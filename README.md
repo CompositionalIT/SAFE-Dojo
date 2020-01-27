@@ -7,7 +7,6 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 ## Prerequisites
 
 * [dotnet SDK 3.1.1 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
-* [FAKE 5](https://fake.build/fake-gettingstarted.html#Install-FAKE) F# build tool installed as a global tool
 * [Yarn](https://yarnpkg.com/lang/en/docs/install/) NPM package manager
 * [Node 10.x](https://nodejs.org/en/download/) installed for the front end components
 * An F# code editor such as:
