@@ -2,20 +2,30 @@ module App
 
 open Elmish
 open Fable.FontAwesome
+open Leaflet
 open Fable.Core.JsInterop
 open Fable.React
 open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
+open Fulma
 open Shared
 open Thoth.Json
 open Thoth.Fetch
 
+module RL = ReactLeaflet
+
+Leaflet.icon?Default?imagePath <- "//cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/"
+type Marker = { info: string; link: string; position: LatLngExpression }
+
+importAll "../../node_modules/leaflet/dist/leaflet.css"
+
 /// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array }
+      Crimes : CrimeResponse array
+      Markers : Marker list }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -40,7 +50,7 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse> ()
+let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse>()
 let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
@@ -52,7 +62,41 @@ let getResponse postcode = promise {
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
-    return { Location = location; Crimes = crimes } }
+    return
+        { Location = location
+          Crimes = crimes
+          Markers =
+          [ { info = "info"
+              link = "www.twitter.com"
+              position = Fable.Core.U3.Case3 (54.425, 18.59) } ] }
+}
+let buildMarker (marker: Marker): ReactElement =
+    RL.marker
+      [
+        RL.MarkerProps.Position marker.position ]
+      [ RL.popup
+          [ RL.PopupProps.Key marker.link]
+          [ Control.p
+              []
+              [ label [] [ !!marker.info ] ]
+            Control.p
+                []
+                [ Button.a
+                    [ Button.Size IsSmall
+                      Button.Props [ Href (marker.link) ] ]
+                    [ Icon.icon [ ]
+                        [ ]
+                      span [ ] [ str "Go to" ] ] ] ] ]
+
+let tile =
+    RL.tileLayer [
+        RL.TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        RL.TileLayerProps.Attribution "&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+    ] []
+
+let mapElements model =
+  let markers = model.Markers |> List.map buildMarker
+  tile :: markers
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -89,7 +133,8 @@ module ViewParts =
         ]
 
     let crimeTile crimes =
-        let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+        let cleanData =
+            crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
         basicTile "Crime" [ ] [
             barChart [
                 Chart.Data cleanData
@@ -115,6 +160,11 @@ module ViewParts =
                 Style [ Height 410; Width 810 ]
                 (* Task 3.1 MAPS: Use the getBingMapUrl function to build a valid maps URL using the supplied LatLong.
                    You can use it to add a Src attribute to this iframe. *)
+                Src <|
+                    sprintf
+                        "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8"
+                        latLong.Latitude
+                        latLong.Longitude
             ] [ ]
         ]
 
@@ -150,7 +200,7 @@ module ViewParts =
 
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
-let view model dispatch =
+let view (model:Model) dispatch =
     section [] [
         Hero.hero [ Hero.Color Color.IsInfo ] [
             Hero.body [ ] [
@@ -200,6 +250,8 @@ let view model dispatch =
                 ]
             ]
 
+            div [] []
+
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } ->
@@ -210,21 +262,28 @@ let view model dispatch =
                         ]
                     ]
                 ]
-            | { Report = Some model } ->
-                Tile.ancestor [ ] [
+            | { Report = Some report } ->
+                Tile.ancestor [
+                    Tile.Size Tile.Is12
+                ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        bingMapTile model.Location.Location.LatLong
+                        //bingMapTile report.Location.Location.LatLong
+                        (mapElements report)
+                        |> RL.map [
+                            RL.MapProps.Zoom 10.
+                            RL.MapProps.Style [ Height 500; MinWidth 500 ]
+                            RL.MapProps.Center report.Markers.[0].position  ]
                     ]
                 ]
                 Tile.ancestor [ ] [
                     Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
-                        locationTile model
+                        locationTile report
                         (* Task 4.6 WEATHER: Generate the view code for the weather tile
                            using the weatherTile function, supplying the weather report
                            from the model, and include it here as part of the list *)
                     ]
                     Tile.parent [ Tile.Size Tile.Is8 ] [
-                        crimeTile model.Crimes
+                        crimeTile report.Crimes
                     ]
               ]
         ]

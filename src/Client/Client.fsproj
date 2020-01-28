@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
@@ -7,6 +7,9 @@
     <Compile Include="ViewHelpers.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Client.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fable.ReactLeaflet" Version="1.0.0" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
