@@ -9,8 +9,5 @@
     <Compile Include="Api.fs" />
     <Compile Include="Server.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Fable.ReactLeaflet" Version="1.0.0" />
-  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

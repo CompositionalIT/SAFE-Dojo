@@ -116,7 +116,8 @@ module ViewParts =
             ]
         ]
 
-    let mapTile latLong =
+    let mapTile location =
+        let latLong = Fable.Core.U3.Case3(location.LatLong.Latitude, location.LatLong.Longitude)
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             [ RL.tileLayer [ RL.TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
               RL.marker [ RL.MarkerProps.Position latLong ] [ ] ]
@@ -227,7 +228,7 @@ let view (model:Model) dispatch =
                     Tile.Size Tile.Is12
                 ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        mapTile (Fable.Core.U3.Case3(report.Location.Location.LatLong.Latitude, report.Location.Location.LatLong.Longitude))
+                        mapTile report.Location.Location
                     ]
                 ]
                 Tile.ancestor [ ] [
