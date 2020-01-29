@@ -215,8 +215,6 @@ let view (model:Model) dispatch =
                 ]
             ]
 
-            div [] []
-
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } ->
