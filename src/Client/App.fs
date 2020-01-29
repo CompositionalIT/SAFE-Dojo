@@ -15,17 +15,13 @@ open Thoth.Json
 open Thoth.Fetch
 
 module RL = ReactLeaflet
-
-Leaflet.icon?Default?imagePath <- "//cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/"
-type Marker = { info: string; link: string; position: LatLngExpression }
-
 importAll "../../node_modules/leaflet/dist/leaflet.css"
+Leaflet.icon?Default?imagePath <- "//cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/"
 
 /// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array
-      Markers : Marker list }
+      Crimes : CrimeResponse array }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -64,39 +60,8 @@ let getResponse postcode = promise {
        field to the Report type first, though! *)
     return
         { Location = location
-          Crimes = crimes
-          Markers =
-          [ { info = "info"
-              link = "www.twitter.com"
-              position = Fable.Core.U3.Case3 (54.425, 18.59) } ] }
+          Crimes = crimes }
 }
-let buildMarker (marker: Marker): ReactElement =
-    RL.marker
-      [
-        RL.MarkerProps.Position marker.position ]
-      [ RL.popup
-          [ RL.PopupProps.Key marker.link]
-          [ Control.p
-              []
-              [ label [] [ !!marker.info ] ]
-            Control.p
-                []
-                [ Button.a
-                    [ Button.Size IsSmall
-                      Button.Props [ Href (marker.link) ] ]
-                    [ Icon.icon [ ]
-                        [ ]
-                      span [ ] [ str "Go to" ] ] ] ] ]
-
-let tile =
-    RL.tileLayer [
-        RL.TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        RL.TileLayerProps.Attribution "&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-    ] []
-
-let mapElements model =
-  let markers = model.Markers |> List.map buildMarker
-  tile :: markers
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -151,21 +116,14 @@ module ViewParts =
             ]
         ]
 
-    let getBingMapUrl latLong =
-        sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
-
-    let bingMapTile (latLong:LatLong) =
+    let mapTile latLong =
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
-            iframe [
-                Style [ Height 410; Width 810 ]
-                (* Task 3.1 MAPS: Use the getBingMapUrl function to build a valid maps URL using the supplied LatLong.
-                   You can use it to add a Src attribute to this iframe. *)
-                Src <|
-                    sprintf
-                        "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8"
-                        latLong.Latitude
-                        latLong.Longitude
-            ] [ ]
+            [ RL.tileLayer [ RL.TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
+              RL.marker [ RL.MarkerProps.Position latLong ] [ ] ]
+            |> RL.map
+                [ RL.MapProps.Zoom 10.
+                  RL.MapProps.Style [ Height 500; MinWidth 500 ]
+                  RL.MapProps.Center latLong ]
         ]
 
     let weatherTile weatherReport =
@@ -204,8 +162,10 @@ let view (model:Model) dispatch =
     section [] [
         Hero.hero [ Hero.Color Color.IsInfo ] [
             Hero.body [ ] [
-                Container.container [ Container.IsFluid
-                                      Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [
+                Container.container [
+                    Container.IsFluid
+                    Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ]
+                ] [
                     Heading.h1 [ ] [
                         str "UK Location Data Mashup"
                     ]
@@ -267,12 +227,7 @@ let view (model:Model) dispatch =
                     Tile.Size Tile.Is12
                 ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        //bingMapTile report.Location.Location.LatLong
-                        (mapElements report)
-                        |> RL.map [
-                            RL.MapProps.Zoom 10.
-                            RL.MapProps.Style [ Height 500; MinWidth 500 ]
-                            RL.MapProps.Center report.Markers.[0].position  ]
+                        mapTile (Fable.Core.U3.Case3(report.Location.Location.LatLong.Latitude, report.Location.Location.LatLong.Longitude))
                     ]
                 ]
                 Tile.ancestor [ ] [
