@@ -15,7 +15,8 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Running the app
-`dotnet fake build`.
+If this is your first time doing this, run `dotnet tool restore` first and then
+`dotnet fake build`. If not, skip the first command.
 
 If you're in VS Code, you can simply hit `F5` to build and run the application.
 
