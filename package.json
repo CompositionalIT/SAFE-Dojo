@@ -33,6 +33,8 @@
         "whatwg-fetch": "^3.0.0"
     },
     "dependencies": {
-        "bulmaswatch": "^0.7.5"
+        "bulmaswatch": "^0.7.5",
+        "leaflet": "1.6.0",
+        "react-leaflet": "2.6.1"
     }
 }

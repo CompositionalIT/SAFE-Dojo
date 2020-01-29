@@ -8,6 +8,8 @@ open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
+open Leaflet
+open ReactLeaflet
 open Shared
 open Thoth.Json
 open Thoth.Fetch
@@ -40,7 +42,7 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse> ()
+let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse>()
 let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
 let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
 
@@ -52,7 +54,10 @@ let getResponse postcode = promise {
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
-    return { Location = location; Crimes = crimes } }
+    return
+        { Location = location
+          Crimes = crimes }
+}
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -89,7 +94,8 @@ module ViewParts =
         ]
 
     let crimeTile crimes =
-        let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+        let cleanData =
+            crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
         basicTile "Crime" [ ] [
             barChart [
                 Chart.Data cleanData
@@ -106,16 +112,23 @@ module ViewParts =
             ]
         ]
 
-    let getBingMapUrl latLong =
-        sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
+    let makeMarker latLong description =
+        marker [ MarkerProps.Position latLong ] [
+            tooltip [ ] [ str description ]
+        ]
 
-    let bingMapTile (latLong:LatLong) =
+    let mapTile (lr:LocationResponse) =
+        let latLong = LatLngExpression.Case3(lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
-            iframe [
-                Style [ Height 410; Width 810 ]
-                (* Task 3.1 MAPS: Use the getBingMapUrl function to build a valid maps URL using the supplied LatLong.
-                   You can use it to add a Src attribute to this iframe. *)
-            ] [ ]
+            map [
+                (* Task 3.2 MAP: Set the center of the map using MapProps.Center, supply the lat/long value as input.
+                   Task 3.3 MAP: Update the Zoom to 15. *)
+                MapProps.Zoom 11.
+                MapProps.Style [ Height 500 ]
+            ] [
+                tileLayer [ TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
+                (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
+            ]
         ]
 
     let weatherTile weatherReport =
@@ -150,12 +163,14 @@ module ViewParts =
 
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
-let view model dispatch =
+let view (model:Model) dispatch =
     section [] [
         Hero.hero [ Hero.Color Color.IsInfo ] [
             Hero.body [ ] [
-                Container.container [ Container.IsFluid
-                                      Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [
+                Container.container [
+                    Container.IsFluid
+                    Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ]
+                ] [
                     Heading.h1 [ ] [
                         str "UK Location Data Mashup"
                     ]
@@ -200,6 +215,8 @@ let view model dispatch =
                 ]
             ]
 
+            div [] []
+
             match model with
             | { Report = None; ServerState = (Idle | Loading) } -> ()
             | { ServerState = ServerError error } ->
@@ -210,21 +227,26 @@ let view model dispatch =
                         ]
                     ]
                 ]
-            | { Report = Some model } ->
-                Tile.ancestor [ ] [
+            | { Report = Some report } ->
+                Tile.ancestor [
+                    Tile.Size Tile.Is12
+                ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        bingMapTile model.Location.Location.LatLong
+                        (* Task 3.1 MAP: Call the mapTile function here, which creates a
+                        tile to display a map using the React Leaflet component. The function
+                        takes in a LocationResponse value as input and returns a ReactElement. *)
+                        mapTile report.Location
                     ]
                 ]
                 Tile.ancestor [ ] [
                     Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
-                        locationTile model
+                        locationTile report
                         (* Task 4.6 WEATHER: Generate the view code for the weather tile
                            using the weatherTile function, supplying the weather report
                            from the model, and include it here as part of the list *)
                     ]
                     Tile.parent [ Tile.Size Tile.Is8 ] [
-                        crimeTile model.Crimes
+                        crimeTile report.Crimes
                     ]
               ]
         ]
