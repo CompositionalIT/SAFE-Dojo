@@ -3,6 +3,7 @@
 ## Prologue: Build and Run
 1. Clone this repo
 1. Ensure that you have installed all the pre-requisites in `README.md`
+1. If this is your first time doing this run `dotnet tool restore` command in your terminal.
 1. Start the server and client by navigating to this directory in your terminal and run `dotnet fake build`. The first time you run this, it may take a few seconds - it needs to download all the NPM dependencies as well as compile and run both client and server.
 1. Your web browser should automatically be opened to the correct page and after a short wait, you will see the application running. You can also open the web page by navigating to http://localhost:8080
 1. You should see a search entry box with a Submit button. Enter the UK postcode `EC2A 4NE` and hit Submit: you will see several empty panels and some basic Location details on the postcode.

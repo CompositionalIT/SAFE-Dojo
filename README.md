@@ -15,8 +15,7 @@ The `master` branch has the "incomplete" solution; please read the [instructions
    * [Jetbrains Rider](https://www.jetbrains.com/rider/)
 
 ## Running the app
-`dotnet fake build`.
-
-If you're in VS Code, you can simply hit `F5` to build and run the application.
+1. If this is your first time starting the app, run `dotnet tool restore`.
+2. Run `dotnet fake build` to launch the application. If you're in VS Code, you can also hit `F5` to build and run the application.
 
 If using Visual Studio, do NOT attempt to build the solution directly in VS. Instead *must* use `dotnet fake build` to compile and run the application.
