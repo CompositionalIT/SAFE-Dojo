@@ -2,21 +2,17 @@ module App
 
 open Elmish
 open Fable.FontAwesome
-open Leaflet
 open Fable.Core.JsInterop
 open Fable.React
 open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
-open Fulma
+open Leaflet
+open ReactLeaflet
 open Shared
 open Thoth.Json
 open Thoth.Fetch
-
-module RL = ReactLeaflet
-importAll "../../node_modules/leaflet/dist/leaflet.css"
-Leaflet.icon?Default?imagePath <- "//cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/"
 
 /// The different elements of the completed report.
 type Report =
@@ -116,15 +112,23 @@ module ViewParts =
             ]
         ]
 
-    let mapTile location =
-        let latLong = Fable.Core.U3.Case3(location.LatLong.Latitude, location.LatLong.Longitude)
+    let makeMarker latLong description =
+        marker [ MarkerProps.Position latLong ] [
+            tooltip [ ] [ str description ]
+        ]
+
+    let mapTile (lr:LocationResponse) =
+        let latLong = LatLngExpression.Case3(lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
-            [ RL.tileLayer [ RL.TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
-              RL.marker [ RL.MarkerProps.Position latLong ] [ ] ]
-            |> RL.map
-                [ RL.MapProps.Zoom 10.
-                  RL.MapProps.Style [ Height 500; MinWidth 500 ]
-                  RL.MapProps.Center latLong ]
+            map [
+                (* Task 3.2 MAP: Set the center of the map using MapProps.Center, supply the lat/long value as input.
+                   Task 3.3 MAP: Update the Zoom to 15. *)
+                MapProps.Zoom 11.
+                MapProps.Style [ Height 500 ]
+            ] [
+                tileLayer [ TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
+                (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
+            ]
         ]
 
     let weatherTile weatherReport =
@@ -228,7 +232,10 @@ let view (model:Model) dispatch =
                     Tile.Size Tile.Is12
                 ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        mapTile report.Location.Location
+                        (* Task 3.1 MAP: Call the mapTile function here, which creates a
+                        tile to display a map using the React Leaflet component. The function
+                        takes in a LocationResponse value as input and returns a ReactElement. *)
+                        mapTile report.Location
                     ]
                 ]
                 Tile.ancestor [ ] [

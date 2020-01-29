@@ -41,15 +41,15 @@ In this task, you'll take some validation code which already exists on the backe
 
 ## 3. Add map
 
-In this task, you'll add a map to the UI which shows the area surrounding the postcode on a map. By the end of this task, you'll understand how the view code in Elmish interacts with the Elmish data model.
+In this task, you'll add a map to the UI which shows the area surrounding the postcode on a map. By the end of this task, you'll understand how the view code in Elmish interacts with the Elmish data model and how to add "properties" onto elements.
 
-3.1 In `src/Client/App.fs` update the `bingMapTile` function to call the `getBingMapUrl` function and get a valid URL to embed a Bing map into the UI
+3.1 In `src/Client/App.fs` update the `view` function to add in the map tile using the `mapTile` function. You will find a more detailed explanation in the function (search for Task 3.1).
 
-3.2 Using your retrieved URL, update the Src attribute on the iframe to retrieve embed the Bing map
+3.2 Now that you have an empty map tile, navigate to the `mapTile` function itself and add a new item to the `map` props list, `MapProps.Center`. It takes a `LatLong` as input. You should now be able to see the map with the correct location!
 
-3.3 Navigate to the web application and observe how the Bing map is now being rendered in the UI
+3.3 Change the zoom level to `15.0` (note the `.0` - `Zoom` expects a float). Observe how the map updates almost immediately and smoothly zooms in.
 
-3.4 Start to explore how data flows from the updated model through to the UI. What causes the map to update?
+3.4 Add a marker to display on the center point of the map, just after the `tileLayer`. There is already a helper function, `makeMarker`, that you can use. You can build up an appropriate description for the second argument, such as "{postcode} - {region}" or similar, using fields on the `Location` record that is passed in.
 
 ## 4. Implement weather endpoint
 
