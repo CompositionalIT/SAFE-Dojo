@@ -9,3 +9,5 @@ group Client
     Fable.FontAwesome.Free
     Fable.Recharts
     Fable.ReactLeaflet
+    Fable.Browser.GeoLocation
+    Fable.Browser.Navigator

@@ -13,6 +13,8 @@ group Client
     framework: netstandard2.0
     storage: none
 
+    nuget Fable.Browser.Geolocation
+nuget Fable.Browser.Navigator
     nuget Fable.Core ~> 3
     nuget Fable.Elmish ~> 3
     nuget Fable.Elmish.Debugger ~> 3
@@ -37,4 +39,3 @@ group Build
     nuget Fake.Core.Target
     nuget Fake.DotNet.Cli
     nuget Fake.IO.FileSystem
-

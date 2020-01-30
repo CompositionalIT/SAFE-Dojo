@@ -20,6 +20,9 @@ type Report =
       Crimes : CrimeResponse array
       Weather : WeatherResponse }
 
+type ReverseLookup =
+    { result : {| postcode : string |} array }
+
 type ServerState = Idle | Loading | ServerError of string
 
 /// The overall data model driving the view.
@@ -32,6 +35,9 @@ type Model =
 /// The different types of messages in the system.
 type Msg =
     | GetReport
+    | CalculateGeoLocation
+    | GotGeoLocation of Browser.Types.Position
+    | UpdatePostcode of string
     | PostcodeChanged of string
     | GotReport of Report
     | ErrorMsg of exn
@@ -56,6 +62,13 @@ let getResponse postcode = promise {
           Weather = weather }
 }
 
+module Sub =
+    let getPosition onSuccess onError dispatch =
+        Browser.Navigator.navigator.geolocation.Value.getCurrentPosition(
+          onSuccess >> dispatch,
+          onError >> dispatch
+        )
+
 /// The update function knows how to update the model given a message.
 let update msg model =
     match model, msg with
@@ -63,6 +76,16 @@ let update msg model =
         { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
+    | _, CalculateGeoLocation ->
+        model, Cmd.ofSub (Sub.getPosition GotGeoLocation (fun e -> sprintf "%O - %s" e.code e.message |> exn |> ErrorMsg))
+    | _, GotGeoLocation position ->
+        let getPostcode = promise {
+            let! (get : ReverseLookup) = Fetch.get (sprintf "https://api.postcodes.io/postcodes?lon=%f&lat=%f" position.coords.longitude position.coords.latitude)
+            return UpdatePostcode get.result.[0].postcode
+        }
+        model, Cmd.OfPromise.result getPostcode
+    | _, UpdatePostcode p ->
+        { model with Postcode = p; ValidationError = None }, Cmd.ofMsg GetReport
     | _, GotReport response ->
         { model with
             ValidationError = None
@@ -206,6 +229,14 @@ let view (model:Model) dispatch =
                                   Button.Disabled (model.ValidationError.IsSome)
                                   Button.IsLoading (model.ServerState = ServerState.Loading) ]
                                 [ str "Submit" ]
+                        ]
+                        Level.item [] [
+                            Button.button
+                                [ Button.IsFullWidth
+                                  Button.Color IsPrimary
+                                  Button.OnClick (fun _ -> dispatch CalculateGeoLocation)
+                                  Button.Disabled (model.ServerState = ServerState.Loading) ]
+                                [ str "Calculate Geolocation" ]
                         ]
                         Level.item [] [
                             Button.button
