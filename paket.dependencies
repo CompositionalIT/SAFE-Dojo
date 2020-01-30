@@ -23,6 +23,7 @@ group Client
     nuget Fulma ~> 2
     nuget Fable.FontAwesome.Free ~> 2
     nuget Fable.Recharts
+    nuget Fable.ReactLeaflet
 
     clitool dotnet-fable ~> 2
 

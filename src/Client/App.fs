@@ -8,6 +8,8 @@ open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fulma
+open Leaflet
+open ReactLeaflet
 open Shared
 open Thoth.Json
 open Thoth.Fetch
@@ -47,7 +49,12 @@ let getResponse postcode = promise {
     // if the endpoint doesn't exist, just return an empty array!
     let! crimes = Fetch.get (sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
     let! weather = Fetch.get (sprintf "api/weather/%s" postcode)
-    return { Location = location; Crimes = crimes; Weather = weather } }
+
+    return
+        { Location = location
+          Crimes = crimes
+          Weather = weather }
+}
 
 /// The update function knows how to update the model given a message.
 let update msg model =
@@ -86,7 +93,8 @@ module ViewParts =
         ]
 
     let crimeTile crimes =
-        let cleanData = crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+        let cleanData =
+            crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
         basicTile "Crime" [ ] [
             barChart [
                 Chart.Data cleanData
@@ -103,16 +111,22 @@ module ViewParts =
             ]
         ]
 
-    let getBingMapUrl latLong =
-        sprintf "https://www.bing.com/maps/embed?h=400&w=800&cp=%f~%f&lvl=11&typ=s&FORM=MBEDV8" latLong.Latitude latLong.Longitude
+    let makeMarker latLong description =
+        marker [ MarkerProps.Position latLong ] [
+            tooltip [ ] [ str description ]
+        ]
 
-    let bingMapTile (latLong:LatLong) =
-        let url = getBingMapUrl latLong
+    let mapTile (lr:LocationResponse) =
+        let latLong = LatLngExpression.Case3(lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
-            iframe [
-                Src url
-                Style [ Height 410; Width 810 ]
-            ] [ ]
+            map [
+                MapProps.Center latLong
+                MapProps.Zoom 15.
+                MapProps.Style [ Height 500 ]
+            ] [
+                tileLayer [ TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
+                makeMarker latLong (sprintf "%s (%s - %s)" (lr.Postcode.ToUpper()) lr.Location.Town lr.Location.Region)
+            ]
         ]
 
     let weatherTile weatherReport =
@@ -145,12 +159,14 @@ module ViewParts =
 
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
-let view model dispatch =
+let view (model:Model) dispatch =
     section [] [
         Hero.hero [ Hero.Color Color.IsInfo ] [
             Hero.body [ ] [
-                Container.container [ Container.IsFluid
-                                      Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [
+                Container.container [
+                    Container.IsFluid
+                    Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ]
+                ] [
                     Heading.h1 [ ] [
                         str "UK Location Data Mashup"
                     ]
@@ -213,19 +229,21 @@ let view model dispatch =
                         ]
                     ]
                 ]
-            | { Report = Some model } ->
-                Tile.ancestor [ ] [
+            | { Report = Some report } ->
+                Tile.ancestor [
+                    Tile.Size Tile.Is12
+                ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
-                        bingMapTile model.Location.Location.LatLong
+                        mapTile report.Location
                     ]
                 ]
                 Tile.ancestor [ ] [
                     Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
-                        locationTile model
-                        weatherTile model.Weather
+                        locationTile report
+                        weatherTile report.Weather
                     ]
                     Tile.parent [ Tile.Size Tile.Is8 ] [
-                        crimeTile model.Crimes
+                        crimeTile report.Crimes
                     ]
               ]
         ]

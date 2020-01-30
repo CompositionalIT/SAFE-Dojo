@@ -3,6 +3,7 @@ namespace Shared
 type LatLong =
     { Latitude : float
       Longitude : float }
+
 type Location =
     { Town : string
       Region : string
