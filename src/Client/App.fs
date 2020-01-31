@@ -233,15 +233,14 @@ let view (model:Model) dispatch =
                         (* Task 3.1 MAP: Call the mapTile function here, which creates a
                         tile to display a map using the React Leaflet component. The function
                         takes in a LocationResponse value as input and returns a ReactElement. *)
-                        mapTile report.Location
                     ]
                 ]
                 Tile.ancestor [ ] [
                     Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
                         locationTile report
                         (* Task 4.6 WEATHER: Generate the view code for the weather tile
-                           using the weatherTile function, supplying the weather report
-                           from the model, and include it here as part of the list *)
+                           using the weatherTile function, supplying the weather data
+                           from the report value, and include it here as part of the list *)
                     ]
                     Tile.parent [ Tile.Size Tile.Is8 ] [
                         crimeTile report.Crimes

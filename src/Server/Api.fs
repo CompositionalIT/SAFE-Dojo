@@ -44,7 +44,8 @@ let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Ro
 let getWeather postcode next ctx = task {
     (* Task 4.1 WEATHER: Implement a function that retrieves the weather for
        the given postcode. Use the GeoLocation.getLocation, Weather.getWeatherForPosition and
-       asWeatherResponse functions to create and return a WeatherResponse instead of the stub. *)
+       asWeatherResponse functions to create and return a WeatherResponse instead of the stub.
+       Don't forget to use let! instead of let to "await" the Task. *)
     return! json { WeatherType = WeatherType.Clear; AverageTemperature = 0. } next ctx }
 
 let apiRouter = router {
