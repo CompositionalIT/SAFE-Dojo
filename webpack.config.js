@@ -10,14 +10,13 @@ var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
     indexHtmlTemplate: './src/Client/index.html',
     fsharpEntry: './src/Client/Client.fsproj',
-    cssEntry: './src/Client/style.scss',
+    // cssEntry: './src/Client/style.scss',
     outputDir: './src/Client/deploy',
     assetsDir: './src/Client/public',
     devServerPort: 8080,
@@ -40,12 +39,10 @@ var CONFIG = {
     babel: {
         presets: [
             ['@babel/preset-env', {
-                modules: false,
+                modules: false
                 // This adds polyfills when needed. Requires core-js dependency.
                 // See https://babeljs.io/docs/en/babel-preset-env#usebuiltins
                 // Note that you still need to add custom polyfills if necessary (e.g. whatwg-fetch)
-                useBuiltIns: 'usage',
-                corejs: 3
             }]
         ],
     }
@@ -70,10 +67,9 @@ module.exports = {
     // with the code because the MiniCssExtractPlugin will extract the
     // CSS in a separate files.
     entry: isProduction ? {
-        app: [resolve(CONFIG.fsharpEntry), resolve(CONFIG.cssEntry)]
+        app: [resolve(CONFIG.fsharpEntry)]
     } : {
-            app: [resolve(CONFIG.fsharpEntry)],
-            style: [resolve(CONFIG.cssEntry)]
+            app: [resolve(CONFIG.fsharpEntry)]
         },
     // Add a hash to the output file name in production
     // to prevent browser caching if code changes
@@ -97,7 +93,6 @@ module.exports = {
     //      - HotModuleReplacementPlugin: Enables hot reloading when code changes without refreshing
     plugins: isProduction ?
         commonPlugins.concat([
-            new MiniCssExtractPlugin({ filename: 'style.[hash].css' }),
             new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
         ])
         : commonPlugins.concat([
@@ -139,22 +134,6 @@ module.exports = {
                     loader: 'babel-loader',
                     options: CONFIG.babel
                 },
-            },
-            {
-                test: /\.(sass|scss|css)$/,
-                use: [
-                    isProduction
-                        ? MiniCssExtractPlugin.loader
-                        : 'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'resolve-url-loader',
-                    },
-                    {
-                      loader: 'sass-loader',
-                      options: { implementation: require('sass') }
-                    }
-                ],
             },
             {
                 test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/,
