@@ -42,10 +42,6 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let decoderForLocationResponse = Decode.Auto.generateDecoder<LocationResponse>()
-let decoderForCrimeResponse = Decode.Auto.generateDecoder<CrimeResponse array>()
-let decoderForWeather = Decode.Auto.generateDecoder<WeatherResponse>()
-
 let getResponse postcode = promise {
     let! location = Fetch.get<LocationResponse>(sprintf "/api/distance/%s" postcode)
     // if the endpoint doesn't exist, just return an empty array!
