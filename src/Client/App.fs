@@ -37,7 +37,7 @@ type Msg =
 
 /// The init function is called to start the message pump with an initial view.
 let init () =
-    { Postcode = null
+    { Postcode = ""
       Report = None
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
