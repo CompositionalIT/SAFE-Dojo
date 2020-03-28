@@ -37,6 +37,7 @@ module Crime =
         ||> sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f"
         |> PoliceUkCrime.AsyncLoad
         |> Async.StartAsTask
+
 [<AutoOpen>]
 module Weather =
     type MetaWeatherSearch = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
