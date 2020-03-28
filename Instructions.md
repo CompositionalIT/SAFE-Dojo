@@ -30,15 +30,15 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 ## 2. Add shared code
 
-In this task, you'll take some validation code which already exists on the backend service and use it within your front-end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
+In this task, you'll take some validation code which already exists on the backend service and use it within your front-end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application.
 
 2.1 Navigate to `src/Client/App.fs`. Look in the `update` function and examine the `PostcodeChanged` message handler. This code runs whenever the user changes the postcode field.
 
 2.2 Using the `Validation.isValidPostcode` function, implement some validation logic to confirm that the postcode is valid. You'll need to update the `ValidationError` field in the model appropriate with either `Some` error or `None`.
 
-2.3 Observe how the `Validation.isValidPostcode` function is also being used in the back-end as well as the front-end code
+2.3 Observe how the `Validation.isValidPostcode` function is also being used in the back-end as well as the front-end code.
 
-2.4 Navigate to the web application and try typing in an invalid postcode into the text box. Notice how your validation error is now being propagated into the UI
+2.4 Navigate to the web application and try typing in an invalid postcode into the text box. Notice how your validation error is now being propagated into the UI.
 
 ## 3. Add map
 
@@ -56,21 +56,21 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 In this task, you need to add another tile to the UI including all the associated work on the backend of the system as well. We'll be adding a tile which shows the current weather for the given postcode as an image and then updating the tile to add in the current temperature. By the end of this task you should start to understand how a full stack SAFE application is built.
 
-4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data
+4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data.
 
-4.2 As in the task earlier, add a new route to the router which routes traffic to the `getWeather` function
+4.2 As in the task earlier, add a new route to the router which routes traffic to the `getWeather` function.
 
-4.3 Verify that your endpoint works and returns data either using CURL or your web browser
+4.3 Verify that your endpoint works and returns data either using CURL or your web browser.
 
-4.4 On the front end in the file `src/Client/App.fs`, update the `Report` type to include the `WeatherResponse`
+4.4 On the front end in the file `src/Client/App.fs`, update the `Report` type to include the `WeatherResponse`.
 
-4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `Fetch.get` per the other API call, and populate the `Report` field with the returned data
+4.5 In `src/Client/App.fs` in the `getResponse` function, call your endpoint using `Fetch.get` per the other API call, and populate the `Report` field with the returned data.
 
-4.6 Update the `view` function to include a call to the `weatherTile` function
+4.6 Update the `view` function to include a call to the `weatherTile` function.
 
-4.7 Navigate to the web application and observe how the weather tile is now being rendered in the UI
+4.7 Navigate to the web application and observe how the weather tile is now being rendered in the UI.
 
-4.8 Update the weather tile to include the temperature as well as the icon for the weather
+4.8 Update the weather tile to include the temperature as well as the icon for the weather.
 
 ## 5. Adding a clear button
 
