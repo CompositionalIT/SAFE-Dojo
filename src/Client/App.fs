@@ -31,6 +31,7 @@ type Model =
 
 /// The different types of messages in the system.
 type Msg =
+    | ResetPage
     | GetReport
     | PostcodeChanged of string
     | GotReport of Report
@@ -77,7 +78,9 @@ let update msg model =
             Postcode = p
             (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
-            ValidationError = if isValid then None else Some "Invalid postcode" }, Cmd.none
+            ValidationError = if p = "" || isValid then None else Some "Invalid postcode" }, Cmd.none
+    | _, ResetPage ->
+        init ()
     | _, ErrorMsg e ->
         { model with ServerState = ServerError e.Message }, Cmd.none
 
@@ -213,6 +216,14 @@ let view (model:Model) dispatch =
                                   Button.Disabled (model.ValidationError.IsSome)
                                   Button.IsLoading (model.ServerState = ServerState.Loading) ]
                                 [ str "Submit" ]
+                        ]
+                        Level.item [] [
+                            Button.button
+                                [ Button.IsFullWidth
+                                  Button.Color Color.IsGreyDarker 
+                                  Button.OnClick (fun _ -> dispatch ResetPage)
+                                  Button.Disabled (model.Postcode = "") ]
+                                [ str "Clear" ]
                         ]
                     ]
                 ]
