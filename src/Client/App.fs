@@ -18,7 +18,7 @@ open Thoth.Fetch
 type Report =
     { Location : LocationResponse
       Crimes : CrimeResponse array
-      Weather: WeatherResponse }
+      Weather: WeatherResponse option }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -52,7 +52,8 @@ let getResponse postcode = promise {
     (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
-    let! weather = Fetch.get<WeatherResponse>(sprintf "api/weather/%s" postcode)
+    let! weather =
+        Fetch.post<_, WeatherResponse option>("api/weather", Some { Postcode = postcode}) |> Promise.catch(fun _ -> None)
     
     return
         { Location = location
@@ -138,23 +139,35 @@ module ViewParts =
         ]
 
     let weatherTile weatherReport =
+        let error () = [
+            Level.heading [] [
+                Heading.h1 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ]
+                    [ str "Failed to load" ]
+            ]
+        ]
+        let details weather = [
+            Level.heading [ ] [
+                Image.image [ Image.Is128x128 ] [
+                    img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" weather.WeatherType.Abbreviation) ]
+                ]
+            ]
+            Level.title [ ] [
+                Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
+                    (* Task 4.8 WEATHER: Get the temperature from the given weather report
+                       and display it here instead of an empty string. *)
+                    str <| sprintf "%.1f°C" weather.AverageTemperature
+                ]
+            ]
+        ]
+        let contents = 
+            match weatherReport with
+            | Some weather -> details weather
+            | None -> error()
+            
         childTile "Weather" [
             Level.level [ ] [
                 Level.item [ Level.Item.HasTextCentered ] [
-                    div [ ] [
-                        Level.heading [ ] [
-                            Image.image [ Image.Is128x128 ] [
-                                img [ Src(sprintf "https://www.metaweather.com/static/img/weather/%s.svg" weatherReport.WeatherType.Abbreviation) ]
-                            ]
-                        ]
-                        Level.title [ ] [
-                            Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
-                                (* Task 4.8 WEATHER: Get the temperature from the given weather report
-                                   and display it here instead of an empty string. *)
-                                str <| sprintf "%.1f°C" weatherReport.AverageTemperature
-                            ]
-                        ]
-                    ]
+                    div [ ] contents
                 ]
             ]
         ]
