@@ -18,7 +18,8 @@ open Shared
 /// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array }
+      Crimes : CrimeResponse array
+      Weather : WeatherResponse }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -51,13 +52,12 @@ let dojoApi =
 let getResponse postcode = async {
     let! location = dojoApi.GetDistance postcode
     let! crimes = dojoApi.GetCrimes postcode
+    let! weather = dojoApi.GetWeather postcode
 
-    (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
-       Then, save its value into the Report below. You'll need to add a new
-       field to the Report type first, though! *)
     return
         { Location = location
-          Crimes = crimes }
+          Crimes = crimes
+          Weather = weather }
 }
 
 /// The update function knows how to update the model given a message.
@@ -75,9 +75,10 @@ let update msg model =
     | _, PostcodeChanged p ->
         { model with
             Postcode = p
-            (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
-               Note that the validation is the same shared code that runs on the server! *)
-            ValidationError = None }, Cmd.none
+            ValidationError =
+                if Validation.isValidPostcode p then None
+                else Some "Invalid postcode"
+        }, Cmd.none
     | _, ErrorMsg (:? ProxyRequestException as ex) ->
         let payload = Json.parseAs<{| error : string |}> ex.ResponseText
         { model with ServerState = ServerError payload.error }, Cmd.none
@@ -125,13 +126,12 @@ module ViewParts =
         let latLong = LatLngExpression.Case3(lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
         basicTile "Map" [ Tile.Size Tile.Is12 ] [
             map [
-                (* Task 3.2 MAP: Set the center of the map using MapProps.Center, supply the lat/long value as input.
-                   Task 3.3 MAP: Update the Zoom to 15. *)
-                MapProps.Zoom 11.
+                MapProps.Center latLong
+                MapProps.Zoom 15.
                 MapProps.Style [ Height 500 ]
             ] [
                 tileLayer [ TileLayerProps.Url "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ] []
-                (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
+                makeMarker latLong lr.Location.Town
             ]
         ]
 
@@ -147,9 +147,7 @@ module ViewParts =
                         ]
                         Level.title [ ] [
                             Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
-                                (* Task 4.8 WEATHER: Get the temperature from the given weather report
-                                   and display it here instead of an empty string. *)
-                                str ""
+                                str (weatherReport.AverageTemperature.ToString().Substring(0, 4) + "c")
                             ]
                         ]
                     ]
@@ -235,17 +233,13 @@ let view (model:Model) dispatch =
                         Tile.Size Tile.Is12
                     ] [
                         Tile.parent [ Tile.Size Tile.Is12 ] [
-                            (* Task 3.1 MAP: Call the mapTile function here, which creates a
-                            tile to display a map using the React Leaflet component. The function
-                            takes in a LocationResponse value as input and returns a ReactElement. *)
+                            mapTile report.Location
                         ]
                     ]
                     Tile.ancestor [ ] [
                         Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
                             locationTile report
-                            (* Task 4.6 WEATHER: Generate the view code for the weather tile
-                               using the weatherTile function, supplying the weather data
-                               from the report value, and include it here as part of the list *)
+                            weatherTile report.Weather
                         ]
                         Tile.parent [ Tile.Size Tile.Is8 ] [
                             crimeTile report.Crimes

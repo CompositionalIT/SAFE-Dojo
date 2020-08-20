@@ -36,12 +36,12 @@ module Crime =
         (location.Latitude, location.Longitude)
         ||> sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f"
         |> PoliceUkCrime.AsyncLoad
-        |> Async.StartAsTask
+
 [<AutoOpen>]
 module Weather =
     type MetaWeatherSearch = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
     type MetaWeatherLocation = JsonProvider<"https://www.metaweather.com/api/location/1393672">
-    let getWeatherForPosition location = task {
+    let getWeatherForPosition location = async {
         let! locations =
             (location.Latitude, location.Longitude)
             ||> sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f"

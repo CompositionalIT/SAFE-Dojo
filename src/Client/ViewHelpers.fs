@@ -13,7 +13,7 @@ module KeyCode =
 
 let onKeyDown keyCode action =
     OnKeyDown (fun (ev:Browser.Types.KeyboardEvent) ->
-        if ev.keyCode = keyCode then
+        if ev.code = keyCode then
             ev.preventDefault()
             action ev)
 
