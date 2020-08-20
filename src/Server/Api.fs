@@ -13,12 +13,13 @@ let invalidPostcode next (ctx:HttpContext) =
     ctx.SetStatusCode 400
     text "Invalid postcode" next ctx
 
-let getDistanceFromLondon postcode next (ctx:HttpContext) = task {
-    if Validation.isValidPostcode postcode then
-        let! location = getLocation postcode
-        let distanceToLondon = getDistanceBetweenPositions location.LatLong london
-        return! json { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) } next ctx
-    else return! invalidPostcode next ctx }
+let getDistanceFromLondon postcode = async {
+    if not (Validation.isValidPostcode postcode) then failwith "Invalid postcode"
+
+    let! location = getLocation postcode
+    let distanceToLondon = getDistanceBetweenPositions location.LatLong london
+    return { Postcode = postcode; Location = location; DistanceToLondon = (distanceToLondon / 1000.<meter>) }
+}
 
 let getCrimeReport postcode next ctx = task {
     if Validation.isValidPostcode postcode then
@@ -48,14 +49,19 @@ let getWeather postcode next ctx = task {
        Don't forget to use let! instead of let to "await" the Task. *)
     return! json { WeatherType = WeatherType.Clear; AverageTemperature = 0. } next ctx }
 
-let apiRouter = router {
-    pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
-    getf "/distance/%s" getDistanceFromLondon
+// let apiRouter = router {
+//     pipe_through (pipeline { set_header "x-pipeline-type" "Api" })
+//     getf "/distance/%s" getDistanceFromLondon
 
-    (* Task 1.0 CRIME: Add a new /crime/{postcode} endpoint to return crime data
-       using the getCrimeReport web part function. Use the above distance
-       route as an example of how to add a new route. *)
+//     (* Task 1.0 CRIME: Add a new /crime/{postcode} endpoint to return crime data
+//        using the getCrimeReport web part function. Use the above distance
+//        route as an example of how to add a new route. *)
 
-    (* Task 4.2 WEATHER: Hook up the weather endpoint to the getWeather function. *)
+//     (* Task 4.2 WEATHER: Hook up the weather endpoint to the getWeather function. *)
 
+//     }
+
+let apiRouter =
+    { GetDistance = getDistanceFromLondon
+      GetCrimes = fun postcode -> async { return Array.empty }
     }

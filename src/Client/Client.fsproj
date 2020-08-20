@@ -3,10 +3,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../Shared/Shared.fs" />
     <Compile Include="ViewHelpers.fs" />
-    <Compile Include="App.fs" />
+    <Compile Include="Index.fs" />
     <Compile Include="Client.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
