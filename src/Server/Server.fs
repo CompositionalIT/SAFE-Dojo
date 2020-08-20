@@ -1,9 +1,11 @@
 open Fable.Remoting.Giraffe
 open Fable.Remoting.Server
 open Saturn
+open Shared
 
 let webApp =
     Remoting.createApi()
+    |> Remoting.withRouteBuilder Routing.api
     |> Remoting.fromValue Api.apiRouter
     |> Remoting.buildHttpHandler
 

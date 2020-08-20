@@ -44,6 +44,7 @@ let init () =
 
 let dojoApi =
     Remoting.createApi()
+    |> Remoting.withRouteBuilder Routing.api
     |> Remoting.buildProxy<IDojoApi>
 
 let getResponse postcode = async {

@@ -35,6 +35,9 @@ type WeatherType =
 
 type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
 
+module Routing =
+    let api = sprintf "/api/%s/%s"
+
 type IDojoApi =
     { GetDistance : string -> LocationResponse Async
       GetCrimes : string -> CrimeResponse array Async
