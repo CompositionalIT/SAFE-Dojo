@@ -8,6 +8,7 @@ open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
 open Fable.Remoting.Client
+open Fable.SimpleJson
 open Fulma
 open Leaflet
 open ReactLeaflet
@@ -77,8 +78,11 @@ let update msg model =
             (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
             ValidationError = None }, Cmd.none
-    | _, ErrorMsg e ->
-        { model with ServerState = ServerError e.Message }, Cmd.none
+    | _, ErrorMsg (:? ProxyRequestException as ex) ->
+        let payload = Json.parseAs<{| error : string |}> ex.ResponseText
+        { model with ServerState = ServerError payload.error }, Cmd.none
+    | _, ErrorMsg ex ->
+        { model with ServerState = ServerError ex.Message }, Cmd.none
 
 [<AutoOpen>]
 module ViewParts =

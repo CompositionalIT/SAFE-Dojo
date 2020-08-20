@@ -7,6 +7,7 @@ let webApp =
     Remoting.createApi()
     |> Remoting.withRouteBuilder Routing.api
     |> Remoting.fromValue Api.apiRouter
+    |> Remoting.withErrorHandler(fun ex info -> Propagate ex.Message)
     |> Remoting.buildHttpHandler
 
 let app = application {

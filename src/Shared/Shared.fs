@@ -38,6 +38,7 @@ type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
 module Routing =
     let api = sprintf "/api/%s/%s"
 
+// Add new routes to the "contract" between client and server below.
 type IDojoApi =
     { GetDistance : string -> LocationResponse Async
       GetCrimes : string -> CrimeResponse array Async

@@ -16,9 +16,9 @@ Also note the following:
 This method of rapid, iterative development is a powerful tool for SAFE apps.
 
 ## 1. Add a new endpoint
-In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
+In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in SAFE using Fable Remoting.
 
-1.1 Navigate to `src/Server/Api.fs` and find where the routes are defined in the `apiRouter` value.
+1.1 Navigate to `src/Server/Api.fs` and find the `apiRouter` value, which is the implementation of the contract between client and server.
 
 1.2 Observe how we define a route for the distance endpoint. Also, note the function name and the signature of the `getDistanceFromLondon` function.
 
