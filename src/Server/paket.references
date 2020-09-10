@@ -1,5 +1,5 @@
-group Server
-    FSharp.Core
-    Saturn
-    Thoth.Json.Giraffe
-    FSharp.Data
+FSharp.Core
+Saturn
+FSharp.Data
+Fable.Remoting.Giraffe
+Thoth.Json.Giraffe

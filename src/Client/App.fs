@@ -7,12 +7,11 @@ open Fable.React
 open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
+open Fable.Remoting.Client
 open Fulma
 open Leaflet
 open ReactLeaflet
 open Shared
-open Thoth.Json
-open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -44,11 +43,15 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let getResponse postcode = promise {
-    let! location = Fetch.post("/api/distance", { SearchedPostcode = postcode })
-    // if the endpoint doesn't exist, just return an empty array!
-    let! crimes = Fetch.get (sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
-    let! weather = Fetch.get (sprintf "api/weather/%s" postcode)
+let dojoApi =
+    Remoting.createApi()
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.buildProxy<IDojoApi>
+
+let getResponse postcode = async {
+    let! location = dojoApi.GetDistance postcode
+    let! crimes = dojoApi.GetCrimes postcode
+    let! weather = dojoApi.GetWeather postcode
 
     return
         { Location = location
@@ -60,7 +63,7 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
     | _, GotReport response ->

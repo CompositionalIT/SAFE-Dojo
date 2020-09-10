@@ -34,9 +34,18 @@ type WeatherType =
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
 type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
-type PostcodeRequest = { SearchedPostcode : string }
+
 /// Provides validation on data. Shared across both client and server.
 module Validation =
     open System.Text.RegularExpressions
     let isValidPostcode postcode =
         Regex.IsMatch(postcode, @"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})")
+
+module Route =
+    let builder typeName methodName =
+        sprintf "/api/%s/%s" typeName methodName
+
+type IDojoApi =
+    { GetDistance: string -> Async<LocationResponse>
+      GetWeather: string -> Async<WeatherResponse>
+      GetCrimes: string -> Async<CrimeResponse []> }
