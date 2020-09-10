@@ -22,8 +22,6 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 1.2 Observe how we bind a function to the GetDistance endpoint. Also, note the function name and the signature of the `getDistanceFromLondon` function.
 
-§ Is the signature of the getDistanceFromLondon function still relevant?
-
 1.3 In the same manner as the GetDistance endpoint above, delete the anonymous function that's bound to the GetCrimes endpoint which currently returns an empty array and bind the `getCrimeReport` function to it instead.
 
 1.4 Navigate to the application in the web browser and run a postcode search; observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
