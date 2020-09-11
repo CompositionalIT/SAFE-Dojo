@@ -6,7 +6,7 @@ open Shared
 
 let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 
-let getDistanceFromLondon (postcode:string) = async {
+let getDistanceFromLondon postcode = async {
     if not (Validation.isValidPostcode postcode) then failwith "Invalid postcode"
 
     let! location = getLocation postcode

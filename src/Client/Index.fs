@@ -248,7 +248,7 @@ let view (model:Model) dispatch =
                     Tile.parent [ Tile.Size Tile.Is8 ] [
                         crimeTile report.Crimes
                     ]
-              ]
+                ]
         ]
 
         br [ ]
