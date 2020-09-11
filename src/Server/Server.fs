@@ -5,8 +5,8 @@ open Shared
 
 let webApp =
     Remoting.createApi()
-    |> Remoting.withRouteBuilder Routing.api
-    |> Remoting.fromValue Api.apiRouter
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.fromValue Api.dojoApi
     |> Remoting.buildHttpHandler
 
 let app = application {

@@ -44,7 +44,7 @@ let getWeather postcode = async {
     return! async.Return { WeatherType = WeatherType.Clear; AverageTemperature = 0. }
 }
 
-let apiRouter =
+let dojoApi =
     { GetDistance = getDistanceFromLondon
 
       (* Task 1.0 CRIME: Bind the getCrimeReport function to the GetCrimes method to

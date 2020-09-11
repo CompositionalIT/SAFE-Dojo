@@ -79,7 +79,7 @@ open Fake.Core.TargetOperators
 
 "Clean"
     ==> "InstallClient"
-    ==> "Build"
+
     ==> "Run"
 
 Target.runOrDefaultWithArguments "Run"
