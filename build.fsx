@@ -18,10 +18,6 @@ let clientPath = Path.getFullName "./src/Client"
 let clientDeployPath = Path.combine clientPath "deploy"
 let deployDir = Path.getFullName "./deploy"
 
-let release = ReleaseNotes.load "RELEASE_NOTES.md"
-let sharedTestsPath = Path.getFullName "./tests/Shared"
-let serverTestsPath = Path.getFullName "./tests/Server"
-
 let npm args workingDir =
     let npmPath =
         match ProcessUtils.tryFindFileOnPath "npm" with
@@ -79,7 +75,6 @@ open Fake.Core.TargetOperators
 
 "Clean"
     ==> "InstallClient"
-
     ==> "Run"
 
 Target.runOrDefaultWithArguments "Run"
