@@ -35,7 +35,6 @@ type WeatherType =
 
 type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
 
-
 module Route =
     let builder = sprintf "/api/%s/%s"
 
