@@ -11,7 +11,7 @@
 Also note the following:
 
 1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 15) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
-1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `App.fs` file; save the file and see how the front end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
+1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `src/Client/Index.fs` file; save the file and see how the front end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
 
 This method of rapid, iterative development is a powerful tool for SAFE apps.
 
@@ -26,7 +26,7 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 1.4 Navigate to the application in the web browser and run a postcode search; observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
 
-1.5 Look at the `app.fs` in the Client to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
+1.5 Look at `src/Client/Index.fs` to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
 
 ## 2. Add shared code
 
@@ -36,9 +36,9 @@ In this task, you'll take some validation code which already exists on the backe
 
 2.2 Using the `Validation.isValidPostcode` function, implement some validation logic to confirm that the postcode is valid. You'll need to update the `ValidationError` field in the model appropriate with either `Some` error or `None`.
 
-2.3 Observe how the `Validation.isValidPostcode` function is also being used in the back-end as well as the front-end code
+2.3 Observe how the `Validation.isValidPostcode` function is also being used in the back-end as well as the front-end code.
 
-2.4 Navigate to the web application and try typing in an invalid postcode into the text box. Notice how your validation error is now being propagated into the UI
+2.4 Navigate to the web application and try typing in an invalid postcode into the text box. Notice how your validation error is now being propagated into the UI.
 
 ## 3. Add map
 
@@ -50,7 +50,7 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 3.3 Change the zoom level to `15.0` (note the `.0` - `Zoom` expects a float). Observe how the map updates almost immediately and smoothly zooms in.
 
-3.4 Add a marker to display on the center point of the map, just after the `tileLayer`. There is already a helper function, `makeMarker`, that you can use. You can build up an appropriate description for the second argument, such as "{postcode} - {region}" or similar, using fields on the `Location` record that is passed in.
+3.4 Add a marker to display on the centre point of the map, just after the `tileLayer`. There is already a helper function, `makeMarker`, that you can use. You can build up an appropriate description for the second argument, such as "{postcode} - {region}" or similar, using fields on the `Location` record that is passed in.
 
 ## 4. Implement weather endpoint
 
@@ -58,7 +58,7 @@ In this task, you need to add another tile to the UI including all the associate
 
 4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data
 
-4.2 As in the task earlier, you need an endpoint in the `dojoAPI` which will have the `getWeather` function bound to it. However, since this endpoint doesn't exist yet unlike in the earlier task, you first need to change the definiton of `IDojoAPI`. Find the type `IDojoAPI` in `src/Shared/Shared.fs` and add to it a new field named GetWeather which has the type signature of `string -> WeatherResponse Async`. Then, navigate back to `src/Server/Api.fs` and change the implementation of `dojoAPI` to bind the `getWeather` function to the GetWeather endpoint.
+4.2 As in the task earlier, you need an endpoint in the `dojoAPI` which will have the `getWeather` function bound to it. However, since this endpoint doesn't exist yet unlike in the earlier task, you first need to change the definition of `IDojoAPI`. Find the type `IDojoAPI` in `src/Shared/Shared.fs` and add to it a new field named GetWeather which has the type signature of `string -> WeatherResponse Async`. Then, navigate back to `src/Server/Api.fs` and change the implementation of `dojoAPI` to bind the `getWeather` function to the GetWeather endpoint.
 
 4.3 On the front end in the file `src/Client/Index.fs`, update the `Report` type to include the `WeatherResponse`
 
