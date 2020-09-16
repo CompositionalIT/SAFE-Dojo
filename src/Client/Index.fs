@@ -11,7 +11,6 @@ open Fable.Remoting.Client
 open Fulma
 open Leaflet
 open ReactLeaflet
-
 open Shared
 
 /// The different elements of the completed report.
