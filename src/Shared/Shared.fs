@@ -34,7 +34,15 @@ type WeatherType =
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
 type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
-type PostcodeRequest = { SearchedPostcode : string }
+
+module Route =
+    let builder = sprintf "/api/%s/%s"
+
+type IDojoApi =
+    { GetDistance: string -> Async<LocationResponse>
+      GetWeather: string -> Async<WeatherResponse>
+      GetCrimes: string -> Async<CrimeResponse []> }
+
 /// Provides validation on data. Shared across both client and server.
 module Validation =
     open System.Text.RegularExpressions

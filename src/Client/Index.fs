@@ -7,12 +7,11 @@ open Fable.React
 open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
+open Fable.Remoting.Client
 open Fulma
 open Leaflet
 open ReactLeaflet
 open Shared
-open Thoth.Json
-open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -39,16 +38,20 @@ type Msg =
 
 /// The init function is called to start the message pump with an initial view.
 let init () =
-    { Postcode = null
+    { Postcode = ""
       Report = None
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let getResponse postcode = promise {
-    let! location = Fetch.post("/api/distance", { SearchedPostcode = postcode })
-    // if the endpoint doesn't exist, just return an empty array!
-    let! crimes = Fetch.get (sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
-    let! weather = Fetch.get (sprintf "api/weather/%s" postcode)
+let dojoApi =
+    Remoting.createApi()
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.buildProxy<IDojoApi>
+
+let getResponse postcode = async {
+    let! location = dojoApi.GetDistance postcode
+    let! crimes = dojoApi.GetCrimes postcode
+    let! weather = dojoApi.GetWeather postcode
 
     return
         { Location = location
@@ -60,7 +63,7 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
     | _, GotReport response ->
@@ -83,19 +86,16 @@ let update msg model =
 module ViewParts =
     let basicTile title options content =
         Tile.tile options [
-            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
-                (Heading.h2 [] [ str title ] :: content)
-        ]
-    let childTile title content =
-        Tile.child [ ] [
-            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
-                (Heading.h2 [ ] [ str title ] :: content)
+            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                Heading.h2 [] [ str title ]
+                yield! content
+            ]
         ]
 
     let crimeTile crimes =
         let cleanData =
             crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
-        basicTile "Crime" [ ] [
+        basicTile "Crime" [] [
             barChart [
                 Chart.Data cleanData
                 Chart.Width 600.
@@ -130,7 +130,7 @@ module ViewParts =
         ]
 
     let weatherTile weatherReport =
-        childTile "Weather" [
+        basicTile "Weather" [] [
             Level.level [ ] [
                 Level.item [ Level.Item.HasTextCentered ] [
                     div [ ] [
@@ -149,7 +149,7 @@ module ViewParts =
             ]
         ]
     let locationTile model =
-        childTile "Location" [
+        basicTile "Location" [] [
             div [ ] [
                 Heading.h3 [ ] [ str model.Location.Location.Town ]
                 Heading.h4 [ ] [ str model.Location.Location.Region ]
@@ -178,42 +178,45 @@ let view (model:Model) dispatch =
             Field.div [] [
                 Label.label [] [ str "Postcode" ]
                 Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
-                    Input.text
-                        [ Input.Placeholder "Ex: EC2A 4NE"
-                          Input.Value model.Postcode
-                          Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
-                          Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
-                          Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
+                    Input.text [
+                        Input.Placeholder "Ex: EC2A 4NE"
+                        Input.Value model.Postcode
+                        Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
+                        Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
+                        Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown Key.enter (fun _ -> dispatch GetReport) ]
+                    ]
                     Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
-                    (match model with
-                     | { ValidationError = Some _ } ->
+                    match model with
+                    | { ValidationError = Some _ } ->
                         Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
-                     | { ValidationError = None } ->
-                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
+                    | { ValidationError = None } ->
+                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ]
                 ]
-                Help.help
-                   [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
-                   [ str (model.ValidationError |> Option.defaultValue "") ]
+                Help.help [
+                    Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger)
+                ] [
+                    str (model.ValidationError |> Option.defaultValue "")
+                ]
             ]
             Field.div [ Field.IsGrouped ] [
                 Level.level [ ] [
                     Level.left [] [
                         Level.item [] [
-                            Button.button
-                                [ Button.IsFullWidth
-                                  Button.Color IsPrimary
-                                  Button.OnClick (fun _ -> dispatch GetReport)
-                                  Button.Disabled (model.ValidationError.IsSome)
-                                  Button.IsLoading (model.ServerState = ServerState.Loading) ]
-                                [ str "Submit" ]
+                            Button.button [
+                                Button.IsFullWidth
+                                Button.Color IsPrimary
+                                Button.OnClick (fun _ -> dispatch GetReport)
+                                Button.Disabled (model.ValidationError.IsSome)
+                                Button.IsLoading (model.ServerState = ServerState.Loading)
+                            ] [ str "Submit" ]
                         ]
                         Level.item [] [
-                            Button.button
-                                [ Button.IsFullWidth
-                                  Button.Color IsPrimary
-                                  Button.OnClick (fun _ -> dispatch Clear)
-                                  Button.Disabled (model.ServerState = ServerState.Loading) ]
-                                [ str "Clear" ]
+                            Button.button [
+                                Button.IsFullWidth
+                                Button.Color IsPrimary
+                                Button.OnClick (fun _ -> dispatch Clear)
+                                Button.Disabled (model.ServerState = ServerState.Loading)
+                            ] [ str "Clear" ]
                         ]
                     ]
                 ]
@@ -245,14 +248,14 @@ let view (model:Model) dispatch =
                     Tile.parent [ Tile.Size Tile.Is8 ] [
                         crimeTile report.Crimes
                     ]
-              ]
+                ]
         ]
 
         br [ ]
 
         Footer.footer [] [
-            Content.content
-                [ Content.Modifiers [ Fulma.Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ] ]
-                [ safeComponents ]
+            Content.content [
+                Content.Modifiers [ Fulma.Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ]
+            ] [ safeComponents ]
         ]
     ]

@@ -1,6 +1,5 @@
 module DataAccess
 
-open FSharp.Control.Tasks
 open FSharp.Data
 open Shared
 
@@ -9,7 +8,7 @@ module GeoLocation =
     open FSharp.Data.UnitSystems.SI.UnitNames
     type PostcodesIO = JsonProvider<"http://api.postcodes.io/postcodes/EC2A4NE">
 
-    let getLocation postcode = task {
+    let getLocation postcode = async {
         let! postcode = postcode |> sprintf "http://api.postcodes.io/postcodes/%s" |> PostcodesIO.AsyncLoad
         return
             { LatLong = { Latitude = float postcode.Result.Latitude; Longitude = float postcode.Result.Longitude }
@@ -36,12 +35,12 @@ module Crime =
         (location.Latitude, location.Longitude)
         ||> sprintf "https://data.police.uk/api/crimes-street/all-crime?lat=%f&lng=%f"
         |> PoliceUkCrime.AsyncLoad
-        |> Async.StartAsTask
+
 [<AutoOpen>]
 module Weather =
     type MetaWeatherSearch = JsonProvider<"https://www.metaweather.com/api/location/search/?lattlong=51.5074,0.1278">
     type MetaWeatherLocation = JsonProvider<"https://www.metaweather.com/api/location/1393672">
-    let getWeatherForPosition location = task {
+    let getWeatherForPosition location = async {
         let! locations =
             (location.Latitude, location.Longitude)
             ||> sprintf "https://www.metaweather.com/api/location/search/?lattlong=%f,%f"
