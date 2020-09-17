@@ -7,12 +7,11 @@ open Fable.React
 open Fable.React.Props
 open Fable.Recharts
 open Fable.Recharts.Props
+open Fable.Remoting.Client
 open Fulma
 open Leaflet
 open ReactLeaflet
 open Shared
-open Thoth.Json
-open Thoth.Fetch
 
 /// The different elements of the completed report.
 type Report =
@@ -42,14 +41,18 @@ let init () =
       ValidationError = None
       ServerState = Idle }, Cmd.ofMsg (PostcodeChanged "")
 
-let getResponse postcode = promise {
-    let! location = Fetch.get<LocationResponse>(sprintf "/api/distance/%s" postcode)
-    // if the endpoint doesn't exist, just return an empty array!
-    let! crimes = Fetch.get<CrimeResponse array>(sprintf "api/crime/%s" postcode) |> Promise.catch(fun _ -> [||])
+let dojoApi =
+    Remoting.createApi()
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.buildProxy<IDojoApi>
 
-    (* Task 4.5 WEATHER: Fetch the weather from the API endpoint you created.
+let getResponse postcode = async {
+    let! location = dojoApi.GetDistance postcode
+    let! crimes = dojoApi.GetCrimes postcode
+    (* Task 4.4 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
+
     return
         { Location = location
           Crimes = crimes }
@@ -59,7 +62,7 @@ let getResponse postcode = promise {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.OfPromise.either getResponse postcode GotReport ErrorMsg
+        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
     | _, GotReport response ->
@@ -80,19 +83,16 @@ let update msg model =
 module ViewParts =
     let basicTile title options content =
         Tile.tile options [
-            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
-                (Heading.h2 [] [ str title ] :: content)
-        ]
-    let childTile title content =
-        Tile.child [ ] [
-            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ]
-                (Heading.h2 [ ] [ str title ] :: content)
+            Notification.notification [ Notification.Props [ Style [ Height "100%"; Width "100%" ] ] ] [
+                Heading.h2 [] [ str title ]
+                yield! content
+            ]
         ]
 
     let crimeTile crimes =
         let cleanData =
             crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
-        basicTile "Crime" [ ] [
+        basicTile "Crime" [] [
             barChart [
                 Chart.Data cleanData
                 Chart.Width 600.
@@ -128,7 +128,7 @@ module ViewParts =
         ]
 
     let weatherTile weatherReport =
-        childTile "Weather" [
+        basicTile "Weather" [] [
             Level.level [ ] [
                 Level.item [ Level.Item.HasTextCentered ] [
                     div [ ] [
@@ -139,7 +139,7 @@ module ViewParts =
                         ]
                         Level.title [ ] [
                             Heading.h3 [ Heading.Is4; Heading.Props [ Style [ Width "100%" ] ] ] [
-                                (* Task 4.8 WEATHER: Get the temperature from the given weather report
+                                (* Task 4.7 WEATHER: Get the temperature from the given weather report
                                    and display it here instead of an empty string. *)
                                 str ""
                             ]
@@ -149,7 +149,7 @@ module ViewParts =
             ]
         ]
     let locationTile model =
-        childTile "Location" [
+        basicTile "Location" [] [
             div [ ] [
                 Heading.h3 [ ] [ str model.Location.Location.Town ]
                 Heading.h4 [ ] [ str model.Location.Location.Region ]
@@ -178,34 +178,37 @@ let view (model:Model) dispatch =
             Field.div [] [
                 Label.label [] [ str "Postcode" ]
                 Control.div [ Control.HasIconLeft; Control.HasIconRight ] [
-                    Input.text
-                        [ Input.Placeholder "Ex: EC2A 4NE"
-                          Input.Value model.Postcode
-                          Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
-                          Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
-                          Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown KeyCode.enter (fun _ -> dispatch GetReport) ] ]
+                    Input.text [
+                        Input.Placeholder "Ex: EC2A 4NE"
+                        Input.Value model.Postcode
+                        Input.Modifiers [ Modifier.TextTransform TextTransform.UpperCase ]
+                        Input.Color (if model.ValidationError.IsSome then Color.IsDanger else Color.IsSuccess)
+                        Input.Props [ OnChange (fun ev -> dispatch (PostcodeChanged !!ev.target?value)); onKeyDown Key.enter (fun _ -> dispatch GetReport) ]
+                    ]
                     Fulma.Icon.icon [ Icon.Size IsSmall; Icon.IsLeft ] [ Fa.i [ Fa.Solid.Home ] [] ]
-                    (match model with
-                     | { ValidationError = Some _ } ->
+                    match model with
+                    | { ValidationError = Some _ } ->
                         Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Exclamation ] [] ]
-                     | { ValidationError = None } ->
-                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ])
+                    | { ValidationError = None } ->
+                        Icon.icon [ Icon.Size IsSmall; Icon.IsRight ] [ Fa.i [ Fa.Solid.Check ] [] ]
                 ]
-                Help.help
-                   [ Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger) ]
-                   [ str (model.ValidationError |> Option.defaultValue "") ]
+                Help.help [
+                    Help.Color (if model.ValidationError.IsNone then IsSuccess else IsDanger)
+                ] [
+                    str (model.ValidationError |> Option.defaultValue "")
+                ]
             ]
             Field.div [ Field.IsGrouped ] [
                 Level.level [ ] [
                     Level.left [] [
                         Level.item [] [
-                            Button.button
-                                [ Button.IsFullWidth
-                                  Button.Color IsPrimary
-                                  Button.OnClick (fun _ -> dispatch GetReport)
-                                  Button.Disabled (model.ValidationError.IsSome)
-                                  Button.IsLoading (model.ServerState = ServerState.Loading) ]
-                                [ str "Submit" ]
+                            Button.button [
+                                Button.IsFullWidth
+                                Button.Color IsPrimary
+                                Button.OnClick (fun _ -> dispatch GetReport)
+                                Button.Disabled (model.ValidationError.IsSome)
+                                Button.IsLoading (model.ServerState = ServerState.Loading)
+                            ] [ str "Submit" ]
                         ]
                     ]
                 ]
@@ -227,28 +230,28 @@ let view (model:Model) dispatch =
                 ] [
                     Tile.parent [ Tile.Size Tile.Is12 ] [
                         (* Task 3.1 MAP: Call the mapTile function here, which creates a
-                        tile to display a map using the React Leaflet component. The function
-                        takes in a LocationResponse value as input and returns a ReactElement. *)
+                           tile to display a map using the React Leaflet component. The function
+                           takes in a LocationResponse value as input and returns a ReactElement. *)
                     ]
                 ]
                 Tile.ancestor [ ] [
                     Tile.parent [ Tile.IsVertical; Tile.Size Tile.Is4 ] [
                         locationTile report
-                        (* Task 4.6 WEATHER: Generate the view code for the weather tile
+                        (* Task 4.5 WEATHER: Generate the view code for the weather tile
                            using the weatherTile function, supplying the weather data
                            from the report value, and include it here as part of the list *)
                     ]
                     Tile.parent [ Tile.Size Tile.Is8 ] [
                         crimeTile report.Crimes
                     ]
-              ]
+                ]
         ]
 
         br [ ]
 
         Footer.footer [] [
-            Content.content
-                [ Content.Modifiers [ Fulma.Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ] ]
-                [ safeComponents ]
+            Content.content [
+                Content.Modifiers [ Fulma.Modifier.TextAlignment(Screen.All, TextAlignment.Centered) ]
+            ] [ safeComponents ]
         ]
     ]

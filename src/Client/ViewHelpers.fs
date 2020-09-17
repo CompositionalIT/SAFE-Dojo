@@ -3,28 +3,16 @@ module ViewHelpers
 
 open Fable.React
 open Fable.React.Props
-
 open Fulma
 
-module KeyCode =
-    let enter = 13.
-    let upArrow = 38.
-    let downArrow =  40.
+module Key =
+    let enter = "Enter"
 
-let onKeyDown keyCode action =
+let onKeyDown key action =
     OnKeyDown (fun (ev:Browser.Types.KeyboardEvent) ->
-        if ev.keyCode = keyCode then
+        if ev.key = key then
             ev.preventDefault()
             action ev)
-
-let btn txt onClick =
-    Button.button
-        [ Button.IsFullWidth
-          Button.Color IsPrimary
-          Button.OnClick onClick ]
-        [ str txt ]
-
-let lbl txt = Label.label [] [ str txt ]
 
 let intersperse sep ls =
     List.foldBack (fun x -> function
@@ -41,10 +29,11 @@ let safeComponents =
         |> intersperse (str ", ")
         |> span []
 
-    p []
-        [ strong [] [ a [ Href "https://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
-          str " powered by: "
-          components ]
+    p [] [
+        strong [] [ a [ Href "https://safe-stack.github.io/" ] [ str "SAFE Template" ] ]
+        str " powered by: "
+        components
+    ]
 
 module Result =
     let defaultValue v r = match r with Ok x -> x | Error _ -> v

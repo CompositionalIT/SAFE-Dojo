@@ -1,11 +1,11 @@
-group Client
-    FSharp.Core
-    Fable.Core
-    Fable.Elmish.Debugger
-    Fable.Elmish.React
-    Fable.Elmish.HMR
-    Thoth.Fetch
-    Fulma
-    Fable.FontAwesome.Free
-    Fable.Recharts
-    Fable.ReactLeaflet
+Fable.Core
+Fable.Elmish
+Fable.Elmish.React
+Fable.Elmish.Debugger
+Fable.Elmish.HMR
+Fable.FontAwesome.Free
+Fable.React
+Fable.Remoting.Client
+Fulma
+Fable.Recharts
+Fable.ReactLeaflet
