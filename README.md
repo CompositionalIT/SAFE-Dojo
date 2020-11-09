@@ -7,7 +7,7 @@ The `master` branch has the "incomplete" solution; please read the [instructions
 ## Prerequisites
 
 * [dotnet SDK 3.1.1 or higher](https://dotnet.microsoft.com/download) The .NET Core SDK including CLI tools
-* [Yarn](https://yarnpkg.com/lang/en/docs/install/) NPM package manager
+* [Yarn](https://yarnpkg.com/lang/en/docs/install/) or [NPM](https://www.npmjs.com/get-npm) package manager
 * [Node 10.x](https://nodejs.org/en/download/) installed for the front end components
 * An F# code editor such as:
    * [VS Code](https://code.visualstudio.com/) + [Ionide](https://github.com/ionide/ionide-vscode-fsharp) extension
