@@ -3,7 +3,7 @@
 ## Prologue: Build and Run
 1. Clone this repo
 1. Ensure that you have installed all the pre-requisites in `README.md`
-1. If this is your first time doing this run `dotnet tool restore` command in your terminal.
+1. If this is your first time doing this, run `dotnet tool restore` command in your terminal.
 1. Start the server and client by navigating to the repository root in your terminal and run `dotnet fake build`. The first time you run this, it may take a few seconds - it needs to download all the NPM dependencies as well as compile and run both client and server.
 1. Open the web page by navigating to http://localhost:8080 to see the app running
 1. You should see a search entry box with a Submit button. Enter the UK postcode `EC2A 4NE` and hit Submit: you will see several empty panels and some basic Location details on the postcode.
@@ -11,7 +11,7 @@
 Also note the following:
 
 1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 15) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
-1. The front end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `src/Client/Index.fs` file; save the file and see how the front end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
+1. The front-end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `src/Client/Index.fs` file; save the file and see how the front-end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
 
 This method of rapid, iterative development is a powerful tool for SAFE apps.
 
@@ -26,7 +26,7 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 1.4 Navigate to the application in the web browser and run a postcode search; observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
 
-1.5 Look at `src/Client/Index.fs` to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front end receives the network response?
+1.5 Look at `src/Client/Index.fs` to see how data from the API flows through to the chart. Which function is used to retrieve the data from the API? Where does the data go once the front-end receives the network response?
 
 ## 2. Add shared code
 
@@ -56,7 +56,7 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 In this task, you need to add another tile to the UI including all the associated work on the backend of the system as well. We'll be adding a tile which shows the current weather for the given postcode as an image and then updating the tile to add in the current temperature. By the end of this task you should start to understand how a full stack SAFE application is built.
 
-4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data
+4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data.
 
 4.2 As in the task earlier, you need an endpoint in the `dojoAPI` which will have the `getWeather` function bound to it. However, since this endpoint doesn't exist yet unlike in the earlier task, you first need to change the definition of `IDojoAPI`. Find the type `IDojoAPI` in `src/Shared/Shared.fs` and add to it a new field named GetWeather which has the type signature of `string -> WeatherResponse Async`. Then, navigate back to `src/Server/Api.fs` and change the implementation of `dojoAPI` to bind the `getWeather` function to the GetWeather endpoint.
 
