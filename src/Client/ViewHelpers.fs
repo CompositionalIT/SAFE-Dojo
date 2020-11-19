@@ -21,9 +21,9 @@ let intersperse sep ls =
 
 let safeComponents =
     let components =
-        [ "Saturn", "https://saturnframework.github.io/docs/"
+        [ "Saturn", "https://saturnframework.org/"
           "Fable", "http://fable.io"
-          "Elmish", "https://fable-elmish.github.io/"
+          "Elmish", "https://elmish.github.io/"
           "Fulma", "https://fulma.github.io/Fulma/" ]
         |> List.map (fun (desc,link) -> a [ Href link ] [ str desc ] )
         |> intersperse (str ", ")
