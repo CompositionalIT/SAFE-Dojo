@@ -1,3 +1,5 @@
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/CompositionalIT/SAFE-Dojo)
+
 # SAFE Dojo
 
 This self-study repository is designed to allow you to experience the SAFE stack based on a ready-made application that you can build on top of. It will take around 90 minutes for you to complete if you have no experience in any of these technologies.
