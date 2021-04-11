@@ -10,7 +10,7 @@
 
 Also note the following:
 
-1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 15) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
+1. When you run the application, eg. `dotnet fake run`, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 15) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
 1. The front-end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"UK Location Data Mashup"` to something else in the `src/Client/Index.fs` file; save the file and see how the front-end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
 
 This method of rapid, iterative development is a powerful tool for SAFE apps.
