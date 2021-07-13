@@ -1,21 +1,53 @@
-# SAFE Dojo
+# SAFE Template
 
-This self-study repository is designed to allow you to experience the SAFE stack based on a ready-made application that you can build on top of. It will take around 90 minutes for you to complete if you have no experience in any of these technologies.
+This template can be used to generate a full-stack web application using the [SAFE Stack](https://safe-stack.github.io/). It was created using the dotnet [SAFE Template](https://safe-stack.github.io/docs/template-overview/). If you want to learn more about the template why not start with the [quick start](https://safe-stack.github.io/docs/quickstart/) guide?
 
-The `master` branch has the "incomplete" solution; please read the [instructions.md](Instructions.md) for a guide on completing this dojo to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#. There is a "completed" version in the `suggested-solution` branch.
+## Install pre-requisites
 
-## Prerequisites
+You'll need to install the following pre-requisites in order to build SAFE applications
 
-* [dotnet SDK 3.1.1 or higher](https://dotnet.microsoft.com/download). The .NET Core SDK including CLI tools
-* [Yarn](https://yarnpkg.com/lang/en/docs/install/) or [NPM](https://www.npmjs.com/get-npm) package manager
-* [Node 14.x](https://nodejs.org/en/download/) installed for the front-end components
-* An F# code editor such as:
-   * [VS Code](https://code.visualstudio.com/) + [Ionide](https://github.com/ionide/ionide-vscode-fsharp) extension
-   * [Visual Studio](https://www.visualstudio.com/downloads/)
-   * [Jetbrains Rider](https://www.jetbrains.com/rider/)
+* [.NET Core SDK](https://www.microsoft.com/net/download) 5.0 or higher
+* [Node LTS](https://nodejs.org/en/download/)
 
-## Running the app
-1. If this is your first time starting the app, run `dotnet tool restore`.
-2. Run `dotnet fake build` to launch the application. If you're in VS Code, you can also hit `F5` to build and run the application.
+## Starting the application
 
-If using Visual Studio, do NOT attempt to build the solution directly in VS. Instead you *must* use `dotnet fake build` to compile and run the application.
+Before you run the project **for the first time only** you must install dotnet "local tools" with this command:
+
+```bash
+dotnet tool restore
+```
+
+To concurrently run the server and the client components in watch mode use the following command:
+
+```bash
+dotnet run
+```
+
+Then open `http://localhost:8080` in your browser.
+
+The build project in root directory contains a couple of different build targets. You can specify them after `--` (target name is case-insensitive).
+
+To run concurrently server and client tests in watch mode (you can run this command in parallel to the previous one in new terminal):
+
+```bash
+dotnet run -- RunTests
+```
+
+Client tests are available under `http://localhost:8081` in your browser and server tests are running in watch mode in console.
+
+Finally, there are `Bundle` and `Azure` targets that you can use to package your app and deploy to Azure, respectively:
+
+```bash
+dotnet run -- Bundle
+dotnet run -- Azure
+```
+
+## SAFE Stack Documentation
+
+If you want to know more about the full Azure Stack and all of it's components (including Azure) visit the official [SAFE documentation](https://safe-stack.github.io/docs/).
+
+You will find more documentation about the used F# components at the following places:
+
+* [Saturn](https://saturnframework.org/)
+* [Fable](https://fable.io/docs/)
+* [Elmish](https://elmish.github.io/elmish/)

@@ -1,18 +1,24 @@
 {
-    "version": 1,
-    "isRoot": true,
-    "tools": {
-        "paket": {
-            "version": "5.245.0",
-            "commands": [
-                "paket"
-            ]
-        },
-        "fake-cli": {
-            "version": "5.19.1",
-            "commands": [
-                "fake"
-            ]
-        }
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "paket": {
+      "version": "6.0.0-rc002",
+      "commands": [
+        "paket"
+      ]
+    },
+    "fable": {
+      "version": "3.2.1",
+      "commands": [
+        "fable"
+      ]
+    },
+    "fantomas-tool": {
+      "version": "4.4.0",
+      "commands": [
+        "fantomas"
+      ]
     }
+  }
 }
