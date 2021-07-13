@@ -49,9 +49,6 @@ let getResponse postcode = async {
     let! location = dojoApi.GetDistance postcode
     let! crimes = dojoApi.GetCrimes postcode
     let! weather = dojoApi.GetWeather postcode
-    (* Task 4.4 WEATHER: Fetch the weather from the API endpoint you created.
-       Then, save its value into the Report below. You'll need to add a new
-       field to the Report type first, though! *)
 
     return
         { Location = location
@@ -63,9 +60,7 @@ let getResponse postcode = async {
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        if Validation.isValidPostcode model.Postcode then
-            { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
-        else { model with ValidationError = Some "Invalid" }, Cmd.none
+        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
 
@@ -76,12 +71,11 @@ let update msg model =
             ServerState = Idle }, Cmd.none
 
     | _, PostcodeChanged p ->
-
-            { model with
+          { model with
                 Postcode = p
-                (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
-                   Note that the validation is the same shared code that runs on the server! *)
-                ValidationError = None }, Cmd.none
+                ValidationError =
+                    if Validation.isValidPostcode p then None
+                    else Some "Invalid postcode!" }, Cmd.none
     | _, ErrorMsg e ->
         let errorAlert =
             SimpleAlert(e.Message)
@@ -142,13 +136,10 @@ module ViewParts =
     let mapWidget (lr:LocationResponse) =
         widget "Map"  [
                 PigeonMaps.map [
-                    (* Task 3.2 MAP: Set the center of the map using map.center, supply the lat/long value as input.
-                       Task 3.3 MAP: Update the Zoom to 15. *)
                     map.zoom 12
                     map.height 500
                     map.center (lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
                     map.markers [
-                        (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
                         makeMarker (lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
                     ]
             ]
@@ -315,15 +306,9 @@ let view (model:Model) dispatch =
                                         ]
                                         Bulma.column [
                                             weatherWidget report.Weather
-                                            (* Task 4.5 WEATHER: Generate the view code for the weather tile
-                                               using the weatherTile function, supplying the weather data
-                                               from the report value, and include it here as part of the list *)
                                         ]
                                     ]
                                     mapWidget report.Location
-                                    (* Task 3.1 MAP: Call the mapWidget function here, which creates a
-                                       widget to display a map using the React ReCharts component. The function
-                                       takes in a LocationResponse value as input and returns a ReactElement. *)
                                 ]
                             ]
                             Bulma.column [
