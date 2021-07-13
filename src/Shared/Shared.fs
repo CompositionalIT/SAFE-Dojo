@@ -39,9 +39,9 @@ module Route =
     let builder = sprintf "/api/%s/%s"
 
 type IDojoApi =
-    { GetDistance: string -> Async<LocationResponse>
-      GetWeather: string -> Async<WeatherResponse>
-      GetCrimes: string -> Async<CrimeResponse []> }
+    { GetDistance : string -> LocationResponse Async
+      GetCrimes : string -> CrimeResponse array Async
+      GetWeather: string -> WeatherResponse Async}
 
 /// Provides validation on data. Shared across both client and server.
 module Validation =
