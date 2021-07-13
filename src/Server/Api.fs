@@ -27,7 +27,7 @@ let getCrimeReport postcode = async {
     return crimes
 }
 
-let private asWeatherResponse (weather:DataAccess.Weather.MetaWeatherLocation.Root) =
+let private asWeatherResponse (weather: Weather.MetaWeatherLocation.Root) =
     { WeatherType =
         weather.ConsolidatedWeather
         |> Array.countBy(fun w -> w.WeatherStateName)
@@ -41,6 +41,7 @@ let getWeather postcode = async {
        the given postcode. Use the GeoLocation.getLocation, Weather.getWeatherForPosition and
        asWeatherResponse functions to create and return a WeatherResponse instead of the stub.
        Don't forget to use let! instead of let to "await" the Task. *)
+
     return! async.Return { WeatherType = WeatherType.Clear; AverageTemperature = 0. }
 }
 

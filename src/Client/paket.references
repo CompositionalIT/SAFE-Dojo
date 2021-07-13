@@ -6,6 +6,9 @@ Fable.Elmish.HMR
 Fable.FontAwesome.Free
 Fable.React
 Fable.Remoting.Client
+Feliz
+Feliz.Bulma
 Fulma
-Fable.Recharts
-Fable.ReactLeaflet
+Feliz.Recharts
+Feliz.PigeonMaps
+Elmish.SweetAlert
