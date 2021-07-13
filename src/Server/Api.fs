@@ -1,8 +1,8 @@
 module Api
 
-open DataAccess
 open FSharp.Data.UnitSystems.SI.UnitNames
 open Shared
+open DataAccess
 
 let private london = { Latitude = 51.5074; Longitude = 0.1278 }
 
