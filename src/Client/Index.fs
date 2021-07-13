@@ -310,7 +310,7 @@ let view (model:Model) dispatch =
                                         ]
                                         Bulma.column [
                                             (* Task 4.5 WEATHER: Generate the view code for the weather tile
-                                               using the weatherTile function, supplying the weather data
+                                               using the weatherWidget function, supplying the weather data
                                                from the report value, and include it here as part of the list *)
                                         ]
                                     ]
