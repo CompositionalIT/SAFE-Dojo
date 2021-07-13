@@ -14,8 +14,7 @@ open Shared
 /// The different elements of the completed report.
 type Report =
     { Location : LocationResponse
-      Crimes : CrimeResponse array
-      Weather: WeatherResponse }
+      Crimes : CrimeResponse array }
 
 type ServerState = Idle | Loading | ServerError of string
 
@@ -48,27 +47,22 @@ let dojoApi =
 let getResponse postcode = async {
     let! location = dojoApi.GetDistance postcode
     let! crimes = dojoApi.GetCrimes postcode
-    let! weather = dojoApi.GetWeather postcode
     (* Task 4.4 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
 
     return
         { Location = location
-          Crimes = crimes
-          Weather = weather}
+          Crimes = crimes }
 }
 
 /// The update function knows how to update the model given a message.
 let update msg model =
     match model, msg with
     | { ValidationError = None; Postcode = postcode }, GetReport ->
-        if Validation.isValidPostcode model.Postcode then
-            { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
-        else { model with ValidationError = Some "Invalid" }, Cmd.none
+        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
     | _, GetReport ->
         model, Cmd.none
-
     | _, GotReport response ->
         { model with
             ValidationError = None
@@ -76,7 +70,6 @@ let update msg model =
             ServerState = Idle }, Cmd.none
 
     | _, PostcodeChanged p ->
-
             { model with
                 Postcode = p
                 (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
@@ -146,10 +139,8 @@ module ViewParts =
                        Task 3.3 MAP: Update the Zoom to 15. *)
                     map.zoom 12
                     map.height 500
-                    map.center (lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
                     map.markers [
                         (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
-                        makeMarker (lr.Location.LatLong.Latitude, lr.Location.LatLong.Longitude)
                     ]
             ]
         ]
@@ -172,7 +163,11 @@ module ViewParts =
                         Html.tbody [
                             Html.tr [
                                 Html.th "Temp"
-                                Html.td (sprintf "%.2fC" weatherReport.AverageTemperature)
+                                 (* Task 4.7 WEATHER: Get the temperature from the given weather report
+                                   and display it here instead of an empty string.
+                                   Hint: Use sprintf with "%.2f" to round the temperature to 2 decimal points
+                                   (look at the locationWidget for an example) *)
+                                Html.td ""
                             ]
                         ]
                     ]
@@ -314,13 +309,11 @@ let view (model:Model) dispatch =
                                             ]
                                         ]
                                         Bulma.column [
-                                            weatherWidget report.Weather
                                             (* Task 4.5 WEATHER: Generate the view code for the weather tile
                                                using the weatherTile function, supplying the weather data
                                                from the report value, and include it here as part of the list *)
                                         ]
                                     ]
-                                    mapWidget report.Location
                                     (* Task 3.1 MAP: Call the mapWidget function here, which creates a
                                        widget to display a map using the React ReCharts component. The function
                                        takes in a LocationResponse value as input and returns a ReactElement. *)
