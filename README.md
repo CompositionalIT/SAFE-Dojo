@@ -23,7 +23,7 @@ To concurrently run the server and the client components in watch mode use the f
 dotnet run
 ```
 
-Then open `http://localhost:8080` in your browser.
+Then open `http://localhost:8080` in your browser and follow [the instructions for completing the DOJO](Instructions.md).
 
 The build project in root directory contains a couple of different build targets. You can specify them after `--` (target name is case-insensitive).
 
