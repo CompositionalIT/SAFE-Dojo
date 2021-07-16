@@ -1,6 +1,8 @@
-# SAFE Template
+# SAFE Dojo
 
-This template can be used to generate a full-stack web application using the [SAFE Stack](https://safe-stack.github.io/). It was created using the dotnet [SAFE Template](https://safe-stack.github.io/docs/template-overview/). If you want to learn more about the template why not start with the [quick start](https://safe-stack.github.io/docs/quickstart/) guide?
+This self-study repository is designed to allow you to experience the SAFE stack based on a ready-made application that you can build on top of. It will take around 90 minutes for you to complete if you have no experience in any of these technologies.
+
+The `master` branch has the "incomplete" solution; please read the [instructions.md](Instructions.md) for a guide on completing this dojo, to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#. There is a "completed" version in the `suggested-solution` branch.
 
 ## Install pre-requisites
 
@@ -23,24 +25,12 @@ To concurrently run the server and the client components in watch mode use the f
 dotnet run
 ```
 
-Then open `http://localhost:8080` in your browser and follow [the instructions for completing the DOJO](Instructions.md).
+Then open `http://localhost:8080` in your browser.
 
 The build project in root directory contains a couple of different build targets. You can specify them after `--` (target name is case-insensitive).
 
 To run concurrently server and client tests in watch mode (you can run this command in parallel to the previous one in new terminal):
 
-```bash
-dotnet run -- RunTests
-```
-
-Client tests are available under `http://localhost:8081` in your browser and server tests are running in watch mode in console.
-
-Finally, there are `Bundle` and `Azure` targets that you can use to package your app and deploy to Azure, respectively:
-
-```bash
-dotnet run -- Bundle
-dotnet run -- Azure
-```
 
 ## SAFE Stack Documentation
 
