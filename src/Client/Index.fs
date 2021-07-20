@@ -145,8 +145,9 @@ module ViewParts =
     let mapWidget (lr:LocationResponse) =
         widget "Map"  [
                 PigeonMaps.map [
-                    (* Task 3.2 MAP: Set the center of the map using map.center, supply the lat/long value as input.
-                       Task 3.3 MAP: Update the Zoom to 15. *)
+                    (* Task 3.2 MAP: Set the center of the map using map.center, supply the lat/long value as input. *)
+
+                    (* Task 3.3 MAP: Update the Zoom to 15. *)
                     map.zoom 12
                     map.height 500
                     map.markers [
@@ -294,7 +295,7 @@ let view (model: Model) dispatch =
                                         prop.onClick (fun _ -> dispatch GetReport)
                                         prop.disabled (model.ValidationError.IsSome)
                                         if (model.ServerState = Loading) then button.isLoading
-                                        prop.text "Submit"
+                                        prop.text "Fetch"
                                     ]
                                 ]
                             ]
