@@ -4,7 +4,9 @@ open DataAccess
 open FSharp.Data.UnitSystems.SI.UnitNames
 open Shared
 
-let private london = { Latitude = 51.5074; Longitude = 0.1278 }
+let london =
+    { Latitude = 51.5074
+      Longitude = 0.1278 }
 
 let getDistanceFromLondon postcode = async {
     if not (Validation.isValidPostcode postcode) then failwith "Invalid postcode"
@@ -42,7 +44,10 @@ let getWeather postcode = async {
        asWeatherResponse functions to create and return a WeatherResponse instead of the stub.
        Don't forget to use let! instead of let to "await" the Task. *)
 
-    return! async.Return { WeatherType = WeatherType.Clear; AverageTemperature = 0. }
+    let emptyWeather =
+        { WeatherType = WeatherType.Clear
+          AverageTemperature = 0. }
+    return emptyWeather
 }
 
 let dojoApi =
