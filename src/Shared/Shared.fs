@@ -1,16 +1,23 @@
 namespace Shared
 
 type LatLong =
-    { Latitude : float
-      Longitude : float }
+    { Latitude: float
+      Longitude: float }
 
 type Location =
-    { Town : string
-      Region : string
-      LatLong : LatLong }
+    { Town: string
+      Region: string
+      LatLong: LatLong }
 
-type LocationResponse = { Postcode : string; Location : Location; DistanceToLondon : float }
-type CrimeResponse = { Crime : string; Incidents : int }
+type LocationResponse =
+    { Postcode: string
+      Location: Location
+      DistanceToLondon: float }
+
+type CrimeResponse =
+    { Crime: string
+      Incidents: int }
+
 type WeatherType =
     | Snow
     | Sleet
@@ -22,25 +29,29 @@ type WeatherType =
     | HeavyCloud
     | LightCloud
     | Clear
-    static member Parse =
-        let weatherTypes = FSharp.Reflection.FSharpType.GetUnionCases typeof<WeatherType>
-        fun (s:string) ->
+
+    static member Parse (s: string) =
+        let weatherTypes = Reflection.FSharpType.GetUnionCases typeof<WeatherType>
+        let case =
             weatherTypes
             |> Array.find(fun w -> w.Name = s.Replace(" ", ""))
-            |> fun u -> FSharp.Reflection.FSharpValue.MakeUnion(u, [||]) :?> WeatherType
+        FSharp.Reflection.FSharpValue.MakeUnion(case, [| |]) :?> WeatherType
+
     member this.Abbreviation =
         match this with
         | Snow -> "sn" | Sleet -> "sl" | Hail -> "h" | Thunder -> "t" | HeavyRain -> "hr"
         | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
 
-type WeatherResponse = { WeatherType : WeatherType; AverageTemperature : float }
+type WeatherResponse =
+    { WeatherType: WeatherType
+      AverageTemperature: float }
 
 module Route =
     let builder = sprintf "/api/%s/%s"
 
 type IDojoApi =
-    { GetDistance : string -> LocationResponse Async
-      GetCrimes : string -> CrimeResponse array Async }
+    { GetDistance: string -> LocationResponse Async
+      GetCrimes: string -> CrimeResponse array Async }
 
 /// Provides validation on data. Shared across both client and server.
 module Validation =
