@@ -62,9 +62,6 @@ let dependencies = [
     "Clean"
         ==> "InstallClient"
         ==> "Run"
-
-    "InstallClient"
-        ==> "RunTests"
 ]
 
 [<EntryPoint>]
