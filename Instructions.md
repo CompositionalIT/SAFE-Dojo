@@ -48,11 +48,11 @@ In this task, you'll add a map to the UI which shows the area surrounding the po
 
 3.1 In `src/Client/Index.fs` update the `view` function to add in the map tile using the `mapWidget` function. You will find a more detailed explanation in the function (search for Task 3.1).
 
-3.2 Now that you have an empty map tile, navigate to the `mapWidget` function itself and add a new item to the `map` props list, `map.center`. It takes a `LatLong` as input. You should now be able to see the map with the correct location!
+3.2 Now that you have a map showing, navigate to the `mapWidget` function itself and add a new item to the `map` props list, `map.center`. It takes a `LatLong` as input. You should now be able to see the map with the correct location!
 
 3.3 Change the zoom level to `15`. Observe how the map updates almost immediately and smoothly zooms in.
 
-3.4 Add a marker to display on the centre point of the map. There is already a helper function, `makeMarker`, that you can use. You can build up an appropriate description for the second argument, such as "{postcode} - {region}" or similar, using fields on the `Location` record that is passed in.
+3.4 Add a marker to display on the centre point of the map. There is already a helper function, `makeMarker`, that you can use.
 
 ## 4. Implement weather endpoint
 
