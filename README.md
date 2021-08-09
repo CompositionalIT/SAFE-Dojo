@@ -17,7 +17,6 @@ Before you run the project **for the first time only** you must install dotnet "
 
 ```bash
 dotnet tool restore
-dotnet restore
 ```
 
 Open the editor:
