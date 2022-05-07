@@ -38,7 +38,7 @@ let private asWeatherResponse (weather: Weather.MetaWeatherLocation.Root) =
         |> WeatherType.Parse
       AverageTemperature = weather.ConsolidatedWeather |> Array.averageBy(fun r -> float r.TheTemp) }
 
-let getWeather postcode = async {
+let getWeather (postcode: string) : Async<WeatherResponse>  = async {
     (* Task 4.1 WEATHER: Implement a function that retrieves the weather for
        the given postcode. Use the GeoLocation.getLocation, Weather.getWeatherForPosition and
        asWeatherResponse functions to create and return a WeatherResponse instead of the stub.
@@ -55,7 +55,7 @@ let dojoApi =
 
       (* Task 1.1 CRIME: Bind the getCrimeReport function to the GetCrimes method to
          return crime data. Use the above GetDistance field as an example. *)
-      GetCrimes = fun postcode -> async { return Array.empty }
-
+      GetCrimes = getCrimeReport
+      GetWeather = getWeather
       (* Task 4.2 WEATHER: Hook up the weather endpoint to the getWeather function. *)
     }

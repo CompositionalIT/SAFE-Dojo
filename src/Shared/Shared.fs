@@ -51,7 +51,8 @@ module Route =
 
 type IDojoApi =
     { GetDistance: string -> LocationResponse Async
-      GetCrimes: string -> CrimeResponse array Async }
+      GetCrimes: string -> CrimeResponse array Async
+      GetWeather: string -> WeatherResponse Async }
 
 /// Provides validation on data. Shared across both client and server.
 module Validation =
