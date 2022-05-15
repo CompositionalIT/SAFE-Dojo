@@ -10,6 +10,11 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+// If we're running the webpack-dev-server, assume we're in development mode
+var isProduction = !process.argv.find(v => v.indexOf('webpack-dev-server') !== -1);
+var mode = isProduction ? 'production' : 'development';
+process.env.NODE_ENV = mode;
+
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
@@ -23,11 +28,7 @@ var CONFIG = {
     devServerProxy: undefined,
 }
 
-// If we're running the webpack-dev-server, assume we're in development mode
-var isProduction = !process.argv.find(v => v.indexOf('webpack-dev-server') !== -1);
-var environment = isProduction ? 'production' : 'development';
-process.env.NODE_ENV = environment;
-console.log('Bundling for ' + environment + '...');
+console.log('Bundling for ' + mode + '...');
 
 // The HtmlWebpackPlugin allows us to use a template for the index.html page
 // and automatically injects <script> or <link> tags for generated bundles.
@@ -50,14 +51,19 @@ module.exports = {
     // to prevent browser caching if code changes
     output: {
         path: resolve(CONFIG.outputDir),
+        publicPath: '/',
         filename: isProduction ? '[name].[hash].js' : '[name].js'
     },
-    mode: isProduction ? 'production' : 'development',
+    mode: mode,
     devtool: isProduction ? 'source-map' : 'eval-source-map',
     optimization: {
+        runtimeChunk: "single",
+        moduleIds: 'deterministic',
+        // Split the code coming from npm packages into a different file.
+        // 3rd party dependencies change less often, let the browser cache them.
         splitChunks: {
             chunks: 'all'
-        },
+        }
     },
     // Besides the HtmlPlugin, we use the following plugins:
     // PRODUCTION
@@ -80,13 +86,15 @@ module.exports = {
     },
     // Configuration for webpack-dev-server
     devServer: {
-        publicPath: '/',
-        contentBase: resolve(CONFIG.assetsDir),
+        static: {
+            directory: resolve(CONFIG.assetsDir),
+            publicPath: '/'
+        },
         host: '0.0.0.0',
         port: CONFIG.devServerPort,
         proxy: CONFIG.devServerProxy,
         hot: true,
-        inline: true
+        historyApiFallback: true
     },
     // - sass-loaders: transforms SASS/SCSS into JS
     // - file-loader: Moves files referenced in the code (fonts, images) into output folder
