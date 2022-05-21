@@ -58,10 +58,18 @@ type WeatherType =
         | w when w >= 95 && w <= 99 -> Thunderstorm
         | _ -> Clear
 
-    member this.Abbreviation =
+    member this.IconName =
         match this with
-        | Snow -> "sn" | Sleet -> "sl" | Hail -> "h" | Thunder -> "t" | HeavyRain -> "hr"
-        | LightRain -> "lr" | Showers -> "s" | HeavyCloud -> "hc" | LightCloud -> "lc" | Clear -> "c"
+        | Clear -> "day-sunny" // improvement: return "night-clear" at night time
+        | SandStorm -> "sandstorm"
+        | Fog -> "fog"
+        | Thunderstorm -> "thunderstorm"
+        | Drizzle -> "raindrops"
+        | Rain -> "rain"
+        | Snow -> "snow"
+        | Sleet -> "sleet"
+        | Showers -> "showers"
+        | Hail -> "hail"
 
 type WeatherResponse =
     { WeatherType: WeatherType
