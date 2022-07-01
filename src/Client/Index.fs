@@ -163,7 +163,7 @@ module ViewParts =
                     prop.children [
                         Html.img [
                             prop.style [ style.height 100]
-                            prop.src (sprintf "https://www.metaweather.com/static/img/weather/%s.svg" weatherReport.WeatherType.Abbreviation) ]
+                            prop.src (sprintf "https://raw.githubusercontent.com/erikflowers/weather-icons/master/svg/wi-%s.svg" weatherReport.WeatherType.IconName) ]
                         ]
                     ]
                 Bulma.table [
