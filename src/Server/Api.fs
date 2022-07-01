@@ -41,7 +41,7 @@ let getWeather postcode = async {
 
     let emptyWeather =
         { WeatherType = WeatherType.Clear
-          AverageTemperature = 0. }
+          Temperature = 0. }
     return emptyWeather
 }
 
