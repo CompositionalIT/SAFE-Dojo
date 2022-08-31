@@ -24,10 +24,10 @@ type ServerState =
 
 /// The overall data model driving the view.
 type Model =
-    { Postcode : string
-      ValidationError : string option
-      ServerState : ServerState
-      Report : Report option }
+    { Postcode: string
+      ValidationError: string option
+      ServerState: ServerState
+      Report: Report option }
 
 /// The different types of messages in the system.
 type Msg =
@@ -232,7 +232,7 @@ let navbar =
     ]
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
-let view (model:Model) dispatch =
+let view (model: Model) dispatch =
     Html.div [
         prop.style [ style.backgroundColor "#eeeeee57"; style.minHeight (length.vh 100) ]
         prop.children [
@@ -300,32 +300,32 @@ let view (model:Model) dispatch =
             | None, (Idle | Loading) -> ()
             | _, ServerError _ -> ()
             | Some report, _ ->
-                    Bulma.section [
-                        Bulma.columns [
-                            Bulma.column [
-                                prop.children [
-                                    Bulma.columns [
-                                        Bulma.column [
-                                            column.isThreeFifths
-                                            prop.children [
-                                                locationWidget report
-                                            ]
-                                        ]
-                                        Bulma.column [
-                                            weatherWidget report.Weather
+                Bulma.section [
+                    Bulma.columns [
+                        Bulma.column [
+                            prop.children [
+                                Bulma.columns [
+                                    Bulma.column [
+                                        column.isThreeFifths
+                                        prop.children [
+                                            locationWidget report
                                         ]
                                     ]
-                                    mapWidget report.Location
+                                    Bulma.column [
+                                        weatherWidget report.Weather
+                                    ]
                                 ]
+                                mapWidget report.Location
                             ]
-                            Bulma.column [
-                                column.is7
-                                prop.children [
-                                    crimeWidget report.Crimes
-                                ]
+                        ]
+                        Bulma.column [
+                            column.is7
+                            prop.children [
+                                crimeWidget report.Crimes
                             ]
                         ]
                     ]
+                ]
 
         ]
     ]

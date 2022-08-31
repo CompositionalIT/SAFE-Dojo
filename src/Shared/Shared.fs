@@ -1,13 +1,13 @@
 namespace Shared
 
 type LatLong =
-    { Latitude : float
-      Longitude : float }
+    { Latitude: float
+      Longitude: float }
 
 type Location =
-    { Town : string
-      Region : string
-      LatLong : LatLong }
+    { Town: string
+      Region: string
+      LatLong: LatLong }
 
 type LocationResponse =
     { Postcode: string
@@ -29,6 +29,7 @@ type WeatherType =
     | Sleet
     | Showers
     | Hail
+
     // WMO codes in open-meteo response seem to be WMO 4677
     // See eg: https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
     static member FromCode (weathercode: int) =

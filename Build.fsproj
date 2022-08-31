@@ -7,8 +7,5 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="Build.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FSharp.Data" Version="5.0.2" />
-  </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

@@ -25,7 +25,7 @@ Open the editor:
 code .
 ```
 
-To concurrently run the server and the client components in watch mode use the following command:
+Build and run in watch mode using the following command:
 
 ```bash
 dotnet run
@@ -34,8 +34,6 @@ dotnet run
 > NOTE: You may have to allow `dotnet` or `Server` access to your public and/or private network.
 
 Then open `http://localhost:8080` in your browser. Arrange the windows so you can see both Code editor and the web browser.
-
-The build project in root directory contains a couple of different build targets. You can specify them after `--` (target name is case-insensitive).
 
 ## Use the app
 
