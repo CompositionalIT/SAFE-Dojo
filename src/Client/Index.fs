@@ -340,5 +340,3 @@ let view (model: Model) dispatch =
 
         ]
     ]
-
-

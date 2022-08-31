@@ -25,7 +25,7 @@ Open the editor:
 code .
 ```
 
-Build and run in watch mode use the following command:
+Build and run in watch mode using the following command:
 
 ```bash
 dotnet run
