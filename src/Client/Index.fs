@@ -246,7 +246,27 @@ let view (model: Model) dispatch =
             navbar
             Bulma.section [
                 Bulma.box [
-                    Bulma.label "Postcode"
+                    Bulma.level [
+                        Bulma.levelLeft [
+                            Bulma.levelItem [ Bulma.label "Postcode" ]
+                            Bulma.levelItem [
+                                Html.span [
+                                    prop.children [
+                                        Html.text "Example postcodes: "
+                                        let postcodes = [ "EC2A 4NE"; "E1 7QA"; "NG7 4ED"; "TR11 4GE"; "EH1 2EU" ]
+                                        yield! [
+                                            for postcode in postcodes do
+                                                Html.text ", "
+                                                Html.a [
+                                                    prop.text postcode
+                                                    prop.onClick (fun _ -> dispatch (PostcodeChanged postcode))
+                                                ]
+                                        ] |> List.tail
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                     Bulma.field.div  [
                         field.hasAddons
                         prop.children [
@@ -257,7 +277,6 @@ let view (model: Model) dispatch =
                                 prop.children [
                                     Bulma.input.text [
                                         if model.ValidationError.IsSome then color.isDanger else color.isInfo
-                                        prop.placeholder "Ex: EC2A 4NE"
                                         prop.style [ style.textTransform.uppercase ]
                                         prop.value model.Postcode
                                         prop.onChange (PostcodeChanged >> dispatch)
