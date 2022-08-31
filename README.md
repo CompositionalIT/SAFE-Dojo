@@ -19,18 +19,61 @@ Before you run the project **for the first time only** you must install dotnet "
 dotnet tool restore
 ```
 
-To concurrently run the server and the client components in watch mode use the following command:
+Open the editor:
+
+```bash
+code .
+```
+
+Build and run in watch mode using the following command:
 
 ```bash
 dotnet run
 ```
 
-Then open `http://localhost:8080` in your browser.
+> NOTE: You may have to allow `dotnet` or `Server` access to your public and/or private network.
 
-The build project in root directory contains a couple of different build targets. You can specify them after `--` (target name is case-insensitive).
+Then open `http://localhost:8080` in your browser. Arrange the windows so you can see both Code editor and the web browser.
 
-To run concurrently server and client tests in watch mode (you can run this command in parallel to the previous one in new terminal):
+## Use the app
 
+Type a UK postcode into the web app, e.g. "SW1A 2AA". Press "Fetch"
+
+## Completing the tasks
+
+Search files (Ctrl+Shift+F or Edit --> Find in Files) and search through for "Task 1" to start completing the Dojo.
+
+See [Instructions.md](Instructions.md) for further details and hints about the tasks.
+
+## Going further: bundling your app
+
+There is `Bundle` to package your app:
+
+```bash
+dotnet run -- Bundle
+```
+## Going further: deploying to Azure
+
+This requires these prerequisites:
+* [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+First time run
+
+    az login
+
+Then set the name of your app in Build.fs:
+
+```
+    let web = webApp {
+        name "feiew02"  // set the name of your app here
+    ...
+```
+
+To deploy to Azure:
+
+```bash
+dotnet run -- Azure
+```
 
 ## SAFE Stack Documentation
 

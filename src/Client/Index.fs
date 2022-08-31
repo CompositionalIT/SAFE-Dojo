@@ -13,18 +13,21 @@ open Shared
 
 /// The different elements of the completed report.
 type Report =
-    { Location : LocationResponse
-      Crimes : CrimeResponse array
+    { Location: LocationResponse
+      Crimes: CrimeResponse array
       Weather: WeatherResponse }
 
-type ServerState = Idle | Loading | ServerError of string
+type ServerState =
+    | Idle
+    | Loading
+    | ServerError of string
 
 /// The overall data model driving the view.
 type Model =
-    { Postcode : string
-      ValidationError : string option
-      ServerState : ServerState
-      Report : Report option }
+    { Postcode: string
+      ValidationError: string option
+      ServerState: ServerState
+      Report: Report option }
 
 /// The different types of messages in the system.
 type Msg =
@@ -32,7 +35,6 @@ type Msg =
     | PostcodeChanged of string
     | GotReport of Report
     | ErrorMsg of exn
-    | Clear
 
 /// The init function is called to start the message pump with an initial view.
 let init () =
@@ -59,30 +61,32 @@ let getResponse postcode = async {
 
 /// The update function knows how to update the model given a message.
 let update msg model =
-    match model, msg with
-    | { ValidationError = None; Postcode = postcode }, GetReport ->
-        { model with ServerState = Loading }, Cmd.OfAsync.either getResponse postcode GotReport ErrorMsg
-    | _, GetReport ->
-        model, Cmd.none
-    | _, GotReport response ->
+    match msg with
+    | GetReport ->
+        match model.ValidationError with
+        | None ->
+            { model with ServerState = Loading }, Cmd.OfAsync.either getResponse model.Postcode GotReport ErrorMsg
+        | _  ->
+            model, Cmd.none
+
+    | GotReport response ->
         { model with
             ValidationError = None
             Report = Some response
             ServerState = Idle }, Cmd.none
-    | _, PostcodeChanged p ->
+
+    | PostcodeChanged p ->
         { model with
             Postcode = p
             ValidationError =
                 if Validation.isValidPostcode p then None
                 else Some "Invalid postcode!" }, Cmd.none
-    | _, ErrorMsg e ->
+    | ErrorMsg e ->
         let errorAlert =
             SimpleAlert(e.Message)
                 .Title("Try another postcode")
                 .Type(AlertType.Error)
         { model with ServerState = ServerError e.Message }, SweetAlert.Run errorAlert
-    | _, Clear ->
-        init()
 
 [<AutoOpen>]
 module ViewParts =
@@ -96,7 +100,10 @@ module ViewParts =
 
     let crimeWidget crimes =
         let cleanData =
-            crimes |> Array.map (fun c -> { c with Crime = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ') } )
+            crimes |> Array.map (fun c ->
+                let cleansed = c.Crime.[0..0].ToUpper() + c.Crime.[1..].Replace('-', ' ')
+                { c with Crime = cleansed } )
+
         widget "Crime"  [
             Recharts.barChart [
                 barChart.layout.vertical
@@ -153,7 +160,7 @@ module ViewParts =
                     prop.children [
                         Html.img [
                             prop.style [ style.height 100]
-                            prop.src (sprintf "https://www.metaweather.com/static/img/weather/%s.svg" weatherReport.WeatherType.Abbreviation) ]
+                            prop.src (sprintf "https://raw.githubusercontent.com/erikflowers/weather-icons/master/svg/wi-%s.svg" weatherReport.WeatherType.IconName) ]
                         ]
                     ]
                 Bulma.table [
@@ -164,7 +171,7 @@ module ViewParts =
                         Html.tbody [
                             Html.tr [
                                 Html.th "Temp"
-                                Html.td (sprintf "%.2fC" weatherReport.AverageTemperature)
+                                Html.td (sprintf "%.2fC" weatherReport.Temperature)
                             ]
                         ]
                     ]
@@ -173,29 +180,28 @@ module ViewParts =
         ]
 
     let locationWidget model =
-        widget "Location"
-            [
-                Bulma.table [
-                    table.isNarrow
-                    table.isFullWidth
-                    prop.children [
-                        Html.tbody [
-                            Html.tr [
-                                Html.th "Region"
-                                Html.td model.Location.Location.Region
-                            ]
-                            Html.tr [
-                                Html.th "Town"
-                                Html.td model.Location.Location.Town
-                            ]
-                            Html.tr [
-                                Html.th "Distance to London"
-                                Html.td (sprintf "%.2fKM" model.Location.DistanceToLondon)
-                            ]
+        widget "Location" [
+            Bulma.table [
+                table.isNarrow
+                table.isFullWidth
+                prop.children [
+                    Html.tbody [
+                        Html.tr [
+                            Html.th "Region"
+                            Html.td model.Location.Location.Region
+                        ]
+                        Html.tr [
+                            Html.th "Town"
+                            Html.td model.Location.Location.Town
+                        ]
+                        Html.tr [
+                            Html.th "Distance to London"
+                            Html.td (sprintf "%.2fKM" model.Location.DistanceToLondon)
                         ]
                     ]
                 ]
             ]
+        ]
 
 let navbar =
     Bulma.navbar [
@@ -226,7 +232,7 @@ let navbar =
     ]
 
 /// The view function knows how to render the UI given a model, as well as to dispatch new messages based on user actions.
-let view (model:Model) dispatch =
+let view (model: Model) dispatch =
     Html.div [
         prop.style [ style.backgroundColor "#eeeeee57"; style.minHeight (length.vh 100) ]
         prop.children [
@@ -282,7 +288,7 @@ let view (model:Model) dispatch =
                                         prop.onClick (fun _ -> dispatch GetReport)
                                         prop.disabled (model.ValidationError.IsSome)
                                         if (model.ServerState = Loading) then button.isLoading
-                                        prop.text "Submit"
+                                        prop.text "Fetch"
                                     ]
                                 ]
                             ]
@@ -290,36 +296,36 @@ let view (model:Model) dispatch =
                     ]
             ]
 
-            match model with
-            | { Report = None; ServerState = (Idle | Loading) } -> ()
-            | { ServerState = ServerError error } -> ()
-            | { Report = Some report } ->
-                    Bulma.section [
-                        Bulma.columns [
-                            Bulma.column [
-                                prop.children [
-                                    Bulma.columns [
-                                        Bulma.column [
-                                            column.isThreeFifths
-                                            prop.children [
-                                                locationWidget report
-                                            ]
-                                        ]
-                                        Bulma.column [
-                                            weatherWidget report.Weather
+            match model.Report, model.ServerState with
+            | None, (Idle | Loading) -> ()
+            | _, ServerError _ -> ()
+            | Some report, _ ->
+                Bulma.section [
+                    Bulma.columns [
+                        Bulma.column [
+                            prop.children [
+                                Bulma.columns [
+                                    Bulma.column [
+                                        column.isThreeFifths
+                                        prop.children [
+                                            locationWidget report
                                         ]
                                     ]
-                                    mapWidget report.Location
+                                    Bulma.column [
+                                        weatherWidget report.Weather
+                                    ]
                                 ]
+                                mapWidget report.Location
                             ]
-                            Bulma.column [
-                                column.is7
-                                prop.children [
-                                    crimeWidget report.Crimes
-                                ]
+                        ]
+                        Bulma.column [
+                            column.is7
+                            prop.children [
+                                crimeWidget report.Crimes
                             ]
                         ]
                     ]
+                ]
 
         ]
     ]
