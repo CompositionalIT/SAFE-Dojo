@@ -1,4 +1,5 @@
 {
+    "name": "safe-dojo",
     "private": true,
     "scripts": {
         "start": "webpack-dev-server",
