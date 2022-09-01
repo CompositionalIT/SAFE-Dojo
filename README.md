@@ -2,7 +2,7 @@
 
 This self-study repository is designed to allow you to experience the SAFE stack based on a ready-made application that you can build on top of. It will take around 90 minutes for you to complete if you have no experience in any of these technologies.
 
-The `master` branch has the "incomplete" solution; please read the [instructions.md](Instructions.md) for a guide on completing this dojo, to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#. There is a "completed" version in the `suggested-solution` branch.
+The `master` branch contains the dojo to complete. Please read the [instructions.md](Instructions.md) for a guide on completing this dojo, to learn all about the [SAFE Stack](https://safe-stack.github.io/) and F#. There is a "completed" version in the `suggested-solution` branch.
 
 ## Install pre-requisites
 
@@ -61,11 +61,11 @@ First time run
 
     az login
 
-Then set the name of your app in Build.fs:
+Then set the name of your app in Build.fs. The name must be globally unique and contain only alphanumeric or hyphen characters.
 
 ```
     let web = webApp {
-        name "feiew02"  // set the name of your app here
+        name "my-cool-app" // set the name of your app here
     ...
 ```
 

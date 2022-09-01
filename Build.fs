@@ -27,7 +27,7 @@ Target.create "Bundle" (fun _ ->
 
 Target.create "Azure" (fun _ ->
     let web = webApp {
-        name "new_app"
+        name "TODO: Change this to a globally unique name containing only alphanumeric or hyphen characters"
         zip_deploy "deploy"
     }
     let deployment = arm {
@@ -36,7 +36,7 @@ Target.create "Azure" (fun _ ->
     }
 
     deployment
-    |> Deploy.execute "new_app" Deploy.NoParameters
+    |> Deploy.execute "safe-dojo" Deploy.NoParameters
     |> ignore
 )
 
