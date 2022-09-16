@@ -5,7 +5,7 @@ open Farmer.Builders
 
 open Helpers
 
-initializeContext()
+initializeContext ()
 
 let sharedPath = Path.getFullName "src/Shared"
 let serverPath = Path.getFullName "src/Server"
@@ -20,48 +20,42 @@ Target.create "Clean" (fun _ ->
 Target.create "InstallClient" (fun _ -> run npm "install" ".")
 
 Target.create "Bundle" (fun _ ->
-    [ "server", dotnet $"publish -c Release -o \"{deployPath}\"" serverPath
-      "client", dotnet "fable --run webpack -p" clientPath ]
-    |> runParallel
-)
+    [
+        "server", dotnet $"publish -c Release -o \"{deployPath}\"" serverPath
+        "client", dotnet "fable --run webpack -p" clientPath
+    ]
+    |> runParallel)
 
 Target.create "Azure" (fun _ ->
     let web = webApp {
         name "TODO: Change this to a globally unique name containing only alphanumeric or hyphen characters"
         zip_deploy "deploy"
     }
+
     let deployment = arm {
         location Location.WestEurope
         add_resource web
     }
 
-    deployment
-    |> Deploy.execute "safe-dojo" Deploy.NoParameters
-    |> ignore
-)
+    deployment |> Deploy.execute "safe-dojo" Deploy.NoParameters |> ignore)
 
 Target.create "Run" (fun _ ->
     run dotnet "build" sharedPath
-    [ "server", dotnet "watch run" serverPath
-      "client", dotnet "fable watch --run webpack-dev-server" clientPath ]
-    |> runParallel
-)
 
-Target.create "Format" (fun _ ->
-    run dotnet "fantomas . -r" "src"
-)
+    [
+        "server", dotnet "watch run" serverPath
+        "client", dotnet "fable watch --run webpack-dev-server" clientPath
+    ]
+    |> runParallel)
+
+Target.create "Format" (fun _ -> run dotnet "fantomas . -r" "src")
 
 open Fake.Core.TargetOperators
 
 let dependencies = [
-    "Clean"
-        ==> "InstallClient"
-        ==> "Bundle"
-        ==> "Azure"
+    "Clean" ==> "InstallClient" ==> "Bundle" ==> "Azure"
 
-    "Clean"
-        ==> "InstallClient"
-        ==> "Run"
+    "Clean" ==> "InstallClient" ==> "Run"
 ]
 
 [<EntryPoint>]

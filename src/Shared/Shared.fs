@@ -1,22 +1,20 @@
 namespace Shared
 
-type LatLong =
-    { Latitude: float
-      Longitude: float }
+type LatLong = { Latitude: float; Longitude: float }
 
-type Location =
-    { Town: string
-      Region: string
-      LatLong: LatLong }
+type Location = {
+    Town: string
+    Region: string
+    LatLong: LatLong
+}
 
-type LocationResponse =
-    { Postcode: string
-      Location: Location
-      DistanceToLondon: float }
+type LocationResponse = {
+    Postcode: string
+    Location: Location
+    DistanceToLondon: float
+}
 
-type CrimeResponse =
-    { Crime: string
-      Incidents: int }
+type CrimeResponse = { Crime: string; Incidents: int }
 
 type WeatherType =
     | Clear
@@ -32,7 +30,7 @@ type WeatherType =
 
     // WMO codes in open-meteo response seem to be WMO 4677
     // See eg: https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
-    static member FromCode (weathercode: int) =
+    static member FromCode(weathercode: int) =
         match weathercode with
         | w when w = 9 -> SandStorm
         | w when w = 11 || w = 12 -> Fog
@@ -71,19 +69,25 @@ type WeatherType =
         | Showers -> "showers"
         | Hail -> "hail"
 
-type WeatherResponse =
-    { WeatherType: WeatherType
-      Temperature: float }
+type WeatherResponse = {
+    WeatherType: WeatherType
+    Temperature: float
+}
 
 module Route =
     let builder = sprintf "/api/%s/%s"
 
-type IDojoApi =
-    { GetDistance: string -> LocationResponse Async
-      GetCrimes: string -> CrimeResponse array Async }
+type IDojoApi = {
+    GetDistance: string -> LocationResponse Async
+    GetCrimes: string -> CrimeResponse array Async
+}
 
 /// Provides validation on data. Shared across both client and server.
 module Validation =
     open System.Text.RegularExpressions
+
     let isValidPostcode postcode =
-        Regex.IsMatch(postcode, @"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})")
+        Regex.IsMatch(
+            postcode,
+            @"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})"
+        )

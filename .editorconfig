@@ -7,6 +7,6 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = false
 
-[src/Client/*.fs]
-# Feliz style
-fsharp_single_argument_web_mode=true
+[*.fs]
+fsharp_multiline_block_brackets_on_same_column = true
+fsharp_experimental_stroustrup_style = true
