@@ -10,7 +10,7 @@
 
 Also note the following:
 
-1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 15) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
+1. When you run the application, the [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch) tool is also run which detects file changes and automatically recompiles and reloads the server-side application. For example, in `DataAccess.fs`, try temporarily changing the value of `Town` (line 27) to a string such as `"A Town"` instead of `postcode.Result.AdminDistrict`. The server  application will automatically restart, and the next time you make a query you will see your hard-coded text appear.
 
 1. The front-end application also supports [hot module reloading](https://webpack.js.org/concepts/hot-module-replacement/). Try changing the text `"SAFE Dojo"` to something else in the `src/Client/Index.fs` file; save the file and see how the front-end automatically updates in the browser whilst still retaining the application state. There's no need to rebuild the application.
 
@@ -18,13 +18,13 @@ This method of rapid, iterative development is a powerful tool for SAFE apps.
 
 ## 1. Add a new endpoint
 
-In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined in the Saturn web framework.
+In this task, you'll add a new endpoint to the backend application which provides crime statistics. By the end of this task you will have an understanding of how routes are defined using the Fable Remoting package.
 
 1.1 Navigate to `src/Server/Api.fs` and find where the endpoints are defined in the `dojoApi` record.
 
-1.2 Observe how we bind a function to the GetDistance endpoint. Also, note the function name and the signature of the `getDistanceFromLondon` function.
+1.2 Observe how we bind a function to the `GetDistance` endpoint. Also, note the function name and the signature of the `getDistanceFromLondon` function.
 
-1.3 In the same manner as the GetDistance endpoint above, delete the anonymous function that's bound to the GetCrimes endpoint which currently returns an empty array and bind the `getCrimeReport` function to it instead.
+1.3 In the same manner as the `GetDistance` endpoint above, delete the anonymous function that's bound to the `GetCrimes` endpoint which currently returns an empty array and bind the `getCrimeReport` function to it instead.
 
 1.4 Navigate to the application in the web browser and run a postcode search; observe how the chart has now appeared rendering the crime statistics returned from your new API endpoint.
 
@@ -32,7 +32,7 @@ In this task, you'll add a new endpoint to the backend application which provide
 
 ## 2. Add shared code
 
-In this task, you'll take some validation code which already exists on the backend service and use it within your front-end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and a Fable web application
+In this task, you'll take some validation code which already exists on the backend service and use it within your front-end application. By the end of this task, you'll have an understanding of how code can be shared between an F# service and an F# front-end web application using the Fable F#-to-Javascript transpiler.
 
 2.1 Navigate to `src/Client/Index.fs`. Look in the `update` function and examine the `PostcodeChanged` message handler. This code runs whenever the user changes the postcode field.
 
@@ -60,7 +60,7 @@ In this task, you need to add another widget to the UI including all the associa
 
 4.1 In `src/Server/Api.fs` implement the `getWeather` function following the same pattern as the other endpoints. Be sure to add the likes of postcode validation. Hint: The `asWeatherResponse` function will help to simplify the process of mapping the data.
 
-4.2 As in the task earlier, you need an endpoint in the `dojoAPI` which will have the `getWeather` function bound to it. However, since this endpoint doesn't exist yet unlike in the earlier task, you first need to change the definition of `IDojoAPI`. Find the type `IDojoAPI` in `src/Shared/Shared.fs` and add to it a new field named GetWeather which has the type signature of `string -> WeatherResponse Async`. Then, navigate back to `src/Server/Api.fs` and change the implementation of `dojoAPI` to bind the `getWeather` function to the GetWeather endpoint.
+4.2 As in the task earlier, you need an endpoint in the `dojoAPI` which will have the `getWeather` function bound to it. However, since this endpoint doesn't exist yet unlike in the earlier task, you first need to change the definition of `IDojoAPI`. Find the type `IDojoAPI` in `src/Shared/Shared.fs` and add to it a new field named `GetWeather` which has the type signature of `string -> WeatherResponse Async`. Then, navigate back to `src/Server/Api.fs` and change the implementation of `dojoAPI` to bind the `getWeather` function to the GetWeather endpoint.
 
 4.3 On the front end in the file `src/Client/Index.fs`, update the `Report` type to include the `WeatherResponse`
 
@@ -74,4 +74,4 @@ In this task, you need to add another widget to the UI including all the associa
 
 ## 5. Adding a clear button
 
-This task is left as an exercise for the reader. In addition to the Submit button in the UI, add a Clear button, which clears the UI state and returns the UI to its initial state.
+This task is left as an exercise for the reader. In addition to the Fetch button in the UI, add a Clear button, which clears the UI state and returns the UI to its initial state.
