@@ -149,7 +149,7 @@ module ViewParts =
                 map.zoom 12
                 map.height 500
                 map.markers [
-                   (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
+                (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
                 ]
             ]
         ]
@@ -330,12 +330,12 @@ let view (model: Model) dispatch =
                                 Bulma.columns [
                                     Bulma.column [ column.isThreeFifths; prop.children [ locationWidget report ] ]
                                     Bulma.column [
-                                        (* Task 4.5 WEATHER: Generate the view code for the weather tile
+                                    (* Task 4.5 WEATHER: Generate the view code for the weather tile
                                         using the weatherWidget function, supplying the weather data
                                         from the report value, and include it here as part of the list *)
                                     ]
                                 ]
-                                (* Task 3.1 MAP: Call the mapWidget function here, which creates a
+                            (* Task 3.1 MAP: Call the mapWidget function here, which creates a
                                 widget to display a map using the React ReCharts component. The function
                                 takes in a LocationResponse value as input and returns a ReactElement. *)
                             ]
