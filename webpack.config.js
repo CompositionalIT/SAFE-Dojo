@@ -14,10 +14,11 @@ var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
     indexHtmlTemplate: './src/Client/index.html',
-    fsharpEntry: './src/Client/App.fs.js',
+    fsharpEntry: './src/Client/output/App.js',
     outputDir: './deploy/public',
     assetsDir: './src/Client/public',
     devServerPort: 8080,
+    mode: 'development',
     // When using webpack-dev-server, you may need to redirect some calls
     // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy
     devServerProxy: {
@@ -91,13 +92,14 @@ module.exports = {
     },
     // Configuration for webpack-dev-server
     devServer: {
-        publicPath: '/',
-        contentBase: resolve(CONFIG.assetsDir),
+        static: resolve(CONFIG.assetsDir),
+	devMiddleware: {
+	    publicPath: '/'
+	},
         host: '0.0.0.0',
         port: CONFIG.devServerPort,
         proxy: CONFIG.devServerProxy,
-        hot: true,
-        inline: true
+        hot: true
     },
     // - sass-loaders: transforms SASS/SCSS into JS
     // - file-loader: Moves files referenced in the code (fonts, images) into output folder

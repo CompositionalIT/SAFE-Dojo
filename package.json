@@ -9,15 +9,15 @@
     "devDependencies": {
         "copy-webpack-plugin": "^6.1.0",
         "css-loader": "^5.2.6",
-        "file-loader": "^4.2.0",
-        "html-webpack-plugin": "^3.2.0",
+        "file-loader": "^6.2.0",
+        "html-webpack-plugin": "^5.5.0",
         "mini-css-extract-plugin": "^0.10.0",
         "remotedev": "^0.2.9",
         "sass": "^1.34.0",
         "sass-loader": "^9.0.3",
         "style-loader": "^1.2.1",
         "webpack": "^5.75.0",
-        "webpack-cli": "^3.3.9",
+        "webpack-cli": "^5.0.0",
         "webpack-dev-server": "^4.11.1"
     },
     "dependencies": {
@@ -25,7 +25,7 @@
         "pigeon-maps": "^0.19.7",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "recharts": "^2.1.14",
+	"recharts": "^2.1.14",
         "sweetalert2": "^8.19.0"
     }
 }
