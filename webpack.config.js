@@ -32,7 +32,7 @@ var CONFIG = {
             target: 'http://localhost:' + (process.env.SERVER_PROXY_PORT || "8085"),
             ws: true
            }
-       }
+    } 
 }
 
 // If we're running the webpack-dev-server, assume we're in development mode
@@ -62,6 +62,7 @@ module.exports = {
     // to prevent browser caching if code changes
     output: {
         path: resolve(CONFIG.outputDir),
+	publicPath: '/',
         filename: isProduction ? '[name].[hash].js' : '[name].js'
     },
     mode: isProduction ? 'production' : 'development',
@@ -83,23 +84,22 @@ module.exports = {
             new MiniCssExtractPlugin({ filename: 'style.[name].[hash].css' }),
             new CopyWebpackPlugin({ patterns: [{ from: resolve(CONFIG.assetsDir) }]}),
         ])
-        : commonPlugins.concat([
-            new webpack.HotModuleReplacementPlugin(),
-        ]),
+        : commonPlugins,
     resolve: {
         // See https://github.com/fable-compiler/Fable/issues/1490
         symlinks: false
     },
     // Configuration for webpack-dev-server
     devServer: {
-        static: resolve(CONFIG.assetsDir),
-	devMiddleware: {
+        static: {
+	    directory: resolve(CONFIG.assetsDir),	    
 	    publicPath: '/'
 	},
         host: '0.0.0.0',
         port: CONFIG.devServerPort,
         proxy: CONFIG.devServerProxy,
-        hot: true
+        hot: true,
+	historyApiFallback: true
     },
     // - sass-loaders: transforms SASS/SCSS into JS
     // - file-loader: Moves files referenced in the code (fonts, images) into output folder
