@@ -14,7 +14,8 @@ open Shared
 /// The different elements of the completed report.
 type Report =
     { Location: LocationResponse
-      Crimes: CrimeResponse array }
+      Crimes: CrimeResponse array
+      Weather: WeatherResponse}
 
 type ServerState =
     | Idle
@@ -31,6 +32,7 @@ type Model =
 /// The different types of messages in the system.
 type Msg =
     | GetReport
+    | Clear
     | PostcodeChanged of string
     | GotReport of Report
     | ErrorMsg of exn
@@ -50,13 +52,15 @@ let dojoApi =
 let getResponse postcode = async {
     let! location = dojoApi.GetDistance postcode
     let! crimes = dojoApi.GetCrimes postcode
+    let! weather = dojoApi.GetWeather postcode
     (* Task 4.4 WEATHER: Fetch the weather from the API endpoint you created.
        Then, save its value into the Report below. You'll need to add a new
        field to the Report type first, though! *)
 
     return
         { Location = location
-          Crimes = crimes }
+          Crimes = crimes
+          Weather = weather}
 }
 
 /// The update function knows how to update the model given a message.
@@ -75,12 +79,15 @@ let update msg model =
             Report = Some response
             ServerState = Idle }, Cmd.none
 
+    | Clear ->
+        init ()       
+
     | PostcodeChanged p ->
         { model with
-            Postcode = p
+            Postcode = p            
             (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
-            ValidationError = None }, Cmd.none
+            ValidationError = if Validation.isValidPostcode p then None else Some $"'{p}' is not a valid postcode" }, Cmd.none
 
     | ErrorMsg e ->
         let errorAlert =
@@ -145,14 +152,11 @@ module ViewParts =
     let mapWidget (lr:LocationResponse) =
         widget "Map"  [
                 PigeonMaps.map [
-                    (* Task 3.2 MAP: Set the center of the map using map.center, supply the lat/long value as input. *)
-
-                    (* Task 3.3 MAP: Update the Zoom to 15. *)
-                    map.zoom 12
+                    let latLong = (lr.Location.LatLong.Latitude,lr.Location.LatLong.Longitude)
+                    map.center latLong
+                    map.zoom 15
                     map.height 500
-                    map.markers [
-                        (* Task 3.4 MAP: Create a marker for the map. Use the makeMarker function above. *)
-                    ]
+                    map.markers [makeMarker latLong]
             ]
         ]
 
@@ -173,7 +177,7 @@ module ViewParts =
                     prop.children [
                         Html.tbody [
                             Html.tr [
-                                Html.th "Temp"
+                                Html.th $"Temp %.2f{weatherReport.Temperature}"
                                  (* Task 4.7 WEATHER: Get the temperature from the given weather report
                                    and display it here instead of an empty string.
                                    Hint: Use sprintf with "%.2f" to round the temperature to 2 decimal points
@@ -229,7 +233,7 @@ let navbar =
                             ]
                             Html.span [
                                 prop.style [ style.color.white ]
-                                prop.text "SAFE Dojo"
+                                prop.text "My SAFE Dojo"
                             ]
                         ]
                     ]
@@ -309,6 +313,7 @@ let view (model: Model) dispatch =
                                 ]
                             ]
                             Bulma.control.div [
+                                        prop.children [
                                     Bulma.button.a [
                                         color.isInfo
                                         prop.onClick (fun _ -> dispatch GetReport)
@@ -316,7 +321,14 @@ let view (model: Model) dispatch =
                                         if (model.ServerState = Loading) then button.isLoading
                                         prop.text "Fetch"
                                     ]
+                                    Bulma.button.a [
+                                        color.isInfo
+                                        prop.onClick (fun _ -> dispatch Clear)
+                                        if (model.ServerState = Loading) then button.isLoading
+                                        prop.text "Clear"
+                                        ]
                                 ]
+                                    ]
                             ]
                         ]
                     ]
@@ -349,9 +361,16 @@ let view (model: Model) dispatch =
                             ]
                         ]
                         Bulma.column [
+                            column.is6
+                            prop.children [
+                                mapWidget report.Location
+                            ]
+                        ]
+                        Bulma.column [
                             column.is7
                             prop.children [
                                 crimeWidget report.Crimes
+                                weatherWidget report.Weather
                             ]
                         ]
                     ]
