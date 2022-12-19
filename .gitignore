@@ -6,6 +6,7 @@
 .ionide/
 .vs/
 deploy/
+output/
 obj/
 bin/
 packages/
