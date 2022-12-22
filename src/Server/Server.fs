@@ -4,7 +4,7 @@ open Saturn
 open Shared
 
 let webApp =
-    Remoting.createApi()
+    Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.fromValue Api.dojoApi
     |> Remoting.buildHttpHandler
