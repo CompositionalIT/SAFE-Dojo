@@ -77,6 +77,7 @@ module Crime =
     }
 
 [<AutoOpen>]
+module Weather =
  open System.Net.Http
 
     [<Literal>]
