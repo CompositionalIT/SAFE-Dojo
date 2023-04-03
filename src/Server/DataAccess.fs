@@ -77,7 +77,8 @@ module Crime =
     }
 
 [<AutoOpen>]
-module Weather =
+ open System.Net.Http
+
     [<Literal>]
     let Sample =
         """{"latitude":51.52,"longitude":-0.08000016,"generationtime_ms":0.27298927307128906,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":25.0,"current_weather":{"temperature":23.8,"windspeed":13.8,"winddirection":277.0,"weathercode":3.0,"time":"2022-08-19T14:00"}}"""
@@ -86,16 +87,18 @@ module Weather =
 
     let getWeatherForPosition location = async {
         try
-            // Use web client because the type provider throws a JSON parsing exception when using its AsyncLoad method
-            use wc = new Net.WebClient()
+            use client = new HttpClient()
 
-            let! json =
-                wc.AsyncDownloadString(
-                    Uri
-                        $"https://api.open-meteo.com/v1/forecast?latitude=%f{location.Latitude}&longitude=%f{location.Longitude}&current_weather=true"
-                )
+            let uri = Uri($"https://api.open-meteo.com/v1/forecast?latitude=%f{location.Latitude}&longitude=%f{location.Longitude}&current_weather=true")
 
-            return (OpenMeteoCurrentWeather.Parse json).CurrentWeather
+            let! response = client.GetAsync(uri) |> Async.AwaitTask
+
+            if response.IsSuccessStatusCode then
+                let! json = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                return (OpenMeteoCurrentWeather.Parse json).CurrentWeather
+            else
+                printfn "Failed to fetch weather data: %O" response.ReasonPhrase
+                return (OpenMeteoCurrentWeather.Parse Sample).CurrentWeather
         with ex ->
             printfn "Failed to fetch weather data: %O" ex
             return (OpenMeteoCurrentWeather.Parse Sample).CurrentWeather
