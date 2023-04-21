@@ -78,7 +78,7 @@ module Crime =
 
 [<AutoOpen>]
 module Weather =
- open System.Net.Http
+    open System.Net.Http
 
     [<Literal>]
     let Sample =
