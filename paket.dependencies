@@ -4,6 +4,8 @@ storage: none
 
 nuget Elmish.SweetAlert
 nuget Fable.FontAwesome.Free
+nuget Feliz.Bulma
+nuget Feliz.PigeonMaps
 nuget Feliz.Recharts
 nuget FSharp.Core ~> 8
 nuget Fable.Remoting.Giraffe ~> 5
