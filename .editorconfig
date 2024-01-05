@@ -8,5 +8,5 @@ trim_trailing_whitespace = true
 insert_final_newline = false
 
 [*.fs]
-fsharp_multiline_block_brackets_on_same_column = true
-fsharp_experimental_stroustrup_style = true
+fsharp_multiline_bracket_style = stroustrup
+fsharp_newline_before_multiline_computation_expression = false
