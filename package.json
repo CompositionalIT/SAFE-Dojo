@@ -8,7 +8,11 @@
     "scripts": {},
     "dependencies": {
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "bulma": "^0.9.3",
+        "pigeon-maps": "^0.19.7",
+        "recharts": "^2.1.14",
+        "sweetalert2": "^8.19.0"
     },
     "devDependencies": {
         "@types/node": "^20.9.1",
