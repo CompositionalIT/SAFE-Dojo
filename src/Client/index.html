@@ -11,6 +11,11 @@
 
 <body>
     <div id="elmish-app"></div>
+    <!-- Polyfill for remotedev -->
+    <script type="text/javascript">
+        var global = global || window;
+    </script>
+    <script type="module" src="/output/App.js"></script>
 </body>
 
 </html>
