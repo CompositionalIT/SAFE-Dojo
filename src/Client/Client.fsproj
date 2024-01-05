@@ -7,6 +7,7 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <None Include="vite.config.mjs" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
