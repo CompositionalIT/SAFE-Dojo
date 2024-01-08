@@ -68,14 +68,16 @@ module Proc =
             |> Array.map redirect
             |> Array.Parallel.map Proc.run
 
-let createProcess exe arg dir =
-    CreateProcess.fromRawCommandLine exe arg
+let createProcess exe args dir =
+    // Use `fromRawCommand` rather than `fromRawCommandLine`, as its behaviour is less likely to be misunderstood.
+    // See https://github.com/SAFE-Stack/SAFE-template/issues/551.
+    CreateProcess.fromRawCommand exe args
     |> CreateProcess.withWorkingDirectory dir
     |> CreateProcess.ensureExitCode
 
-let dotnet = createProcess "dotnet"
+let dotnet args dir = createProcess "dotnet" args dir
 
-let npm =
+let npm args dir =
     let npmPath =
         match ProcessUtils.tryFindFileOnPath "npm" with
         | Some path -> path
@@ -84,7 +86,7 @@ let npm =
             + "See https://safe-stack.github.io/docs/quickstart/#install-pre-requisites for more info"
             |> failwith
 
-    createProcess npmPath
+    createProcess npmPath args dir
 
 let run proc arg dir = proc arg dir |> Proc.run |> ignore
 
