@@ -71,19 +71,21 @@ let update msg model =
         | _ -> model, Cmd.none
 
     | GotReport response ->
-        { model with
-            ValidationError = None
-            Report = Some response
-            ServerState = Idle
+        {
+            model with
+                ValidationError = None
+                Report = Some response
+                ServerState = Idle
         },
         Cmd.none
 
     | PostcodeChanged p ->
-        { model with
-            Postcode = p
-            (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
+        {
+            model with
+                Postcode = p
+                (* Task 2.2 Validation. Use the Validation.isValidPostcode function to implement client-side form validation.
                Note that the validation is the same shared code that runs on the server! *)
-            ValidationError = None
+                ValidationError = None
         },
         Cmd.none
 
@@ -91,8 +93,9 @@ let update msg model =
         let errorAlert =
             SimpleAlert(e.Message).Title("Try another postcode").Type(AlertType.Error)
 
-        { model with
-            ServerState = ServerError e.Message
+        {
+            model with
+                ServerState = ServerError e.Message
         },
         SweetAlert.Run errorAlert
 
