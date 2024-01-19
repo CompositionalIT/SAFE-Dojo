@@ -10,7 +10,7 @@ let webApp =
     |> Remoting.buildHttpHandler
 
 let app = application {
-    url "http://0.0.0.0:5000"
+    memory_cache
     use_router webApp
     use_static "public"
     use_gzip
